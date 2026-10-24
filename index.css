@@ -1,0 +1,1196 @@
+/**
+ * BeltTrack Design System - Simple Onboarding Stylesheet
+ * 
+ * 100% Token Compliant: All colors, typography, elevations, and layout rules
+ * strictly inherit from variables.css and typography.css.
+ */
+
+@import "./variables.css";
+@import "./typography.css";
+
+/* ==========================================================================
+   RESET & GLOBAL BASE STYLES
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: var(--font-family-body);
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+/* ==========================================================================
+   LAYOUT STRUCTURE
+   ========================================================================== */
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+}
+
+/* ==========================================================================
+   TOP NAVIGATION BAR
+   ========================================================================== */
+
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--color-surface-container-lowest);
+  border-bottom: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-soft-shadow-2);
+}
+
+.nav-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-symbol {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-soft-shadow);
+}
+
+.brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-name {
+  font-family: var(--font-family-display);
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  color: var(--color-primary);
+  text-transform: uppercase;
+}
+
+.brand-badge {
+  font-family: var(--font-family-label);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-tertiary);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Step Indicator Pills in Header */
+.nav-steps-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--color-surface-container);
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-outline-variant);
+}
+
+.step-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-family: var(--font-family-headline);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  transition: all 0.25s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.step-pill:hover {
+  background-color: var(--color-surface-container-high);
+}
+
+.pill-number {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-family: var(--font-family-label);
+  font-weight: 700;
+  background-color: var(--color-surface-variant);
+  color: var(--color-on-surface-variant);
+  transition: all 0.25s ease;
+}
+
+.step-pill.active {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-soft-shadow-2);
+}
+
+.step-pill.active .pill-number {
+  background-color: var(--color-tertiary);
+  color: var(--color-on-tertiary);
+}
+
+.step-pill.completed {
+  color: var(--color-primary);
+}
+
+.step-pill.completed .pill-number {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+.pill-separator {
+  width: 14px;
+  height: 2px;
+  background-color: var(--color-outline-variant);
+  border-radius: 2px;
+}
+
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-demo-fill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 8px;
+  font-family: var(--font-family-title);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-demo-fill:hover {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-soft-shadow-2);
+}
+
+/* ==========================================================================
+   MAIN SPLIT WORKSPACE
+   ========================================================================== */
+
+.split-workspace {
+  flex: 1;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: minmax(480px, 1.15fr) minmax(420px, 0.85fr);
+  gap: 28px;
+  align-items: start;
+}
+
+/* ==========================================================================
+   WIZARD PANEL (LEFT COLUMN)
+   ========================================================================== */
+
+.wizard-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.wizard-inner {
+  background-color: var(--color-surface-container-lowest);
+  border-radius: 16px;
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-medium-shadow-2);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Step Cards */
+.step-card {
+  display: none;
+  animation: fadeInStep 0.35s ease forwards;
+}
+
+.step-card.active {
+  display: block;
+}
+
+@keyframes fadeInStep {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.step-header {
+  margin-bottom: 24px;
+}
+
+.step-tag {
+  display: inline-block;
+  font-family: var(--font-family-label);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--color-tertiary);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.step-title {
+  font-family: var(--font-family-headline);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+  letter-spacing: -0.4px;
+}
+
+.step-description {
+  font-family: var(--font-family-body);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-on-surface-variant);
+}
+
+/* Form Sections */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-family: var(--font-family-title);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.field-input,
+.field-select {
+  width: 100%;
+  padding: 12px 14px;
+  background-color: var(--color-surface-container-low);
+  border: 1.5px solid var(--color-outline-variant);
+  border-radius: 8px;
+  font-family: var(--font-family-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-on-surface);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.field-input:focus,
+.field-select:focus {
+  border-color: var(--color-tertiary);
+  background-color: var(--color-surface-container-lowest);
+  box-shadow: var(--shadow-soft-shadow-2);
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon svg {
+  position: absolute;
+  left: 14px;
+  color: var(--color-outline);
+  pointer-events: none;
+}
+
+.input-with-icon .field-input {
+  padding-left: 42px;
+}
+
+.field-row {
+  display: flex;
+  gap: 16px;
+}
+
+.field-group.half {
+  flex: 1;
+}
+
+/* Option Chips Grid (Industry Sector) */
+.option-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.chip-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background-color: var(--color-surface-container-low);
+  border: 1.5px solid var(--color-outline-variant);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.chip-option:hover {
+  border-color: var(--color-outline);
+  background-color: var(--color-surface-container);
+}
+
+.chip-option.active {
+  border-color: var(--color-tertiary);
+  background-color: var(--color-primary-container);
+  box-shadow: var(--shadow-soft-shadow-2);
+}
+
+.chip-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.chip-title {
+  font-family: var(--font-family-title);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.chip-option.active .chip-title {
+  color: var(--color-on-primary-container);
+}
+
+/* Slider Control Card */
+.slider-control-card {
+  padding: 18px;
+  background-color: var(--color-surface-container-low);
+  border: 1.5px solid var(--color-outline-variant);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.slider-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.slider-title {
+  font-family: var(--font-family-title);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.slider-readout {
+  font-family: var(--font-family-label);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-tertiary);
+  background-color: var(--color-surface-container-lowest);
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--color-outline-variant);
+}
+
+.custom-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--color-surface-container-highest);
+  outline: none;
+  accent-color: var(--color-tertiary);
+  cursor: pointer;
+}
+
+.slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-family-label);
+  font-size: 11px;
+  color: var(--color-outline);
+}
+
+/* Radio Segment Buttons (Motor kW) */
+.radio-segments {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.segment-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background-color: var(--color-surface-container-low);
+  border: 1.5px solid var(--color-outline-variant);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-family-title);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  transition: all 0.2s ease;
+}
+
+.segment-btn input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segment-btn:hover {
+  background-color: var(--color-surface-container);
+}
+
+.segment-btn.active {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-soft-shadow-2);
+}
+
+/* Sensor Telemetry List (Step 3) */
+.sensor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sensor-toggle-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background-color: var(--color-surface-container-low);
+  border: 1.5px solid var(--color-outline-variant);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sensor-toggle-card:hover {
+  background-color: var(--color-surface-container);
+}
+
+.sensor-toggle-card.enabled {
+  border-color: var(--color-tertiary);
+  background-color: var(--color-surface-container-lowest);
+}
+
+.sensor-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sensor-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-outline-variant);
+  transition: all 0.2s ease;
+}
+
+.sensor-toggle-card.enabled .sensor-status-dot {
+  background-color: var(--color-tertiary);
+  box-shadow: var(--shadow-soft-shadow);
+}
+
+.sensor-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.sensor-name {
+  font-family: var(--font-family-title);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.sensor-desc {
+  font-family: var(--font-family-body);
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+
+/* Custom Switch */
+.switch-control {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background-color: var(--color-surface-variant);
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+
+.switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--color-surface-container-lowest);
+  box-shadow: var(--shadow-soft-shadow-2);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sensor-toggle-card.enabled .switch-control {
+  background-color: var(--color-tertiary);
+}
+
+.sensor-toggle-card.enabled .switch-knob {
+  transform: translateX(20px);
+}
+
+/* Step 4 Verification Summary */
+.summary-box {
+  background-color: var(--color-surface-container-low);
+  border: 1.5px solid var(--color-outline-variant);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--color-surface-container);
+  font-size: 14px;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-key {
+  font-family: var(--font-family-title);
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+}
+
+.summary-val {
+  font-family: var(--font-family-label);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* Live Telemetry Health Bar */
+.live-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background-color: var(--color-surface-container);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 10px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-tertiary);
+  box-shadow: var(--shadow-soft-shadow);
+  animation: pulseAura 1.8s infinite;
+}
+
+@keyframes pulseAura {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+.status-text {
+  font-family: var(--font-family-title);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.latency-badge {
+  font-family: var(--font-family-label);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-tertiary);
+  background-color: var(--color-surface-container-lowest);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--color-outline-variant);
+}
+
+/* Wizard Footer Actions */
+.wizard-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.btn-action-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface);
+  border: 1.5px solid var(--color-outline-variant);
+  border-radius: 8px;
+  font-family: var(--font-family-title);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-action-back:hover:not(:disabled) {
+  background-color: var(--color-surface-container-highest);
+  box-shadow: var(--shadow-soft-shadow-2);
+}
+
+.btn-action-back:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-action-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 28px;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-family-title);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-soft-shadow-2);
+}
+
+.btn-action-next:hover {
+  background-color: var(--color-tertiary);
+  color: var(--color-on-tertiary);
+  box-shadow: var(--shadow-medium-shadow-2);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   PREVIEW PANEL (RIGHT COLUMN - DIGITAL TWIN SIMULATOR)
+   ========================================================================== */
+
+.preview-panel {
+  position: sticky;
+  top: 88px;
+}
+
+.preview-card {
+  background-color: var(--color-inverse-surface);
+  color: var(--color-inverse-on-surface);
+  border-radius: 16px;
+  border: 1px solid var(--color-outline);
+  box-shadow: var(--shadow-hard-shadow-2);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.preview-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-outline);
+}
+
+.twin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-family-label);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-inverse-primary);
+  letter-spacing: 0.5px;
+}
+
+.live-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-tertiary);
+  box-shadow: var(--shadow-soft-shadow);
+  animation: pulseAura 1.5s infinite;
+}
+
+.preview-line-name {
+  font-family: var(--font-family-title);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-inverse-on-surface);
+  background-color: var(--color-palette-neutral-30);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--color-outline);
+}
+
+/* Dynamic Conveyor Belt Viewport */
+.conveyor-viewport {
+  position: relative;
+  background-color: var(--color-palette-neutral-10);
+  border-radius: 12px;
+  border: 1.5px solid var(--color-outline);
+  overflow: hidden;
+  box-shadow: inset var(--shadow-soft-shadow-2);
+}
+
+#conveyor-canvas {
+  width: 100%;
+  height: 180px;
+  display: block;
+}
+
+.viewport-hud {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--color-palette-neutral-10);
+  border-top: 1px solid var(--color-outline);
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 12px;
+}
+
+.hud-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.hud-label {
+  font-family: var(--font-family-label);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-outline-variant);
+  letter-spacing: 0.5px;
+}
+
+.hud-value {
+  font-family: var(--font-family-label);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-inverse-primary);
+}
+
+.hud-value.normal {
+  color: var(--color-tertiary-container);
+}
+
+/* Metrics Gauges */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.metric-gauge {
+  background-color: var(--color-palette-neutral-20);
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--color-outline);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gauge-header {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-family-label);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-outline-variant);
+}
+
+.gauge-percent {
+  font-family: var(--font-family-label);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-inverse-on-surface);
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background-color: var(--color-palette-neutral-30);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progress-bar-fill.load-fill {
+  background-color: var(--color-tertiary);
+}
+
+.progress-bar-fill.health-fill {
+  background-color: var(--color-tertiary-container);
+}
+
+.gauge-sub {
+  font-family: var(--font-family-body);
+  font-size: 11px;
+  color: var(--color-outline-variant);
+}
+
+/* Telemetry Ticker */
+.telemetry-ticker {
+  background-color: var(--color-palette-neutral-10);
+  border: 1px solid var(--color-outline);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ticker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ticker-title {
+  font-family: var(--font-family-label);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-outline-variant);
+  letter-spacing: 0.5px;
+}
+
+.ticker-rate {
+  font-family: var(--font-family-label);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-tertiary);
+  background-color: var(--color-palette-neutral-30);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.ticker-stream {
+  height: 80px;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-family-label);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-outline-variant);
+}
+
+.ticker-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: fadeInLine 0.2s ease;
+}
+
+@keyframes fadeInLine {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ticker-line .t-stamp {
+  color: var(--color-tertiary);
+}
+
+/* ==========================================================================
+   LAUNCH CELEBRATION MODAL
+   ========================================================================== */
+
+.launch-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background-color: var(--color-palette-neutral-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.launch-modal-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.launch-modal-box {
+  background-color: var(--color-surface-container-lowest);
+  border-radius: 20px;
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-hard-shadow);
+  max-width: 520px;
+  width: 100%;
+  padding: 36px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  transform: scale(0.92);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.launch-modal-backdrop.active .launch-modal-box {
+  transform: scale(1);
+}
+
+.modal-celebrate-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: var(--color-primary-container);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-medium-shadow-2);
+}
+
+.modal-title {
+  font-family: var(--font-family-headline);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.5px;
+}
+
+.modal-desc {
+  font-family: var(--font-family-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-on-surface-variant);
+}
+
+.modal-stats-card {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px;
+  background-color: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 12px;
+}
+
+.modal-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-number {
+  font-family: var(--font-family-label);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-tertiary);
+}
+
+.stat-desc {
+  font-family: var(--font-family-body);
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+
+.modal-actions-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.btn-modal-action {
+  flex: 1;
+  padding: 14px 24px;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-family-title);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-soft-shadow-2);
+}
+
+.btn-modal-action:hover {
+  background-color: var(--color-tertiary);
+  color: var(--color-on-tertiary);
+  box-shadow: var(--shadow-medium-shadow-2);
+}
+
+.btn-modal-secondary {
+  flex: 1;
+  padding: 14px 24px;
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 10px;
+  font-family: var(--font-family-title);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-secondary:hover {
+  background-color: var(--color-surface-container-highest);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN BREAKPOINTS
+   ========================================================================== */
+
+@media (max-width: 1080px) {
+  .split-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-steps-indicator {
+    display: none;
+  }
+
+  .split-workspace {
+    padding: 16px;
+    gap: 20px;
+  }
+
+  .wizard-inner {
+    padding: 20px;
+  }
+
+  .option-chips-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .radio-segments {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modal-actions-row {
+    flex-direction: column;
+  }
+}

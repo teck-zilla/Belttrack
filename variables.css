@@ -1,0 +1,386 @@
+/**
+ * BeltTrack Design System - CSS Custom Properties
+ * Generated directly from Figma Design Tokens (tokens-complete.json)
+ *
+ * Source: Figma Tokens / Lukas Oppermann Export
+ * Includes: Effects (Drop Shadows), Primitives (Key Colours & Palettes),
+ * Colour Roles (Material Design 3 semantic tokens), and Typography.
+ */
+
+:root {
+  /* ==========================================================================
+     1. FONT FAMILY PRIMITIVES
+     ========================================================================== */
+  --font-family-barlow-semi-condensed: "Barlow Semi Condensed", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-outfit: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-jetbrains-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Font Family Semantic Roles */
+  --font-family-display: var(--font-family-barlow-semi-condensed);
+  --font-family-headline: var(--font-family-outfit);
+  --font-family-title: var(--font-family-outfit);
+  --font-family-body: var(--font-family-inter);
+  --font-family-label: var(--font-family-jetbrains-mono);
+
+  /* ==========================================================================
+     2. EFFECT TOKENS (DROP SHADOWS)
+     ========================================================================== */
+  /* soft shadow */
+  --effect-soft-shadow-offset-x: 1.5px;
+  --effect-soft-shadow-offset-y: 6px;
+  --effect-soft-shadow-blur: 30px;
+  --effect-soft-shadow-spread: 0px;
+  --effect-soft-shadow-color: #0f4ee31f; /* rgba(15, 78, 227, 0.122) */
+  --effect-soft-shadow: var(--effect-soft-shadow-offset-x) var(--effect-soft-shadow-offset-y) var(--effect-soft-shadow-blur) var(--effect-soft-shadow-spread) var(--effect-soft-shadow-color);
+  --shadow-soft-shadow: var(--effect-soft-shadow);
+
+  /* medium shadow */
+  --effect-medium-shadow-offset-x: 4px;
+  --effect-medium-shadow-offset-y: 6px;
+  --effect-medium-shadow-blur: 24px;
+  --effect-medium-shadow-spread: 0px;
+  --effect-medium-shadow-color: #0f4ee32e; /* rgba(15, 78, 227, 0.18) */
+  --effect-medium-shadow: var(--effect-medium-shadow-offset-x) var(--effect-medium-shadow-offset-y) var(--effect-medium-shadow-blur) var(--effect-medium-shadow-spread) var(--effect-medium-shadow-color);
+  --shadow-medium-shadow: var(--effect-medium-shadow);
+
+  /* hard shadow */
+  --effect-hard-shadow-offset-x: 6px;
+  --effect-hard-shadow-offset-y: 10px;
+  --effect-hard-shadow-blur: 20px;
+  --effect-hard-shadow-spread: 0px;
+  --effect-hard-shadow-color: #0f4ee333; /* rgba(15, 78, 227, 0.2) */
+  --effect-hard-shadow: var(--effect-hard-shadow-offset-x) var(--effect-hard-shadow-offset-y) var(--effect-hard-shadow-blur) var(--effect-hard-shadow-spread) var(--effect-hard-shadow-color);
+  --shadow-hard-shadow: var(--effect-hard-shadow);
+
+  /* soft shadow 2 (BeltTrack App) */
+  --effect-soft-shadow-2-offset-x: 0px;
+  --effect-soft-shadow-2-offset-y: 1px;
+  --effect-soft-shadow-2-blur: 3px;
+  --effect-soft-shadow-2-spread: 0px;
+  --effect-soft-shadow-2-color: #1b2a4a1a; /* rgba(27, 42, 74, 0.102) */
+  --effect-soft-shadow-2: var(--effect-soft-shadow-2-offset-x) var(--effect-soft-shadow-2-offset-y) var(--effect-soft-shadow-2-blur) var(--effect-soft-shadow-2-spread) var(--effect-soft-shadow-2-color);
+  --shadow-soft-shadow-2: var(--effect-soft-shadow-2);
+
+  /* medium shadow 2 (BeltTrack App) */
+  --effect-medium-shadow-2-offset-x: 0px;
+  --effect-medium-shadow-2-offset-y: 4px;
+  --effect-medium-shadow-2-blur: 6px;
+  --effect-medium-shadow-2-spread: -1px;
+  --effect-medium-shadow-2-color: #1b2a4a1a; /* rgba(27, 42, 74, 0.102) */
+  --effect-medium-shadow-2: var(--effect-medium-shadow-2-offset-x) var(--effect-medium-shadow-2-offset-y) var(--effect-medium-shadow-2-blur) var(--effect-medium-shadow-2-spread) var(--effect-medium-shadow-2-color);
+  --shadow-medium-shadow-2: var(--effect-medium-shadow-2);
+
+  /* hard shadow 2 (BeltTrack App) */
+  --effect-hard-shadow-2-offset-x: 0px;
+  --effect-hard-shadow-2-offset-y: 8px;
+  --effect-hard-shadow-2-blur: 10px;
+  --effect-hard-shadow-2-spread: -4px;
+  --effect-hard-shadow-2-color: #1b2a4a1f; /* rgba(27, 42, 74, 0.122) */
+  --effect-hard-shadow-2: var(--effect-hard-shadow-2-offset-x) var(--effect-hard-shadow-2-offset-y) var(--effect-hard-shadow-2-blur) var(--effect-hard-shadow-2-spread) var(--effect-hard-shadow-2-color);
+  --shadow-hard-shadow-2: var(--effect-hard-shadow-2);
+
+  /* ==========================================================================
+     3. KEY COLOUR PRIMITIVES
+     ========================================================================== */
+  --key-color-primary: #1b2a4aff; /* rgba(27, 42, 74, 1) */
+  --key-color-secondary: #2d3748ff; /* rgba(45, 55, 72, 1) */
+  --key-color-tertiary: #2563ebff; /* rgba(37, 99, 235, 1) */
+  --key-color-neutral: #5b5e66ff; /* rgba(91, 94, 102, 1) */
+  --key-color-nuetralvariant: #585e6bff; /* rgba(88, 94, 107, 1) */
+  --key-color-error: #d71a1aff; /* rgba(215, 26, 26, 1) */
+  --key-color-warning: #de990fff; /* rgba(222, 153, 15, 1) */
+
+  /* ==========================================================================
+     4. TONAL COLOUR PALETTES (0 - 100)
+     ========================================================================== */
+  /* --- Palette: primary --- */
+  --color-palette-primary-0: #000000ff;
+  --color-palette-primary-10: #05080fff;
+  --color-palette-primary-20: #0b1120ff;
+  --color-palette-primary-30: #121c33ff;
+  --color-palette-primary-40: #1b2a4aff;
+  --color-palette-primary-50: #1e3f8fff;
+  --color-palette-primary-60: #2651b5ff;
+  --color-palette-primary-70: #3c6cd8ff;
+  --color-palette-primary-80: #608af8ff;
+  --color-palette-primary-90: #a8beffff;
+  --color-palette-primary-95: #d4deffff;
+  --color-palette-primary-98: #eef2ffff;
+  --color-palette-primary-99: #f8faffff;
+  --color-palette-primary-100: #ffffffff;
+
+  /* --- Palette: secondary --- */
+  --color-palette-secondary-0: #000000ff;
+  --color-palette-secondary-10: #05070bff;
+  --color-palette-secondary-20: #0e141dff;
+  --color-palette-secondary-30: #1a2331ff;
+  --color-palette-secondary-40: #2d3748ff;
+  --color-palette-secondary-50: #394456ff;
+  --color-palette-secondary-60: #4c596dff;
+  --color-palette-secondary-70: #67768cff;
+  --color-palette-secondary-80: #8c9cb2ff;
+  --color-palette-secondary-90: #b9c7daff;
+  --color-palette-secondary-95: #d6e0f0ff;
+  --color-palette-secondary-98: #eef2fbff;
+  --color-palette-secondary-99: #f7f9ffff;
+  --color-palette-secondary-100: #ffffffff;
+
+  /* --- Palette: tertiary --- */
+  --color-palette-tertiary-0: #000000ff;
+  --color-palette-tertiary-10: #030a1cff;
+  --color-palette-tertiary-20: #0a183dff;
+  --color-palette-tertiary-30: #142b6aff;
+  --color-palette-tertiary-40: #2563ebff;
+  --color-palette-tertiary-50: #224ca5ff;
+  --color-palette-tertiary-60: #2d61c8ff;
+  --color-palette-tertiary-70: #4b7ee7ff;
+  --color-palette-tertiary-80: #78a3ffff;
+  --color-palette-tertiary-90: #bdd0ffff;
+  --color-palette-tertiary-95: #e0e6ffff;
+  --color-palette-tertiary-98: #f4f6ffff;
+  --color-palette-tertiary-99: #fafaffff;
+  --color-palette-tertiary-100: #ffffffff;
+
+  /* --- Palette: neutral --- */
+  --color-palette-neutral-0: #000000ff;
+  --color-palette-neutral-10: #101115ff;
+  --color-palette-neutral-20: #202227ff;
+  --color-palette-neutral-30: #35373eff;
+  --color-palette-neutral-40: #5b5e66ff;
+  --color-palette-neutral-50: #606269ff;
+  --color-palette-neutral-60: #797b82ff;
+  --color-palette-neutral-70: #95979eff;
+  --color-palette-neutral-80: #b2b4bcff;
+  --color-palette-neutral-90: #d2d3dbff;
+  --color-palette-neutral-95: #e5e5edff;
+  --color-palette-neutral-98: #f4f3fbff;
+  --color-palette-neutral-99: #faf8ffff;
+  --color-palette-neutral-100: #ffffffff;
+  --color-palette-neutral-4: #07080bff;
+  --color-palette-neutral-6: #0b0c0fff;
+  --color-palette-neutral-12: #131419ff;
+  --color-palette-neutral-17: #1a1c21ff;
+  --color-palette-neutral-22: #23252bff;
+  --color-palette-neutral-87: #cacad2ff;
+  --color-palette-neutral-94: #e2e2eaff;
+
+  /* --- Palette: neutralvariant --- */
+  --color-palette-neutralvariant-0: #000000ff;
+  --color-palette-neutralvariant-10: #0e1017ff;
+  --color-palette-neutralvariant-20: #1e2028ff;
+  --color-palette-neutralvariant-30: #32353eff;
+  --color-palette-neutralvariant-40: #585e6bff;
+  --color-palette-neutralvariant-50: #5c5e6aff;
+  --color-palette-neutralvariant-60: #767884ff;
+  --color-palette-neutralvariant-70: #9294a0ff;
+  --color-palette-neutralvariant-80: #afb1bdff;
+  --color-palette-neutralvariant-90: #d0d2dcff;
+  --color-palette-neutralvariant-95: #e4e4eeff;
+  --color-palette-neutralvariant-98: #f4f3fcff;
+  --color-palette-neutralvariant-99: #faf8ffff;
+  --color-palette-neutralvariant-100: #ffffffff;
+  --color-palette-neutralvariant-4: #06070bff;
+  --color-palette-neutralvariant-6: #0a0b10ff;
+  --color-palette-neutralvariant-12: #12141aff;
+  --color-palette-neutralvariant-17: #191b22ff;
+  --color-palette-neutralvariant-22: #22242dff;
+  --color-palette-neutralvariant-87: #c8c9d3ff;
+  --color-palette-neutralvariant-94: #e1e1ebff;
+
+  /* --- Palette: error --- */
+  --color-palette-error-0: #000000ff;
+  --color-palette-error-10: #200000ff;
+  --color-palette-error-20: #410001ff;
+  --color-palette-error-30: #690003ff;
+  --color-palette-error-40: #d71a1aff;
+  --color-palette-error-50: #ba2e22ff;
+  --color-palette-error-60: #de5544ff;
+  --color-palette-error-70: #ff8871ff;
+  --color-palette-error-80: #ffb4a4ff;
+  --color-palette-error-90: #ffdad2ff;
+  --color-palette-error-95: #ffece5ff;
+  --color-palette-error-98: #fff8f6ff;
+  --color-palette-error-99: #fffbf9ff;
+  --color-palette-error-100: #ffffffff;
+
+  /* --- Palette: warning --- */
+  --color-palette-warning-0: #000000ff;
+  --color-palette-warning-10: #150c00ff;
+  --color-palette-warning-20: #2c1d00ff;
+  --color-palette-warning-30: #4c3400ff;
+  --color-palette-warning-40: #775300ff;
+  --color-palette-warning-50: #966a00ff;
+  --color-palette-warning-60: #b88402ff;
+  --color-palette-warning-70: #dba125ff;
+  --color-palette-warning-80: #fabd46ff;
+  --color-palette-warning-90: #ffdea0ff;
+  --color-palette-warning-95: #ffeec6ff;
+  --color-palette-warning-98: #fff8f1ff;
+  --color-palette-warning-99: #fffbf6ff;
+  --color-palette-warning-100: #ffffffff;
+
+  /* ==========================================================================
+     5. COLOUR ROLES (MATERIAL DESIGN 3 SEMANTIC SYSTEM)
+     ========================================================================== */
+  --color-primary: #1b2a4aff;
+  --color-on-primary: #ffffffff;
+  --color-primary-container: #a8beffff;
+  --color-on-primary-container: #121c33ff;
+  --color-secondary: #2d3748ff;
+  --color-on-secondary: #ffffffff;
+  --color-secondary-containe: #b9c7daff;
+  --color-secondary-container: #b9c7daff;
+  --color-on-secondary-container: #1a2331ff;
+  --color-tertiary: #2563ebff;
+  --color-on-tertiary: #ffffffff;
+  --color-tertiary-container: #bdd0ffff;
+  --color-on-tertiary-container: #142b6aff;
+  --color-error: #d71a1aff;
+  --color-on-error: #ffffffff;
+  --color-error-container: #ffdad2ff;
+  --color-on-error-container: #690003ff;
+  --color-surface: #f4f3fbff;
+  --color-on-surface: #101115ff;
+  --color-surface-variant: #d0d2dcff;
+  --color-on-surface-variant: #32353eff;
+  --color-surface-container-highest: #d2d3dbff;
+  --color-surface-container-high: #cacad2ff;
+  --color-surface-container: #e2e2eaff;
+  --color-surface-container-low: #f4f3fbff;
+  --color-surface-container-lowest: #ffffffff;
+  --color-inverse-surface: #202227ff;
+  --color-inverse-on-surface: #e5e5edff;
+  --color-surface-tint: #1b2a4aff;
+  --color-surface-tint-colour: #1b2a4aff;
+  --color-outline: #5c5e6aff;
+  --color-outline-variant: #afb1bdff;
+  --color-primary-fixed: #a8beffff;
+  --color-on-primary-fixed: #05080fff;
+  --color-primary-fixed-dim: #608af8ff;
+  --color-on-primary-fixed-variant: #121c33ff;
+  --color-inverse-primary: #608af8ff;
+  --color-secondary-fixed: #b9c7daff;
+  --color-on-secondary-fixed: #05070bff;
+  --color-secondary-fixed-dim: #8c9cb2ff;
+  --color-on-secondary-fixed-variant: #1a2331ff;
+  --color-tertiary-fixed: #bdd0ffff;
+  --color-on-tertiary-fixed: #030a1cff;
+  --color-tertiary-fixed-dim: #78a3ffff;
+  --color-on-tertiary-fixed-variant: #142b6aff;
+  --color-background: #f4f3fbff;
+  --color-on-background: #101115ff;
+  --color-surface-bright: #f4f3fbff;
+  --color-surface-dim-variant: #cacad2ff;
+  --color-scrim: #000000ff;
+  --color-shadow: #000000ff;
+
+  /* ==========================================================================
+     6. TYPOGRAPHY TOKENS (ATOMIC PROPERTIES)
+     ========================================================================== */
+  /* display large */
+  --typography-display-large-font-family: var(--font-family-barlow-semi-condensed);
+  --typography-display-large-font-weight: 800;
+  --typography-display-large-font-size: 56px;
+  --typography-display-large-line-height: 84px;
+  --typography-display-large-letter-spacing: -1.12px;
+
+  /* display medium */
+  --typography-display-medium-font-family: var(--font-family-barlow-semi-condensed);
+  --typography-display-medium-font-weight: 800;
+  --typography-display-medium-font-size: 50px;
+  --typography-display-medium-line-height: 75px;
+  --typography-display-medium-letter-spacing: -1px;
+
+  /* display small */
+  --typography-display-small-font-family: var(--font-family-barlow-semi-condensed);
+  --typography-display-small-font-weight: 800;
+  --typography-display-small-font-size: 36px;
+  --typography-display-small-line-height: 54px;
+  --typography-display-small-letter-spacing: -0.72px;
+
+  /* headline large */
+  --typography-headline-large-font-family: var(--font-family-outfit);
+  --typography-headline-large-font-weight: 700;
+  --typography-headline-large-font-size: 32px;
+  --typography-headline-large-line-height: 44.8px;
+  --typography-headline-large-letter-spacing: -0.48px;
+
+  /* headline medium */
+  --typography-headline-medium-font-family: var(--font-family-outfit);
+  --typography-headline-medium-font-weight: 700;
+  --typography-headline-medium-font-size: 28px;
+  --typography-headline-medium-line-height: 96px;
+  --typography-headline-medium-letter-spacing: -0.42px;
+
+  /* headline small */
+  --typography-headline-small-font-family: var(--font-family-outfit);
+  --typography-headline-small-font-weight: 700;
+  --typography-headline-small-font-size: 24px;
+  --typography-headline-small-line-height: 33.6px;
+  --typography-headline-small-letter-spacing: -0.84px;
+
+  /* title large */
+  --typography-title-large-font-family: var(--font-family-outfit);
+  --typography-title-large-font-weight: 600;
+  --typography-title-large-font-size: 20px;
+  --typography-title-large-line-height: 30px;
+  --typography-title-large-letter-spacing: -0.1px;
+
+  /* title medium */
+  --typography-title-medium-font-family: var(--font-family-outfit);
+  --typography-title-medium-font-weight: 600;
+  --typography-title-medium-font-size: 16px;
+  --typography-title-medium-line-height: 24px;
+  --typography-title-medium-letter-spacing: -0.024px;
+
+  /* title small */
+  --typography-title-small-font-family: var(--font-family-outfit);
+  --typography-title-small-font-weight: 600;
+  --typography-title-small-font-size: 14px;
+  --typography-title-small-line-height: 21px;
+  --typography-title-small-letter-spacing: -0.07px;
+
+  /* body large */
+  --typography-body-large-font-family: var(--font-family-inter);
+  --typography-body-large-font-weight: 500;
+  --typography-body-large-font-size: 16px;
+  --typography-body-large-line-height: 24px;
+  --typography-body-large-letter-spacing: 0.08px;
+
+  /* body medium */
+  --typography-body-medium-font-family: var(--font-family-inter);
+  --typography-body-medium-font-weight: 500;
+  --typography-body-medium-font-size: 14px;
+  --typography-body-medium-line-height: 21px;
+  --typography-body-medium-letter-spacing: 0.07px;
+
+  /* body small */
+  --typography-body-small-font-family: var(--font-family-inter);
+  --typography-body-small-font-weight: 600;
+  --typography-body-small-font-size: 12px;
+  --typography-body-small-line-height: 18px;
+  --typography-body-small-letter-spacing: 0.048px;
+
+  /* label large */
+  --typography-label-large-font-family: var(--font-family-jetbrains-mono);
+  --typography-label-large-font-weight: 500;
+  --typography-label-large-font-size: 14px;
+  --typography-label-large-line-height: 96px;
+  --typography-label-large-letter-spacing: 0.014px;
+
+  /* label medium */
+  --typography-label-medium-font-family: var(--font-family-jetbrains-mono);
+  --typography-label-medium-font-weight: 500;
+  --typography-label-medium-font-size: 12px;
+  --typography-label-medium-line-height: 18px;
+  --typography-label-medium-letter-spacing: 0.012px;
+
+  /* label small */
+  --typography-label-small-font-family: var(--font-family-jetbrains-mono);
+  --typography-label-small-font-weight: 700;
+  --typography-label-small-font-size: 11px;
+  --typography-label-small-line-height: 16.5px;
+  --typography-label-small-letter-spacing: 0.055px;
+
+}

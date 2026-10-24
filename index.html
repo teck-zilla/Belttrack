@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BeltTrack QuickStart Onboarding - Configure your industrial conveyor digital twin and live telemetry tracking with the BeltTrack Design System.">
+  <title>BeltTrack - Industrial Conveyor Telemetry & Digital Twin Onboarding</title>
+
+  <!-- Google Fonts Embed for BeltTrack Design System -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- BeltTrack Design System Stylesheets -->
+  <link rel="stylesheet" href="./variables.css">
+  <link rel="stylesheet" href="./typography.css">
+  <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+  <div class="app-layout">
+    
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+      <div class="nav-container">
+        <div class="brand">
+          <div class="brand-symbol">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="6" width="20" height="12" rx="6"/>
+              <circle cx="8" cy="12" r="2.5" fill="currentColor"/>
+              <circle cx="16" cy="12" r="2.5" fill="currentColor"/>
+              <line x1="8" y1="9.5" x2="16" y2="9.5"/>
+              <line x1="8" y1="14.5" x2="16" y2="14.5"/>
+            </svg>
+          </div>
+          <div class="brand-info">
+            <span class="brand-name">BeltTrack</span>
+            <span class="brand-badge">QuickStart Setup</span>
+          </div>
+        </div>
+
+        <!-- Step Indicator Navigation -->
+        <nav class="nav-steps-indicator" aria-label="Onboarding Progress">
+          <button type="button" class="step-pill active" id="pill-step-1" data-step="1">
+            <span class="pill-number">1</span>
+            <span class="pill-label">Facility</span>
+          </button>
+          <div class="pill-separator"></div>
+          <button type="button" class="step-pill" id="pill-step-2" data-step="2">
+            <span class="pill-number">2</span>
+            <span class="pill-label">Digital Twin</span>
+          </button>
+          <div class="pill-separator"></div>
+          <button type="button" class="step-pill" id="pill-step-3" data-step="3">
+            <span class="pill-number">3</span>
+            <span class="pill-label">Sensors</span>
+          </button>
+          <div class="pill-separator"></div>
+          <button type="button" class="step-pill" id="pill-step-4" data-step="4">
+            <span class="pill-number">4</span>
+            <span class="pill-label">Verification</span>
+          </button>
+        </nav>
+
+        <!-- Fast Demo Actions -->
+        <div class="nav-controls">
+          <button type="button" class="btn-demo-fill" id="btn-quick-fill">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+            Auto-Fill Demo
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace (Split-Screen Setup & Live Digital Twin Simulator) -->
+    <main class="split-workspace">
+      
+      <!-- LEFT COLUMN: Interactive Setup Wizard -->
+      <section class="wizard-panel" aria-label="Setup Wizard">
+        <div class="wizard-inner">
+          
+          <!-- STEP 1: ORGANIZATION & FACILITY HUB -->
+          <article class="step-card active" id="step-card-1">
+            <div class="step-header">
+              <span class="step-tag">Step 01 / 04 • Facility Hub</span>
+              <h1 class="step-title">Organization & Facility Setup</h1>
+              <p class="step-description">Define your operational site and industrial classification for calibrated digital twin physics modeling.</p>
+            </div>
+
+            <div class="form-section">
+              <div class="field-group">
+                <label for="input-facility-name" class="field-label">Facility / Plant Site Name</label>
+                <div class="input-with-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 21h18M3 7v14M21 7v14M6 11h4M6 15h4M14 11h4M14 15h4M9 3h6v4H9z"/>
+                  </svg>
+                  <input type="text" id="input-facility-name" class="field-input" placeholder="e.g. Apex Industrial Terminal Alpha" value="Apex Terminal Alpha" required>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Industrial Sector Classification</label>
+                <div class="option-chips-grid">
+                  <button type="button" class="chip-option active" data-sector="E-Commerce Logistics">
+                    <span class="chip-icon">📦</span>
+                    <span class="chip-title">E-Commerce Logistics</span>
+                  </button>
+                  <button type="button" class="chip-option" data-sector="Automotive & Assembly">
+                    <span class="chip-icon">🏭</span>
+                    <span class="chip-title">Automotive & Assembly</span>
+                  </button>
+                  <button type="button" class="chip-option" data-sector="Bulk Material & Mining">
+                    <span class="chip-icon">⛰️</span>
+                    <span class="chip-title">Bulk Material & Mining</span>
+                  </button>
+                  <button type="button" class="chip-option" data-sector="Food & Beverage">
+                    <span class="chip-icon">🍞</span>
+                    <span class="chip-title">Food & Beverage</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field-group half">
+                  <label for="select-timezone" class="field-label">Operational Timezone</label>
+                  <select id="select-timezone" class="field-select">
+                    <option value="UTC-5">UTC-05:00 (US Eastern / New York)</option>
+                    <option value="UTC+0">UTC+00:00 (London, GMT)</option>
+                    <option value="UTC+1" selected>UTC+01:00 (Berlin, CET)</option>
+                    <option value="UTC+8">UTC+08:00 (Singapore / Perth)</option>
+                  </select>
+                </div>
+
+                <div class="field-group half">
+                  <label for="select-units" class="field-label">Measurement Standard</label>
+                  <select id="select-units" class="field-select">
+                    <option value="metric" selected>Metric (m/s, °C, mm)</option>
+                    <option value="imperial">Imperial (ft/min, °F, in)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- STEP 2: CONVEYOR DIGITAL TWIN BUILDER -->
+          <article class="step-card" id="step-card-2">
+            <div class="step-header">
+              <span class="step-tag">Step 02 / 04 • Conveyor Spec</span>
+              <h2 class="step-title">Configure Conveyor Line #1</h2>
+              <p class="step-description">Tune physical parameters to calibrate real-time digital twin velocity, drive motor load, and friction models.</p>
+            </div>
+
+            <div class="form-section">
+              <div class="field-group">
+                <label for="input-belt-name" class="field-label">Conveyor Belt Line Identifier</label>
+                <input type="text" id="input-belt-name" class="field-input" placeholder="e.g. Line 04 - Primary Incline" value="Line 04 - Primary Incline">
+              </div>
+
+              <div class="slider-control-card">
+                <div class="slider-meta">
+                  <span class="slider-title">Nominal Belt Surface Velocity</span>
+                  <span class="slider-readout" id="readout-speed">3.80 m/s</span>
+                </div>
+                <input type="range" id="input-belt-speed" class="custom-slider" min="0.5" max="6.0" step="0.1" value="3.8">
+                <div class="slider-ticks">
+                  <span>0.5 m/s (Low Speed)</span>
+                  <span>3.8 m/s (Rated Nominal)</span>
+                  <span>6.0 m/s (High Speed)</span>
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field-group half">
+                  <label for="input-belt-length" class="field-label">Total Belt Length (m)</label>
+                  <input type="number" id="input-belt-length" class="field-input" value="145" min="10" max="2500">
+                </div>
+
+                <div class="field-group half">
+                  <label for="input-belt-width" class="field-label">Belt Width (mm)</label>
+                  <input type="number" id="input-belt-width" class="field-input" value="1200" min="400" max="3000" step="50">
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Primary Drive Motor kW Rating</label>
+                <div class="radio-segments">
+                  <label class="segment-btn">
+                    <input type="radio" name="motor-kw" value="45">
+                    <span>45 kW</span>
+                  </label>
+                  <label class="segment-btn active">
+                    <input type="radio" name="motor-kw" value="90" checked>
+                    <span>90 kW</span>
+                  </label>
+                  <label class="segment-btn">
+                    <input type="radio" name="motor-kw" value="132">
+                    <span>132 kW</span>
+                  </label>
+                  <label class="segment-btn">
+                    <input type="radio" name="motor-kw" value="250">
+                    <span>250 kW</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- STEP 3: SENSOR TELEMETRY & ALERTS -->
+          <article class="step-card" id="step-card-3">
+            <div class="step-header">
+              <span class="step-tag">Step 03 / 04 • Edge Sensors</span>
+              <h2 class="step-title">Telemetry Sensor Integration</h2>
+              <p class="step-description">Connect edge sensors to trigger automated safety shutdowns and preventative maintenance alerts.</p>
+            </div>
+
+            <div class="form-section">
+              <div class="sensor-list">
+                <!-- Sensor 1 -->
+                <div class="sensor-toggle-card enabled" data-sensor="tachometer">
+                  <div class="sensor-info">
+                    <span class="sensor-status-dot"></span>
+                    <div class="sensor-meta">
+                      <span class="sensor-name">Optical Belt Tachometer</span>
+                      <span class="sensor-desc">Monitors slip ratio, surface velocity, and drive pulley synchronization.</span>
+                    </div>
+                  </div>
+                  <div class="switch-control">
+                    <div class="switch-knob"></div>
+                  </div>
+                </div>
+
+                <!-- Sensor 2 -->
+                <div class="sensor-toggle-card enabled" data-sensor="thermal">
+                  <div class="sensor-info">
+                    <span class="sensor-status-dot"></span>
+                    <div class="sensor-meta">
+                      <span class="sensor-name">Drive Bearing Thermal RTD</span>
+                      <span class="sensor-desc">Continuous temperature telemetry to guard against friction heat runaway.</span>
+                    </div>
+                  </div>
+                  <div class="switch-control">
+                    <div class="switch-knob"></div>
+                  </div>
+                </div>
+
+                <!-- Sensor 3 -->
+                <div class="sensor-toggle-card enabled" data-sensor="vibration">
+                  <div class="sensor-info">
+                    <span class="sensor-status-dot"></span>
+                    <div class="sensor-meta">
+                      <span class="sensor-name">3-Axis Vibration Accelerometer</span>
+                      <span class="sensor-desc">Detects idler roller bearing imbalance, resonance, and harmonic noise.</span>
+                    </div>
+                  </div>
+                  <div class="switch-control">
+                    <div class="switch-knob"></div>
+                  </div>
+                </div>
+
+                <!-- Sensor 4 -->
+                <div class="sensor-toggle-card" data-sensor="drift">
+                  <div class="sensor-info">
+                    <span class="sensor-status-dot"></span>
+                    <div class="sensor-meta">
+                      <span class="sensor-name">Ultrasonic Belt Edge Drift Detector</span>
+                      <span class="sensor-desc">Tracks lateral belt tracking drift to avoid sidewall structural rubbing.</span>
+                    </div>
+                  </div>
+                  <div class="switch-control">
+                    <div class="switch-knob"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="input-alert-email" class="field-label">Operations Alert Dispatch Email</label>
+                <div class="input-with-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  <input type="email" id="input-alert-email" class="field-input" placeholder="ops-alerts@yourcompany.com" value="ops-alerts@apexterminal.com">
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- STEP 4: VERIFICATION & ACTIVATION -->
+          <article class="step-card" id="step-card-4">
+            <div class="step-header">
+              <span class="step-tag">Step 04 / 04 • Launch Verification</span>
+              <h2 class="step-title">Review & Digital Twin Activation</h2>
+              <p class="step-description">Verify your configured conveyor digital twin parameters. Live edge diagnostics are connected below.</p>
+            </div>
+
+            <div class="form-section">
+              <div class="summary-box">
+                <div class="summary-row">
+                  <span class="summary-key">Facility Site</span>
+                  <span class="summary-val" id="sum-facility">Apex Terminal Alpha</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-key">Industry Sector</span>
+                  <span class="summary-val" id="sum-sector">E-Commerce Logistics</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-key">Conveyor Identifier</span>
+                  <span class="summary-val" id="sum-belt-name">Line 04 - Primary Incline</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-key">Nominal Velocity</span>
+                  <span class="summary-val" id="sum-speed">3.80 m/s</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-key">Geometry</span>
+                  <span class="summary-val" id="sum-dims">145m length × 1200mm width</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-key">Drive Motor</span>
+                  <span class="summary-val" id="sum-motor">90 kW Drive</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-key">Active Edge Sensors</span>
+                  <span class="summary-val" id="sum-sensors">3 Channels Online</span>
+                </div>
+              </div>
+
+              <!-- Live Telemetry Health Bar -->
+              <div class="live-status-bar">
+                <div class="status-indicator">
+                  <span class="pulse-dot"></span>
+                  <span class="status-text">Edge Gateway Handshake: Verified (TLS 1.3)</span>
+                </div>
+                <span class="latency-badge" id="live-latency">6.4 ms latency</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Wizard Footer Controls -->
+          <div class="wizard-actions">
+            <button type="button" class="btn-action-back" id="btn-back" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
+              Previous
+            </button>
+
+            <button type="button" class="btn-action-next" id="btn-next">
+              <span id="next-label">Continue to Digital Twin</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: Interactive Live Digital Twin Preview -->
+      <aside class="preview-panel" aria-label="Digital Twin Simulator">
+        <div class="preview-card">
+          <div class="preview-card-header">
+            <div class="twin-badge">
+              <span class="live-indicator"></span>
+              DIGITAL TWIN SIMULATOR
+            </div>
+            <div class="preview-line-name" id="preview-tag-name">Line 04 - Primary Incline</div>
+          </div>
+
+          <!-- Dynamic Conveyor Belt Canvas Simulation -->
+          <div class="conveyor-viewport">
+            <canvas id="conveyor-canvas" width="520" height="180"></canvas>
+            <div class="viewport-hud">
+              <div class="hud-item">
+                <span class="hud-label">SURFACE VELOCITY</span>
+                <span class="hud-value" id="hud-velocity">3.80 m/s</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-label">BEARING TEMP</span>
+                <span class="hud-value normal" id="hud-temp">42.8 °C</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-label">BELT SLIP</span>
+                <span class="hud-value normal" id="hud-slip">0.38 %</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Metrics Gauges -->
+          <div class="metrics-grid">
+            <div class="metric-gauge">
+              <div class="gauge-header">
+                <span>DRIVE MOTOR LOAD</span>
+                <span class="gauge-percent" id="load-readout">64%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill load-fill" id="load-bar" style="width: 64%;"></div>
+              </div>
+              <span class="gauge-sub" id="power-readout">57.6 kW / 90 kW</span>
+            </div>
+
+            <div class="metric-gauge">
+              <div class="gauge-header">
+                <span>HEALTH SCORE</span>
+                <span class="gauge-percent" id="health-readout">99.4%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill health-fill" id="health-bar" style="width: 99.4%;"></div>
+              </div>
+              <span class="gauge-sub">All Idler Tolerances OK</span>
+            </div>
+          </div>
+
+          <!-- Live Telemetry Stream Ticker -->
+          <div class="telemetry-ticker">
+            <div class="ticker-header">
+              <span class="ticker-title">LIVE TELEMETRY STREAM</span>
+              <span class="ticker-rate">20 Hz</span>
+            </div>
+            <div class="ticker-stream" id="stream-container">
+              <div class="ticker-line"><span class="t-stamp">[12:44:01.000]</span> PKT_9040: V=3.80m/s T_BEAR=42.8°C SLIP=0.38% STATUS=NOMINAL</div>
+              <div class="ticker-line"><span class="t-stamp">[12:44:01.050]</span> PKT_9041: V=3.80m/s T_BEAR=42.8°C SLIP=0.37% STATUS=NOMINAL</div>
+              <div class="ticker-line"><span class="t-stamp">[12:44:01.100]</span> PKT_9042: V=3.81m/s T_BEAR=42.9°C SLIP=0.38% STATUS=NOMINAL</div>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+    </main>
+
+    <!-- Success Celebration Modal -->
+    <div class="launch-modal-backdrop" id="launch-modal" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+      <div class="launch-modal-box">
+        <div class="modal-celebrate-icon">
+          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <h2 class="modal-title" id="modal-headline">BeltTrack Twin Activated!</h2>
+        <p class="modal-desc">
+          Your conveyor telemetry digital twin is now live and streaming edge sensor packets at 20 Hz into the fleet analytics pipeline.
+        </p>
+        <div class="modal-stats-card">
+          <div class="modal-stat">
+            <span class="stat-number" id="modal-line-name">Line 04</span>
+            <span class="stat-desc">Active Monitor</span>
+          </div>
+          <div class="modal-stat">
+            <span class="stat-number">20 Hz</span>
+            <span class="stat-desc">Sample Rate</span>
+          </div>
+          <div class="modal-stat">
+            <span class="stat-number">0.0%</span>
+            <span class="stat-desc">Packet Loss</span>
+          </div>
+        </div>
+        <div class="modal-actions-row">
+          <button type="button" class="btn-modal-action" id="btn-restart-onboarding">
+            Configure Another Conveyor Line
+          </button>
+          <button type="button" class="btn-modal-secondary" id="btn-close-modal">
+            Close Modal
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Interactive Onboarding & Digital Twin Controller Script -->
+  <script src="./app.js"></script>
+</body>
+</html>
