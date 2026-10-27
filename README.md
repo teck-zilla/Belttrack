@@ -1,32 +1,31 @@
-# BeltTrack Design System & Simple Onboarding
+# BeltTrack - Martial Arts School Management & Rank Progression (Version 1)
 
-A modern, high-precision industrial conveyor digital twin telemetry onboarding experience built with **100% adherence** to the project design tokens in [`tokens-complete.json`](file:///c:/Users/teckm/OneDrive/Desktop/BELTTRACK%20APP/tokens-complete.json).
+A private, multi-tenant martial arts school management platform serving Dojo Administrators/Coaches and Students/Parents. The system operates as a closed, self-contained single source of truth—persisting internal records directly without external analytical engines, third-party feeds, or transaction cuts.
 
 ---
 
-## 🌟 Overview & Architecture
+## 🥋 Core Architectural Pillars
 
-The application guides plant operations engineers through configuring a digital twin for an industrial conveyor line while streaming live 20 Hz edge sensor telemetry in real-time.
+1. **Strict Multi-Tenant Row-Level Security (RLS)**:
+   - Each dojo operates in an isolated tenant scope (`school_id`).
+   - Cross-tenant queries are blocked at the database engine level.
+   - Global searches are restricted strictly to verified public school directories (name, slug, city, discipline).
+   - All student rosters, attendances, technique checklists, and billing ledgers are strictly private records.
 
-```
-BELTTRACK APP/
-├── tokens-complete.json      # Single source of truth: 171+ Figma design tokens
-├── build-tokens.js           # Compiler generating CSS custom properties
-├── variables.css             # Colors, elevations/shadows, & atomic typo variables
-├── typography.css            # Modular typography utility classes (MD3 scale)
-├── index.css                 # 100% token-powered UI styles, layout, & responsive grid
-├── index.html                # Semantic HTML5 onboarding application
-├── app.js                    # Step wizard controller & animated canvas simulator
-├── server.js                 # Built-in lightweight HTTP server
-├── audit.js                  # Automated zero-hardcoded-color compliance test
-└── package.json              # NPM scripts for building, auditing, and running
-```
+2. **Zero-Monetization Core**:
+   - 100% free, no ads, no feature paywalls, no expiring trials, and no tiered subscriptions.
+   - Internal ledger tracks off-platform settlements (cash, bank transfer, manual card) with system-generated receipt slugs (`REC-2026-BJJ-084`).
+
+3. **100% Token-Compliant Design System**:
+   - Zero hardcoded colors, zero raw pixel margins.
+   - All visual styles inherit from [`tokens-complete.json`](./tokens-complete.json), compiled into [`variables.css`](./variables.css) and [`typography.css`](./typography.css).
+   - Tailwind CSS is configured exclusively with design tokens as CSS variables.
 
 ---
 
 ## 🎨 Design System Token Mapping
 
-All visual properties are bound strictly to tokens exported in [`tokens-complete.json`](file:///c:/Users/teckm/OneDrive/Desktop/BELTTRACK%20APP/tokens-complete.json):
+All visual properties are bound strictly to design tokens exported in [`tokens-complete.json`](./tokens-complete.json):
 
 | Design Token Category | Figma Token Source | CSS Custom Property |
 | :--- | :--- | :--- |
@@ -46,31 +45,94 @@ All visual properties are bound strictly to tokens exported in [`tokens-complete
 
 ---
 
-## ⚡ Key Features
+## 📁 Project Architecture & File Structure
 
-1. **Split-Screen Interactive Workspace**:
-   - **Left**: 4-Step setup wizard (Facility Hub $\to$ Conveyor Digital Twin $\to$ Sensor Telemetry $\to$ Activation Verification).
-   - **Right**: Real-time canvas conveyor simulator running dynamic physics, synchronized drive pulleys, continuous rubber loop, moving cargo packages, and live HUD readouts.
-2. **Dynamic Physics & Telemetry Engine**:
-   - Surface velocity slider (0.5 to 6.0 m/s) dynamically updates bearing temperature ($^\circ\text{C}$), belt slip %, drive motor load %, and kW consumption in real-time.
-   - Live 20 Hz telemetry console streaming packet payloads with millisecond timestamps.
-3. **1-Click Auto-Fill Demo**:
-   - Pre-populates realistic industrial distribution center parameters for instant end-to-end testing.
-4. **Zero Hardcoded Colors**:
-   - Verified via [`audit.js`](file:///c:/Users/teckm/OneDrive/Desktop/BELTTRACK%20APP/audit.js). Even canvas rendering extracts CSS variables dynamically at runtime.
+```
+BELTTRACK APP/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx                # Next.js RootLayout with providers & typography tokens
+│   │   └── page.tsx                  # Home screen with navigation, role entries, & preview
+│   ├── components/
+│   │   ├── home/
+│   │   │   ├── hero-section.tsx      # Core pillars & architectural overview
+│   │   │   ├── preview-dashboard.tsx # Rank engine, roll-call mat, & ledger cards
+│   │   │   └── role-entry-cards.tsx  # Dojo Owner register vs Student code join
+│   │   └── layout/
+│   │       └── top-nav.tsx           # Navigation with tenant indicator & role switcher
+│   ├── context/
+│   │   ├── auth-context.tsx          # Persona state (Owner / Coach / Student)
+│   │   └── tenant-context.tsx        # Isolated Dojo tenant context (school_id scope)
+│   ├── lib/
+│   │   ├── prisma-extension.ts       # Multi-tenant Prisma query extension (school_id scope)
+│   │   └── validation/
+│   │       └── schemas.ts            # Zod schemas for registration, join codes, & ledger
+│   ├── styles/
+│   │   ├── globals.css               # Next.js App Router Tailwind styles
+│   │   └── tokens.css                # Centralized token import layer
+│   └── types/
+│       └── domain.ts                 # TypeScript domain models (School, Member, Rank, Technique)
+├── prisma/
+│   ├── schema.prisma                 # PostgreSQL multi-tenant schema with school_id bindings
+│   └── rls_policies.sql              # Database-level Row-Level Security isolation policies
+├── docs/
+│   └── product_requirement_document_prd_belttrack_v1.md # Approved Product Requirement Document
+├── index.html                        # Semantic, responsive standalone home screen
+├── index.css                         # 100% token-powered martial arts stylesheet
+├── app.js                            # Interactive state controller (modals, grading simulation)
+├── tokens-complete.json              # Central Figma design tokens
+├── build-tokens.js                   # Token compiler to CSS custom properties
+├── variables.css                     # Generated CSS custom properties
+├── typography.css                    # Typography scale utility classes
+├── tailwind.config.ts                # Tailwind theme mapping tokens to CSS variables
+├── postcss.config.mjs                # PostCSS configuration
+├── tsconfig.json                     # Strict TypeScript configuration
+├── package.json                      # Next.js, React, Tailwind, and Zod dependencies
+├── audit.js                          # Automated recursive token compliance audit
+└── server.js                         # Local test server (Port 3000)
+```
 
 ---
 
-## 🚀 Running Locally
+## ⚡ Workflows Previewed in Version 1
 
-```bash
-# Compile tokens to variables.css and typography.css
-node build-tokens.js
+* **Curriculum & Rank Engine**:
+  - Live martial arts belt visualization (White belt with stripes $\to$ Blue belt).
+  - Class attendance count (42/50), time-in-rank (142/120 days), and technique checklist (8/10 verified).
+  - Interactive "+ Simulate Roll-Call Check-in" button dynamically triggers the **"GRADING ELIGIBLE"** milestone.
 
-# Verify token compliance (0 hardcoded colors)
-node audit.js
+* **Attendance & Drop-Off Alert Engine**:
+  - Roll-call schedule tracking (Fundamentals, Competition Sparring).
+  - Inactive student risk trigger flagging members absent for 10–14 consecutive days.
 
-# Start local server (running on port 3000)
-node server.js
+* **Internal Bookkeeping Ledger**:
+  - Manual cash/transfer settlement entries with receipt slugs (`REC-2026-BJJ-084`).
+  - Closed single source of truth with 0% platform cuts.
+
+* **Role-Based Onboarding Entry Points**:
+  - **Dojo Owner / Head Coach**: "Register Your Martial Arts School" modal generating custom tenant registration codes.
+  - **Student / Guardian**: "Join with School Registration Code" modal.
+  - **Public Directory**: Accredited school directory showing public metadata without exposing private rosters.
+
+---
+
+## 🚀 Running & Auditing
+
+```powershell
+# 1. Run design system compliance audit (asserts 0 hardcoded colors)
+npm run audit
+# or: node audit.js
+
+# 2. Re-compile design tokens (if tokens-complete.json changes)
+npm run build:tokens
+# or: node build-tokens.js
+
+# 3. Start Next.js development server
+npm run dev
+
+# 4. Alternatively, start local standalone server
+npm run serve
+# or: node server.js
 ```
-Open **`http://localhost:3000/`** in your browser.
+
+Open **[http://localhost:3000/](http://localhost:3000/)** in your browser.

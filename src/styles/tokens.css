@@ -1,0 +1,16 @@
+/**
+ * BeltTrack Design System - Centralized Token Layer for Next.js & Tailwind
+ * Strictly bound to tokens-complete.json variables.
+ */
+
+@import "../../variables.css";
+@import "../../typography.css";
+
+/* Utility classes for direct token consumption */
+:root {
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+}

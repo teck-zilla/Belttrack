@@ -1,0 +1,222 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  OWNER
+  COACH
+  STUDENT
+  GUARDIAN
+}
+
+enum MembershipStatus {
+  PENDING_APPROVAL
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  MANUAL_CARD
+}
+
+enum TransactionType {
+  TUITION
+  TESTING_FEE
+  UNIFORM_EQUIPMENT
+  CORRECTION_REVERSAL
+}
+
+enum TechniqueStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  VERIFIED
+}
+
+model School {
+  id           String        @id @default(uuid())
+  name         String
+  slug         String        @unique
+  discipline   String
+  city         String
+  timezone     String        @default("UTC")
+  joinCode     String        @unique
+  isCodeActive Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  users        User[]
+  rankTracks   RankTrack[]
+  classes      ClassSchedule[]
+  ledger       LedgerEntry[]
+  alerts       InactivityAlert[]
+
+  @@index([joinCode])
+  @@index([slug, city])
+}
+
+model User {
+  id               String            @id @default(uuid())
+  schoolId         String            @map("school_id")
+  email            String            @unique
+  hashedPassword   String
+  role             Role              @default(STUDENT)
+  status           MembershipStatus  @default(PENDING_APPROVAL)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  school           School            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  profile          StudentProfile?
+  guardianLinks    GuardianStudent[] @relation("GuardianRelation")
+  studentOf        GuardianStudent[] @relation("StudentRelation")
+
+  @@index([schoolId, role])
+  @@index([schoolId, status])
+}
+
+model StudentProfile {
+  id                 String              @id @default(uuid())
+  userId             String              @unique
+  firstName          String
+  lastName           String
+  dateOfBirth        DateTime
+  isMinor            Boolean             @default(false)
+  currentRankId      String?
+  lastPromotionDate  DateTime            @default(now())
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentRank        Rank?               @relation(fields: [currentRankId], references: [id])
+  attendances        Attendance[]
+  techniqueProgress  TechniqueProgress[]
+}
+
+model GuardianStudent {
+  id          String   @id @default(uuid())
+  guardianId  String
+  studentId   String
+  isApproved  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  guardian    User     @relation("GuardianRelation", fields: [guardianId], references: [id], onDelete: Cascade)
+  student     User     @relation("StudentRelation", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([guardianId, studentId])
+}
+
+model RankTrack {
+  id          String   @id @default(uuid())
+  schoolId    String   @map("school_id")
+  name        String
+  ranks       Rank[]
+  school      School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@index([schoolId])
+}
+
+model Rank {
+  id                 String           @id @default(uuid())
+  rankTrackId        String
+  orderIndex         Int
+  title              String
+  beltColorHex       String
+  requiredClasses    Int
+  requiredActiveDays Int
+  
+  rankTrack          RankTrack        @relation(fields: [rankTrackId], references: [id], onDelete: Cascade)
+  techniques         Technique[]
+  profilesAtRank     StudentProfile[]
+
+  @@unique([rankTrackId, orderIndex])
+}
+
+model Technique {
+  id          String              @id @default(uuid())
+  rankId      String
+  name        String
+  description String?
+
+  rank        Rank                @relation(fields: [rankId], references: [id], onDelete: Cascade)
+  progress    TechniqueProgress[]
+}
+
+model TechniqueProgress {
+  id          String          @id @default(uuid())
+  profileId   String
+  techniqueId String
+  status      TechniqueStatus @default(NOT_STARTED)
+  verifiedAt  DateTime?
+  verifiedBy  String?
+
+  profile     StudentProfile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  technique   Technique       @relation(fields: [techniqueId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, techniqueId])
+}
+
+model ClassSchedule {
+  id          String       @id @default(uuid())
+  schoolId    String       @map("school_id")
+  title       String
+  weekday     Int
+  startTime   String
+  endTime     String
+
+  school      School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  attendances Attendance[]
+
+  @@index([schoolId])
+}
+
+model Attendance {
+  id             String         @id @default(uuid())
+  idempotencyKey String         @unique
+  profileId      String
+  classId        String?
+  attendedAt     DateTime       @default(now())
+
+  profile        StudentProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  classSchedule  ClassSchedule? @relation(fields: [classId], references: [id], onDelete: SetNull)
+
+  @@index([profileId, attendedAt])
+}
+
+model LedgerEntry {
+  id               String          @id @default(uuid())
+  schoolId         String          @map("school_id")
+  userId           String
+  receiptSlug      String          @unique
+  amountCents      Int
+  currency         String          @default("USD")
+  paymentMethod    PaymentMethod
+  transactionType  TransactionType
+  reversalRefSlug  String?
+  note             String?
+  createdAt        DateTime        @default(now())
+
+  school           School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@index([schoolId, userId])
+  @@index([receiptSlug])
+}
+
+model InactivityAlert {
+  id             String   @id @default(uuid())
+  schoolId       String   @map("school_id")
+  profileId      String
+  daysInactive   Int
+  isResolved     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  school         School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@index([schoolId, isResolved])
+}

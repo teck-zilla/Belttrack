@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="BeltTrack QuickStart Onboarding - Configure your industrial conveyor digital twin and live telemetry tracking with the BeltTrack Design System.">
-  <title>BeltTrack - Industrial Conveyor Telemetry & Digital Twin Onboarding</title>
+  <meta name="description" content="BeltTrack - Private, multi-tenant martial arts school management & progress monitoring platform. Strict tenant isolation, belt progress tracking, roll-call attendance, and zero-monetization internal ledgers.">
+  <title>BeltTrack - Martial Arts School Management & Rank Progression</title>
 
-  <!-- Google Fonts Embed for BeltTrack Design System -->
+  <!-- Google Fonts Embed for BeltTrack Design System Tokens -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- BeltTrack Design System Stylesheets -->
+  <!-- Design System Token Stylesheets -->
   <link rel="stylesheet" href="./variables.css">
   <link rel="stylesheet" href="./typography.css">
   <link rel="stylesheet" href="./index.css">
@@ -19,337 +19,193 @@
 <body>
   <div class="app-layout">
     
-    <!-- Top Navigation Bar -->
+    <!-- TOP NAVIGATION BAR -->
     <header class="top-nav">
       <div class="nav-container">
+        
+        <!-- Brand & Platform Identity -->
         <div class="brand">
-          <div class="brand-symbol">
+          <div class="brand-symbol" aria-hidden="true">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="6" width="20" height="12" rx="6"/>
-              <circle cx="8" cy="12" r="2.5" fill="currentColor"/>
-              <circle cx="16" cy="12" r="2.5" fill="currentColor"/>
-              <line x1="8" y1="9.5" x2="16" y2="9.5"/>
-              <line x1="8" y1="14.5" x2="16" y2="14.5"/>
+              <rect x="2" y="6" width="20" height="12" rx="4" />
+              <line x1="8" y1="6" x2="8" y2="18" />
+              <line x1="12" y1="6" x2="12" y2="18" stroke-dasharray="2 2" />
+              <path d="M16 10l2 2-2 2" />
             </svg>
           </div>
           <div class="brand-info">
-            <span class="brand-name">BeltTrack</span>
-            <span class="brand-badge">QuickStart Setup</span>
+            <div class="brand-title-row">
+              <span class="brand-name">BeltTrack</span>
+              <span class="brand-badge">Martial OS</span>
+            </div>
+            <span class="brand-sub">Private Dojo Management & Rank Tracker</span>
           </div>
         </div>
 
-        <!-- Step Indicator Navigation -->
-        <nav class="nav-steps-indicator" aria-label="Onboarding Progress">
-          <button type="button" class="step-pill active" id="pill-step-1" data-step="1">
-            <span class="pill-number">1</span>
-            <span class="pill-label">Facility</span>
-          </button>
-          <div class="pill-separator"></div>
-          <button type="button" class="step-pill" id="pill-step-2" data-step="2">
-            <span class="pill-number">2</span>
-            <span class="pill-label">Digital Twin</span>
-          </button>
-          <div class="pill-separator"></div>
-          <button type="button" class="step-pill" id="pill-step-3" data-step="3">
-            <span class="pill-number">3</span>
-            <span class="pill-label">Sensors</span>
-          </button>
-          <div class="pill-separator"></div>
-          <button type="button" class="step-pill" id="pill-step-4" data-step="4">
-            <span class="pill-number">4</span>
-            <span class="pill-label">Verification</span>
-          </button>
-        </nav>
-
-        <!-- Fast Demo Actions -->
-        <div class="nav-controls">
-          <button type="button" class="btn-demo-fill" id="btn-quick-fill">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-            </svg>
-            Auto-Fill Demo
-          </button>
+        <!-- Active Dojo Tenant Indicator -->
+        <div class="tenant-badge" id="active-tenant-indicator">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span class="tenant-name" id="display-tenant-name">Kaizen BJJ Academy</span>
+          <span class="tenant-code" id="display-tenant-code">KAIZEN-2026</span>
         </div>
+
+        <!-- Header Actions: Public Directory & Role Switcher -->
+        <div class="nav-actions">
+          <button type="button" class="btn-directory" id="btn-open-directory">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            Public Directory
+          </button>
+
+          <!-- Role-Based Persona Selector -->
+          <div class="role-selector" role="radiogroup" aria-label="Simulate Persona Role">
+            <button type="button" class="role-pill active" data-role="owner">
+              Owner / Admin
+            </button>
+            <button type="button" class="role-pill" data-role="coach">
+              Coach
+            </button>
+            <button type="button" class="role-pill" data-role="student">
+              Student / Parent
+            </button>
+          </div>
+        </div>
+
       </div>
     </header>
 
-    <!-- Main Workspace (Split-Screen Setup & Live Digital Twin Simulator) -->
-    <main class="split-workspace">
+    <!-- MAIN HOMEPAGE WORKSPACE -->
+    <main class="main-content">
       
-      <!-- LEFT COLUMN: Interactive Setup Wizard -->
-      <section class="wizard-panel" aria-label="Setup Wizard">
-        <div class="wizard-inner">
+      <!-- HERO & ARCHITECTURAL OVERVIEW -->
+      <section class="hero-section">
+        <div class="hero-pill">
+          <span class="pill-text">Version 1 Foundational Scaffolding</span>
+          <span class="pill-separator-dot" aria-hidden="true"></span>
+          <span class="pill-text">Strict Multi-Tenant Isolation</span>
+        </div>
+
+        <h1 class="hero-title">
+          Private Martial Arts School Management & Rank Progression
+        </h1>
+
+        <p class="hero-description">
+          A self-contained operating system for Brazilian Jiu-Jitsu, Judo, Karate, and Taekwondo dojos.
+          Zero ads, zero feature paywalls, and strictly isolated school tenant boundaries.
+        </p>
+
+        <!-- 3 Core Architectural Pillars -->
+        <div class="pillars-grid">
+          <div class="pillar-card">
+            <div class="pillar-num">01</div>
+            <h3 class="pillar-title">Row-Level Tenant Isolation</h3>
+            <p class="pillar-desc">
+              Cross-tenant queries are blocked. Rosters, attendance, techniques, and ledgers remain strictly private to the authenticated dojo.
+            </p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-num">02</div>
+            <h3 class="pillar-title">Dynamic Grading Readiness</h3>
+            <p class="pillar-desc">
+              Hours logged and coach technique sign-offs automatically calculate belt promotion eligibility without spreadsheet errors.
+            </p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-num">03</div>
+            <h3 class="pillar-title">Zero-Monetization Ledger</h3>
+            <p class="pillar-desc">
+              Built for administrative autonomy. Records off-platform settlements (cash, card, bank transfer) with 0% platform cuts.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- DUAL ROLE-BASED ENTRY POINTS -->
+      <section class="entry-points-section">
+        <div class="entry-grid">
           
-          <!-- STEP 1: ORGANIZATION & FACILITY HUB -->
-          <article class="step-card active" id="step-card-1">
-            <div class="step-header">
-              <span class="step-tag">Step 01 / 04 • Facility Hub</span>
-              <h1 class="step-title">Organization & Facility Setup</h1>
-              <p class="step-description">Define your operational site and industrial classification for calibrated digital twin physics modeling.</p>
+          <!-- ENTRY CARD 1: DOJO OWNER & HEAD COACH -->
+          <div class="entry-card" id="card-owner-entry">
+            <div class="entry-card-header">
+              <span class="entry-tag">Dojo Administrators</span>
+              <span class="entry-num">01</span>
             </div>
 
-            <div class="form-section">
-              <div class="field-group">
-                <label for="input-facility-name" class="field-label">Facility / Plant Site Name</label>
-                <div class="input-with-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 21h18M3 7v14M21 7v14M6 11h4M6 15h4M14 11h4M14 15h4M9 3h6v4H9z"/>
-                  </svg>
-                  <input type="text" id="input-facility-name" class="field-input" placeholder="e.g. Apex Industrial Terminal Alpha" value="Apex Terminal Alpha" required>
-                </div>
-              </div>
+            <h2 class="entry-title">Register Your Martial Arts School</h2>
+            <p class="entry-desc">
+              Create an isolated dojo tenant. Configure custom belt ladders (White to Black), generate your unique student access code, and schedule weekly roll-call sessions.
+            </p>
 
-              <div class="field-group">
-                <label class="field-label">Industrial Sector Classification</label>
-                <div class="option-chips-grid">
-                  <button type="button" class="chip-option active" data-sector="E-Commerce Logistics">
-                    <span class="chip-icon">📦</span>
-                    <span class="chip-title">E-Commerce Logistics</span>
-                  </button>
-                  <button type="button" class="chip-option" data-sector="Automotive & Assembly">
-                    <span class="chip-icon">🏭</span>
-                    <span class="chip-title">Automotive & Assembly</span>
-                  </button>
-                  <button type="button" class="chip-option" data-sector="Bulk Material & Mining">
-                    <span class="chip-icon">⛰️</span>
-                    <span class="chip-title">Bulk Material & Mining</span>
-                  </button>
-                  <button type="button" class="chip-option" data-sector="Food & Beverage">
-                    <span class="chip-icon">🍞</span>
-                    <span class="chip-title">Food & Beverage</span>
-                  </button>
-                </div>
-              </div>
+            <ul class="entry-checklist">
+              <li>
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Custom ranking tracks with minimum hours & time-in-rank
+              </li>
+              <li>
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Inactive student automated drop-off alerts (10–14 days)
+              </li>
+              <li>
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Manual cash/card settlement ledger & internal receipts
+              </li>
+            </ul>
 
-              <div class="field-row">
-                <div class="field-group half">
-                  <label for="select-timezone" class="field-label">Operational Timezone</label>
-                  <select id="select-timezone" class="field-select">
-                    <option value="UTC-5">UTC-05:00 (US Eastern / New York)</option>
-                    <option value="UTC+0">UTC+00:00 (London, GMT)</option>
-                    <option value="UTC+1" selected>UTC+01:00 (Berlin, CET)</option>
-                    <option value="UTC+8">UTC+08:00 (Singapore / Perth)</option>
-                  </select>
-                </div>
-
-                <div class="field-group half">
-                  <label for="select-units" class="field-label">Measurement Standard</label>
-                  <select id="select-units" class="field-select">
-                    <option value="metric" selected>Metric (m/s, °C, mm)</option>
-                    <option value="imperial">Imperial (ft/min, °F, in)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <!-- STEP 2: CONVEYOR DIGITAL TWIN BUILDER -->
-          <article class="step-card" id="step-card-2">
-            <div class="step-header">
-              <span class="step-tag">Step 02 / 04 • Conveyor Spec</span>
-              <h2 class="step-title">Configure Conveyor Line #1</h2>
-              <p class="step-description">Tune physical parameters to calibrate real-time digital twin velocity, drive motor load, and friction models.</p>
-            </div>
-
-            <div class="form-section">
-              <div class="field-group">
-                <label for="input-belt-name" class="field-label">Conveyor Belt Line Identifier</label>
-                <input type="text" id="input-belt-name" class="field-input" placeholder="e.g. Line 04 - Primary Incline" value="Line 04 - Primary Incline">
-              </div>
-
-              <div class="slider-control-card">
-                <div class="slider-meta">
-                  <span class="slider-title">Nominal Belt Surface Velocity</span>
-                  <span class="slider-readout" id="readout-speed">3.80 m/s</span>
-                </div>
-                <input type="range" id="input-belt-speed" class="custom-slider" min="0.5" max="6.0" step="0.1" value="3.8">
-                <div class="slider-ticks">
-                  <span>0.5 m/s (Low Speed)</span>
-                  <span>3.8 m/s (Rated Nominal)</span>
-                  <span>6.0 m/s (High Speed)</span>
-                </div>
-              </div>
-
-              <div class="field-row">
-                <div class="field-group half">
-                  <label for="input-belt-length" class="field-label">Total Belt Length (m)</label>
-                  <input type="number" id="input-belt-length" class="field-input" value="145" min="10" max="2500">
-                </div>
-
-                <div class="field-group half">
-                  <label for="input-belt-width" class="field-label">Belt Width (mm)</label>
-                  <input type="number" id="input-belt-width" class="field-input" value="1200" min="400" max="3000" step="50">
-                </div>
-              </div>
-
-              <div class="field-group">
-                <label class="field-label">Primary Drive Motor kW Rating</label>
-                <div class="radio-segments">
-                  <label class="segment-btn">
-                    <input type="radio" name="motor-kw" value="45">
-                    <span>45 kW</span>
-                  </label>
-                  <label class="segment-btn active">
-                    <input type="radio" name="motor-kw" value="90" checked>
-                    <span>90 kW</span>
-                  </label>
-                  <label class="segment-btn">
-                    <input type="radio" name="motor-kw" value="132">
-                    <span>132 kW</span>
-                  </label>
-                  <label class="segment-btn">
-                    <input type="radio" name="motor-kw" value="250">
-                    <span>250 kW</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <!-- STEP 3: SENSOR TELEMETRY & ALERTS -->
-          <article class="step-card" id="step-card-3">
-            <div class="step-header">
-              <span class="step-tag">Step 03 / 04 • Edge Sensors</span>
-              <h2 class="step-title">Telemetry Sensor Integration</h2>
-              <p class="step-description">Connect edge sensors to trigger automated safety shutdowns and preventative maintenance alerts.</p>
-            </div>
-
-            <div class="form-section">
-              <div class="sensor-list">
-                <!-- Sensor 1 -->
-                <div class="sensor-toggle-card enabled" data-sensor="tachometer">
-                  <div class="sensor-info">
-                    <span class="sensor-status-dot"></span>
-                    <div class="sensor-meta">
-                      <span class="sensor-name">Optical Belt Tachometer</span>
-                      <span class="sensor-desc">Monitors slip ratio, surface velocity, and drive pulley synchronization.</span>
-                    </div>
-                  </div>
-                  <div class="switch-control">
-                    <div class="switch-knob"></div>
-                  </div>
-                </div>
-
-                <!-- Sensor 2 -->
-                <div class="sensor-toggle-card enabled" data-sensor="thermal">
-                  <div class="sensor-info">
-                    <span class="sensor-status-dot"></span>
-                    <div class="sensor-meta">
-                      <span class="sensor-name">Drive Bearing Thermal RTD</span>
-                      <span class="sensor-desc">Continuous temperature telemetry to guard against friction heat runaway.</span>
-                    </div>
-                  </div>
-                  <div class="switch-control">
-                    <div class="switch-knob"></div>
-                  </div>
-                </div>
-
-                <!-- Sensor 3 -->
-                <div class="sensor-toggle-card enabled" data-sensor="vibration">
-                  <div class="sensor-info">
-                    <span class="sensor-status-dot"></span>
-                    <div class="sensor-meta">
-                      <span class="sensor-name">3-Axis Vibration Accelerometer</span>
-                      <span class="sensor-desc">Detects idler roller bearing imbalance, resonance, and harmonic noise.</span>
-                    </div>
-                  </div>
-                  <div class="switch-control">
-                    <div class="switch-knob"></div>
-                  </div>
-                </div>
-
-                <!-- Sensor 4 -->
-                <div class="sensor-toggle-card" data-sensor="drift">
-                  <div class="sensor-info">
-                    <span class="sensor-status-dot"></span>
-                    <div class="sensor-meta">
-                      <span class="sensor-name">Ultrasonic Belt Edge Drift Detector</span>
-                      <span class="sensor-desc">Tracks lateral belt tracking drift to avoid sidewall structural rubbing.</span>
-                    </div>
-                  </div>
-                  <div class="switch-control">
-                    <div class="switch-knob"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="field-group">
-                <label for="input-alert-email" class="field-label">Operations Alert Dispatch Email</label>
-                <div class="input-with-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                    <polyline points="22,6 12,13 2,6"/>
-                  </svg>
-                  <input type="email" id="input-alert-email" class="field-input" placeholder="ops-alerts@yourcompany.com" value="ops-alerts@apexterminal.com">
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <!-- STEP 4: VERIFICATION & ACTIVATION -->
-          <article class="step-card" id="step-card-4">
-            <div class="step-header">
-              <span class="step-tag">Step 04 / 04 • Launch Verification</span>
-              <h2 class="step-title">Review & Digital Twin Activation</h2>
-              <p class="step-description">Verify your configured conveyor digital twin parameters. Live edge diagnostics are connected below.</p>
-            </div>
-
-            <div class="form-section">
-              <div class="summary-box">
-                <div class="summary-row">
-                  <span class="summary-key">Facility Site</span>
-                  <span class="summary-val" id="sum-facility">Apex Terminal Alpha</span>
-                </div>
-                <div class="summary-row">
-                  <span class="summary-key">Industry Sector</span>
-                  <span class="summary-val" id="sum-sector">E-Commerce Logistics</span>
-                </div>
-                <div class="summary-row">
-                  <span class="summary-key">Conveyor Identifier</span>
-                  <span class="summary-val" id="sum-belt-name">Line 04 - Primary Incline</span>
-                </div>
-                <div class="summary-row">
-                  <span class="summary-key">Nominal Velocity</span>
-                  <span class="summary-val" id="sum-speed">3.80 m/s</span>
-                </div>
-                <div class="summary-row">
-                  <span class="summary-key">Geometry</span>
-                  <span class="summary-val" id="sum-dims">145m length × 1200mm width</span>
-                </div>
-                <div class="summary-row">
-                  <span class="summary-key">Drive Motor</span>
-                  <span class="summary-val" id="sum-motor">90 kW Drive</span>
-                </div>
-                <div class="summary-row">
-                  <span class="summary-key">Active Edge Sensors</span>
-                  <span class="summary-val" id="sum-sensors">3 Channels Online</span>
-                </div>
-              </div>
-
-              <!-- Live Telemetry Health Bar -->
-              <div class="live-status-bar">
-                <div class="status-indicator">
-                  <span class="pulse-dot"></span>
-                  <span class="status-text">Edge Gateway Handshake: Verified (TLS 1.3)</span>
-                </div>
-                <span class="latency-badge" id="live-latency">6.4 ms latency</span>
-              </div>
-            </div>
-          </article>
-
-          <!-- Wizard Footer Controls -->
-          <div class="wizard-actions">
-            <button type="button" class="btn-action-back" id="btn-back" disabled>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            <button type="button" class="btn-primary-action" id="btn-open-register">
+              <span>Register New School Tenant</span>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
-              Previous
             </button>
+          </div>
 
-            <button type="button" class="btn-action-next" id="btn-next">
-              <span id="next-label">Continue to Digital Twin</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
+          <!-- ENTRY CARD 2: STUDENT & MINOR GUARDIAN -->
+          <div class="entry-card" id="card-student-entry">
+            <div class="entry-card-header">
+              <span class="entry-tag accent">Students & Parents</span>
+              <span class="entry-num accent">02</span>
+            </div>
+
+            <h2 class="entry-title">Join with School Registration Code</h2>
+            <p class="entry-desc">
+              Enrolled in an accredited dojo? Input the unique school registration code provided by your head coach to access personal or child attendance and belt milestones.
+            </p>
+
+            <ul class="entry-checklist">
+              <li>
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Live belt progression bar & remaining class countdown
+              </li>
+              <li>
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Verified technique sign-offs from your coaching staff
+              </li>
+              <li>
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Internal tuition receipts & testing fee confirmations
+              </li>
+            </ul>
+
+            <button type="button" class="btn-secondary-action" id="btn-open-join">
+              <span>Enter School Registration Code</span>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
             </button>
           </div>
@@ -357,120 +213,344 @@
         </div>
       </section>
 
-      <!-- RIGHT COLUMN: Interactive Live Digital Twin Preview -->
-      <aside class="preview-panel" aria-label="Digital Twin Simulator">
-        <div class="preview-card">
-          <div class="preview-card-header">
-            <div class="twin-badge">
-              <span class="live-indicator"></span>
-              DIGITAL TWIN SIMULATOR
-            </div>
-            <div class="preview-line-name" id="preview-tag-name">Line 04 - Primary Incline</div>
+      <!-- PREVIEW DASHBOARD (STATUS CARDS) -->
+      <section class="dashboard-preview-section">
+        <div class="dashboard-header">
+          <div>
+            <span class="preview-tag">Isolated Tenant Preview</span>
+            <h2 class="dashboard-title">Dojo Operating Dashboard</h2>
           </div>
-
-          <!-- Dynamic Conveyor Belt Canvas Simulation -->
-          <div class="conveyor-viewport">
-            <canvas id="conveyor-canvas" width="520" height="180"></canvas>
-            <div class="viewport-hud">
-              <div class="hud-item">
-                <span class="hud-label">SURFACE VELOCITY</span>
-                <span class="hud-value" id="hud-velocity">3.80 m/s</span>
-              </div>
-              <div class="hud-item">
-                <span class="hud-label">BEARING TEMP</span>
-                <span class="hud-value normal" id="hud-temp">42.8 °C</span>
-              </div>
-              <div class="hud-item">
-                <span class="hud-label">BELT SLIP</span>
-                <span class="hud-value normal" id="hud-slip">0.38 %</span>
-              </div>
-            </div>
+          <div class="persona-indicator">
+            Viewing as: <strong id="persona-label">Owner / Admin</strong>
           </div>
+        </div>
 
-          <!-- Live Metrics Gauges -->
-          <div class="metrics-grid">
-            <div class="metric-gauge">
-              <div class="gauge-header">
-                <span>DRIVE MOTOR LOAD</span>
-                <span class="gauge-percent" id="load-readout">64%</span>
-              </div>
-              <div class="progress-bar-bg">
-                <div class="progress-bar-fill load-fill" id="load-bar" style="width: 64%;"></div>
-              </div>
-              <span class="gauge-sub" id="power-readout">57.6 kW / 90 kW</span>
+        <div class="cards-grid">
+          
+          <!-- CARD 1: DYNAMIC RANK PROGRESSION & GRADING READINESS -->
+          <article class="dashboard-card" id="card-rank-engine">
+            <div class="card-header">
+              <span class="card-meta">Curriculum & Rank Engine</span>
+              <span class="status-badge" id="badge-grading-status">IN PROGRESS</span>
             </div>
 
-            <div class="metric-gauge">
-              <div class="gauge-header">
-                <span>HEALTH SCORE</span>
-                <span class="gauge-percent" id="health-readout">99.4%</span>
-              </div>
-              <div class="progress-bar-bg">
-                <div class="progress-bar-fill health-fill" id="health-bar" style="width: 99.4%;"></div>
-              </div>
-              <span class="gauge-sub">All Idler Tolerances OK</span>
-            </div>
-          </div>
+            <h3 class="card-title">Brazilian Jiu-Jitsu (Gi Track)</h3>
+            <p class="card-desc">Student: Lucas Silva • Current: White Belt (3 Stripes)</p>
 
-          <!-- Live Telemetry Stream Ticker -->
-          <div class="telemetry-ticker">
-            <div class="ticker-header">
-              <span class="ticker-title">LIVE TELEMETRY STREAM</span>
-              <span class="ticker-rate">20 Hz</span>
+            <!-- Visual Martial Arts Belt -->
+            <div class="martial-belt-visual" aria-label="White Belt with 3 Stripes">
+              <div class="belt-body">
+                <div class="belt-seam"></div>
+              </div>
+              <div class="belt-rank-bar">
+                <span class="belt-stripe"></span>
+                <span class="belt-stripe"></span>
+                <span class="belt-stripe"></span>
+                <span class="belt-stripe empty"></span>
+              </div>
             </div>
-            <div class="ticker-stream" id="stream-container">
-              <div class="ticker-line"><span class="t-stamp">[12:44:01.000]</span> PKT_9040: V=3.80m/s T_BEAR=42.8°C SLIP=0.38% STATUS=NOMINAL</div>
-              <div class="ticker-line"><span class="t-stamp">[12:44:01.050]</span> PKT_9041: V=3.80m/s T_BEAR=42.8°C SLIP=0.37% STATUS=NOMINAL</div>
-              <div class="ticker-line"><span class="t-stamp">[12:44:01.100]</span> PKT_9042: V=3.81m/s T_BEAR=42.9°C SLIP=0.38% STATUS=NOMINAL</div>
+
+            <!-- Progression Metrics -->
+            <div class="metric-rows">
+              <div class="metric-row">
+                <div class="metric-labels">
+                  <span>Class Attendance</span>
+                  <span class="metric-val" id="text-attendance-progress">42 / 50 classes</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" id="fill-attendance" style="width: 84%;"></div>
+                </div>
+              </div>
+
+              <div class="metric-row">
+                <div class="metric-labels">
+                  <span>Mandatory Technique Sign-Offs</span>
+                  <span class="metric-val">8 / 10 Verified</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill primary" style="width: 80%;"></div>
+                </div>
+              </div>
+
+              <div class="metric-info-row">
+                <span>Time-in-Rank:</span>
+                <span class="metric-val">142 Days (Min: 120 Days)</span>
+              </div>
             </div>
-          </div>
+
+            <div class="card-footer-action">
+              <button type="button" class="btn-card-action" id="btn-simulate-checkin">
+                + Simulate Roll-Call Check-in (42 classes)
+              </button>
+            </div>
+          </article>
+
+          <!-- CARD 2: ATTENDANCE & INACTIVE STUDENT DROP-OFF TRIGGER -->
+          <article class="dashboard-card" id="card-attendance-engine">
+            <div class="card-header">
+              <span class="card-meta">Attendance & Retention</span>
+              <span class="status-badge warning">RETENTION WATCH</span>
+            </div>
+
+            <h3 class="card-title">Active Mat Roll-Call</h3>
+            <p class="card-desc">Automated drop-off flags absent students (10–14 days).</p>
+
+            <!-- Drop-Off Risk Alert Box -->
+            <div class="alert-box">
+              <span class="alert-dot" aria-hidden="true"></span>
+              <div class="alert-content">
+                <strong class="alert-title">Dropout Risk Flagged: Elena Rostova</strong>
+                <span class="alert-text">Absent for 13 consecutive days. Automated coach retention check triggered.</span>
+              </div>
+            </div>
+
+            <!-- Schedule Items -->
+            <div class="schedule-list">
+              <div class="schedule-item">
+                <div>
+                  <strong class="schedule-name">BJJ Fundamentals (Gi)</strong>
+                  <span class="schedule-time">Coach Marcus • 18:00 - 19:15</span>
+                </div>
+                <span class="schedule-count highlight">18 Checked In</span>
+              </div>
+
+              <div class="schedule-item">
+                <div>
+                  <strong class="schedule-name">Competition Sparring</strong>
+                  <span class="schedule-time">Coach Elena • 19:30 - 20:45</span>
+                </div>
+                <span class="schedule-count">12 Confirmed</span>
+              </div>
+            </div>
+
+            <div class="card-stat-footer">
+              <span>Overall Dojo Mat Attendance:</span>
+              <span class="metric-val">94.2% Retention</span>
+            </div>
+          </article>
+
+          <!-- CARD 3: INTERNAL LEDGER & MANUAL SETTLEMENT (ZERO-MONETIZATION) -->
+          <article class="dashboard-card" id="card-ledger-engine">
+            <div class="card-header">
+              <span class="card-meta">Internal Bookkeeping</span>
+              <span class="status-badge neutral">0% FEES</span>
+            </div>
+
+            <h3 class="card-title">Internal Ledger & Receipts</h3>
+            <p class="card-desc">Manual off-platform settlements (cash/card/transfer).</p>
+
+            <!-- Recent Ledger Records -->
+            <div class="ledger-list">
+              <div class="ledger-item">
+                <div class="ledger-top">
+                  <span class="ledger-title">Monthly Tuition (Cash Settlement)</span>
+                  <span class="ledger-amount">$120.00</span>
+                </div>
+                <div class="ledger-bottom">
+                  <span>Student: Mateo Diaz</span>
+                  <span class="ledger-receipt">REC-2026-BJJ-084</span>
+                </div>
+              </div>
+
+              <div class="ledger-item">
+                <div class="ledger-top">
+                  <span class="ledger-title">Belt Promotion Testing Fee</span>
+                  <span class="ledger-amount">$45.00</span>
+                </div>
+                <div class="ledger-bottom">
+                  <span>Direct Bank Transfer</span>
+                  <span class="ledger-receipt">REC-2026-BJJ-085</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Zero-Monetization Policy Box -->
+            <div class="zero-fee-box">
+              <strong class="zero-fee-title">Closed Single Source of Truth</strong>
+              <p class="zero-fee-text">
+                No third-party payment gateways, no subscription cuts, and zero feature paywalls.
+              </p>
+            </div>
+
+            <div class="card-stat-footer">
+              <span>Settled This Month:</span>
+              <span class="metric-val">$4,860.00 (Offline)</span>
+            </div>
+          </article>
 
         </div>
-      </aside>
+      </section>
 
     </main>
 
-    <!-- Success Celebration Modal -->
-    <div class="launch-modal-backdrop" id="launch-modal" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-      <div class="launch-modal-box">
-        <div class="modal-celebrate-icon">
-          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <div class="footer-container">
+        <div class="footer-brand">
+          <span class="brand-name">BeltTrack</span>
+          <span>• Private Martial Arts Management OS</span>
         </div>
-        <h2 class="modal-title" id="modal-headline">BeltTrack Twin Activated!</h2>
-        <p class="modal-desc">
-          Your conveyor telemetry digital twin is now live and streaming edge sensor packets at 20 Hz into the fleet analytics pipeline.
+        <p class="footer-copy">
+          Strict Multi-Tenancy • Zero Monetization Core • Self-Contained Source of Truth
         </p>
-        <div class="modal-stats-card">
-          <div class="modal-stat">
-            <span class="stat-number" id="modal-line-name">Line 04</span>
-            <span class="stat-desc">Active Monitor</span>
+      </div>
+    </footer>
+
+    <!-- MODAL 1: REGISTER DOJO SCHOOL TENANT -->
+    <div class="modal-backdrop" id="modal-register" role="dialog" aria-modal="true" aria-labelledby="title-register-modal">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div>
+            <span class="modal-tag">Tenant Creation</span>
+            <h3 class="modal-title" id="title-register-modal">Register Martial Arts School</h3>
           </div>
-          <div class="modal-stat">
-            <span class="stat-number">20 Hz</span>
-            <span class="stat-desc">Sample Rate</span>
+          <button type="button" class="btn-close-modal" id="btn-close-register" aria-label="Close modal">✕</button>
+        </div>
+
+        <form id="form-register-school" class="modal-form">
+          <div class="form-group">
+            <label for="input-reg-school-name" class="form-label">School / Academy Name</label>
+            <input type="text" id="input-reg-school-name" class="form-input" placeholder="e.g. Vance Gracie Jiu-Jitsu" value="Vance Gracie Jiu-Jitsu" required>
           </div>
-          <div class="modal-stat">
-            <span class="stat-number">0.0%</span>
-            <span class="stat-desc">Packet Loss</span>
+
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="select-reg-discipline" class="form-label">Discipline</label>
+              <select id="select-reg-discipline" class="form-select">
+                <option value="brazilian_jiu_jitsu" selected>Brazilian Jiu-Jitsu</option>
+                <option value="judo">Judo</option>
+                <option value="karate">Karate</option>
+                <option value="taekwondo">Taekwondo</option>
+                <option value="muay_thai">Muay Thai</option>
+                <option value="krav_maga">Krav Maga</option>
+              </select>
+            </div>
+
+            <div class="form-group half">
+              <label for="input-reg-code" class="form-label">Unique School Code</label>
+              <input type="text" id="input-reg-code" class="form-input code-input" value="VANCE-BJJ-2026" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="select-reg-timezone" class="form-label">Operating Timezone</label>
+              <select id="select-reg-timezone" class="form-select">
+                <option value="UTC" selected>UTC (Coordinated Universal Time)</option>
+                <option value="Europe/London">Europe/London (GMT/BST)</option>
+                <option value="America/New_York">America/New York (EST/EDT)</option>
+                <option value="America/Los_Angeles">America/Los Angeles (PST/PDT)</option>
+                <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
+              </select>
+            </div>
+
+            <div class="form-group half">
+              <label for="input-reg-owner" class="form-label">Head Coach Full Name</label>
+              <input type="text" id="input-reg-owner" class="form-input" value="Marcus Vance" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="input-reg-email" class="form-label">Owner Email</label>
+            <input type="email" id="input-reg-email" class="form-input" value="marcus@vancebjj.com" required>
+          </div>
+
+          <div class="form-feedback" id="feedback-register"></div>
+
+          <div class="modal-btn-row">
+            <button type="button" class="btn-modal-cancel" id="btn-cancel-register">Cancel</button>
+            <button type="submit" class="btn-modal-submit">Create Dojo Tenant</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 2: JOIN SCHOOL WITH REGISTRATION CODE -->
+    <div class="modal-backdrop" id="modal-join" role="dialog" aria-modal="true" aria-labelledby="title-join-modal">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div>
+            <span class="modal-tag">Member Onboarding</span>
+            <h3 class="modal-title" id="title-join-modal">Join Dojo with School Code</h3>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-join" aria-label="Close modal">✕</button>
+        </div>
+
+        <form id="form-join-school" class="modal-form">
+          <div class="form-group">
+            <label for="input-join-code" class="form-label">School Registration Code</label>
+            <input type="text" id="input-join-code" class="form-input code-input" placeholder="e.g. KAIZEN-2026" value="KAIZEN-2026" required>
+            <span class="form-sub-hint">Ask your head coach or academy desk for this unique access code.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="input-join-student-name" class="form-label">Student Full Name</label>
+            <input type="text" id="input-join-student-name" class="form-input" placeholder="e.g. Lucas Silva" value="Lucas Silva" required>
+          </div>
+
+          <div class="form-group">
+            <label for="input-join-email" class="form-label">Email Address</label>
+            <input type="email" id="input-join-email" class="form-input" placeholder="e.g. lucas@example.com" value="lucas@example.com" required>
+          </div>
+
+          <div class="form-feedback" id="feedback-join"></div>
+
+          <div class="modal-btn-row">
+            <button type="button" class="btn-modal-cancel" id="btn-cancel-join">Cancel</button>
+            <button type="submit" class="btn-modal-submit">Verify & Join Dojo</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 3: PUBLIC SCHOOL DIRECTORY (CROSS-TENANT ISOLATION DEMO) -->
+    <div class="modal-backdrop" id="modal-directory" role="dialog" aria-modal="true" aria-labelledby="title-directory-modal">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div>
+            <span class="modal-tag">Public Directory</span>
+            <h3 class="modal-title" id="title-directory-modal">Accredited Martial Arts Dojos</h3>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-directory" aria-label="Close modal">✕</button>
+        </div>
+
+        <p class="directory-intro">
+          Global directory queries only expose public school metadata. Internal student rosters, attendances, and ledgers are strictly blocked by RLS policies.
+        </p>
+
+        <div class="directory-list">
+          <div class="directory-item">
+            <div>
+              <strong class="directory-name">Kaizen BJJ Academy</strong>
+              <span class="directory-loc">London, United Kingdom • Brazilian Jiu-Jitsu</span>
+            </div>
+            <span class="directory-code">KAIZEN-2026</span>
+          </div>
+
+          <div class="directory-item">
+            <div>
+              <strong class="directory-name">Kodokan Judo Institute Hub</strong>
+              <span class="directory-loc">Tokyo, Japan • Traditional Judo</span>
+            </div>
+            <span class="directory-code">KODOKAN-77</span>
+          </div>
+
+          <div class="directory-item">
+            <div>
+              <strong class="directory-name">Apex Taekwondo Academy</strong>
+              <span class="directory-loc">Seoul, South Korea • WT Taekwondo</span>
+            </div>
+            <span class="directory-code">APEX-TKD</span>
           </div>
         </div>
-        <div class="modal-actions-row">
-          <button type="button" class="btn-modal-action" id="btn-restart-onboarding">
-            Configure Another Conveyor Line
-          </button>
-          <button type="button" class="btn-modal-secondary" id="btn-close-modal">
-            Close Modal
-          </button>
-        </div>
+
+        <button type="button" class="btn-modal-full" id="btn-close-directory-action">Close Directory</button>
       </div>
     </div>
 
   </div>
 
-  <!-- Interactive Onboarding & Digital Twin Controller Script -->
+  <!-- Interactive State Controller for Martial Arts Platform -->
   <script src="./app.js"></script>
 </body>
 </html>
