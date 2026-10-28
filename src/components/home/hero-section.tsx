@@ -24,9 +24,9 @@ export function HeroSection() {
           <div className="w-8 h-8 rounded bg-primary-container text-primary-on-container flex items-center justify-center mb-2 font-display text-lg font-extrabold">
             1
           </div>
-          <h3 className="font-title text-sm font-semibold text-primary mb-1">
+          <h2 className="font-title text-sm font-semibold text-primary mb-1">
             Row-Level Tenant Isolation
-          </h3>
+          </h2>
           <p className="font-body text-xs text-surface-on-variant">
             Cross-tenant queries are blocked. Rosters, attendance, techniques, and ledgers remain strictly private.
           </p>
@@ -36,9 +36,9 @@ export function HeroSection() {
           <div className="w-8 h-8 rounded bg-primary-container text-primary-on-container flex items-center justify-center mb-2 font-display text-lg font-extrabold">
             2
           </div>
-          <h3 className="font-title text-sm font-semibold text-primary mb-1">
+          <h2 className="font-title text-sm font-semibold text-primary mb-1">
             Dynamic Grading Readiness
-          </h3>
+          </h2>
           <p className="font-body text-xs text-surface-on-variant">
             Hours logged + coach technique checklists evaluate promotion readiness without manual spreadsheet errors.
           </p>
@@ -48,9 +48,9 @@ export function HeroSection() {
           <div className="w-8 h-8 rounded bg-primary-container text-primary-on-container flex items-center justify-center mb-2 font-display text-lg font-extrabold">
             3
           </div>
-          <h3 className="font-title text-sm font-semibold text-primary mb-1">
+          <h2 className="font-title text-sm font-semibold text-primary mb-1">
             Zero-Monetization Ledger
-          </h3>
+          </h2>
           <p className="font-body text-xs text-surface-on-variant">
             Built for administrative autonomy. Records off-platform settlements (cash/card/transfer) with 0% platform cuts.
           </p>

@@ -1,32 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="BeltTrack - Private, multi-tenant martial arts school management & progress monitoring platform. Strict tenant isolation, belt progress tracking, roll-call attendance, and zero-monetization internal ledgers.">
-  <title>BeltTrack - Martial Arts School Management & Rank Progression</title>
+  <meta name="description"
+    content="BeltTrack - Private, multi-tenant martial arts school management &amp; progress monitoring platform. Strict tenant isolation, belt progress tracking, roll-call attendance, and zero-monetization internal ledgers.">
+  <title>BeltTrack - Martial Arts School Management &amp; Rank Progression</title>
 
   <!-- Google Fonts Embed for BeltTrack Design System Tokens -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
   <!-- Design System Token Stylesheets -->
   <link rel="stylesheet" href="./variables.css">
   <link rel="stylesheet" href="./typography.css">
   <link rel="stylesheet" href="./index.css">
 </head>
+
 <body>
   <div class="app-layout">
-    
+
     <!-- TOP NAVIGATION BAR -->
     <header class="top-nav">
       <div class="nav-container">
-        
+
         <!-- Brand & Platform Identity -->
         <div class="brand">
           <div class="brand-symbol" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="2" y="6" width="20" height="12" rx="4" />
               <line x1="8" y1="6" x2="8" y2="18" />
               <line x1="12" y1="6" x2="12" y2="18" stroke-dasharray="2 2" />
@@ -38,7 +44,7 @@
               <span class="brand-name">BeltTrack</span>
               <span class="brand-badge">Martial OS</span>
             </div>
-            <span class="brand-sub">Private Dojo Management & Rank Tracker</span>
+            <span class="brand-sub">Private Dojo Management &amp; Rank Tracker</span>
           </div>
         </div>
 
@@ -52,7 +58,7 @@
         <!-- Header Actions: Public Directory & Role Switcher -->
         <div class="nav-actions">
           <button type="button" class="btn-directory" id="btn-open-directory">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
@@ -78,7 +84,7 @@
 
     <!-- MAIN HOMEPAGE WORKSPACE -->
     <main class="main-content">
-      
+
       <!-- HERO & ARCHITECTURAL OVERVIEW -->
       <section class="hero-section">
         <div class="hero-pill">
@@ -88,7 +94,7 @@
         </div>
 
         <h1 class="hero-title">
-          Private Martial Arts School Management & Rank Progression
+          Private Martial Arts School Management &amp; Rank Progression
         </h1>
 
         <p class="hero-description">
@@ -100,25 +106,28 @@
         <div class="pillars-grid">
           <div class="pillar-card">
             <div class="pillar-num">01</div>
-            <h3 class="pillar-title">Row-Level Tenant Isolation</h3>
+            <h2 class="pillar-title">Row-Level Tenant Isolation</h2>
             <p class="pillar-desc">
-              Cross-tenant queries are blocked. Rosters, attendance, techniques, and ledgers remain strictly private to the authenticated dojo.
+              Cross-tenant queries are blocked. Rosters, attendance, techniques, and ledgers remain strictly private to
+              the authenticated dojo.
             </p>
           </div>
 
           <div class="pillar-card">
             <div class="pillar-num">02</div>
-            <h3 class="pillar-title">Dynamic Grading Readiness</h3>
+            <h2 class="pillar-title">Dynamic Grading Readiness</h2>
             <p class="pillar-desc">
-              Hours logged and coach technique sign-offs automatically calculate belt promotion eligibility without spreadsheet errors.
+              Hours logged and coach technique sign-offs automatically calculate belt promotion eligibility without
+              spreadsheet errors.
             </p>
           </div>
 
           <div class="pillar-card">
             <div class="pillar-num">03</div>
-            <h3 class="pillar-title">Zero-Monetization Ledger</h3>
+            <h2 class="pillar-title">Zero-Monetization Ledger</h2>
             <p class="pillar-desc">
-              Built for administrative autonomy. Records off-platform settlements (cash, card, bank transfer) with 0% platform cuts.
+              Built for administrative autonomy. Records off-platform settlements (cash, card, bank transfer) with 0%
+              platform cuts.
             </p>
           </div>
         </div>
@@ -127,7 +136,7 @@
       <!-- DUAL ROLE-BASED ENTRY POINTS -->
       <section class="entry-points-section">
         <div class="entry-grid">
-          
+
           <!-- ENTRY CARD 1: DOJO OWNER & HEAD COACH -->
           <div class="entry-card" id="card-owner-entry">
             <div class="entry-card-header">
@@ -137,33 +146,34 @@
 
             <h2 class="entry-title">Register Your Martial Arts School</h2>
             <p class="entry-desc">
-              Create an isolated dojo tenant. Configure custom belt ladders (White to Black), generate your unique student access code, and schedule weekly roll-call sessions.
+              Create an isolated dojo tenant. Configure custom belt ladders (White to Black), generate your unique
+              student access code, and schedule weekly roll-call sessions.
             </p>
 
             <ul class="entry-checklist">
               <li>
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-                Custom ranking tracks with minimum hours & time-in-rank
+                Custom ranking tracks with minimum hours &amp; time-in-rank
               </li>
               <li>
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
                 Inactive student automated drop-off alerts (10–14 days)
               </li>
               <li>
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-                Manual cash/card settlement ledger & internal receipts
+                Manual cash/card settlement ledger &amp; internal receipts
               </li>
             </ul>
 
             <button type="button" class="btn-primary-action" id="btn-open-register">
               <span>Register New School Tenant</span>
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
             </button>
@@ -172,40 +182,42 @@
           <!-- ENTRY CARD 2: STUDENT & MINOR GUARDIAN -->
           <div class="entry-card" id="card-student-entry">
             <div class="entry-card-header">
-              <span class="entry-tag accent">Students & Parents</span>
+              <span class="entry-tag accent">Students &amp; Parents</span>
               <span class="entry-num accent">02</span>
             </div>
 
             <h2 class="entry-title">Join with School Registration Code</h2>
             <p class="entry-desc">
-              Enrolled in an accredited dojo? Input the unique school registration code provided by your head coach to access personal or child attendance and belt milestones.
+              Enrolled in an accredited dojo? Input the unique school registration code provided by your head coach to
+              access personal or child attendance and belt milestones.
             </p>
 
             <ul class="entry-checklist">
               <li>
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-                Live belt progression bar & remaining class countdown
+                Live belt progression bar &amp; remaining class countdown
               </li>
               <li>
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
                 Verified technique sign-offs from your coaching staff
               </li>
               <li>
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-                Internal tuition receipts & testing fee confirmations
+                Internal tuition receipts &amp; testing fee confirmations
               </li>
             </ul>
 
             <button type="button" class="btn-secondary-action" id="btn-open-join">
               <span>Enter School Registration Code</span>
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
             </button>
           </div>
@@ -226,11 +238,11 @@
         </div>
 
         <div class="cards-grid">
-          
+
           <!-- CARD 1: DYNAMIC RANK PROGRESSION & GRADING READINESS -->
           <article class="dashboard-card" id="card-rank-engine">
             <div class="card-header">
-              <span class="card-meta">Curriculum & Rank Engine</span>
+              <span class="card-meta">Curriculum &amp; Rank Engine</span>
               <span class="status-badge" id="badge-grading-status">IN PROGRESS</span>
             </div>
 
@@ -288,7 +300,7 @@
           <!-- CARD 2: ATTENDANCE & INACTIVE STUDENT DROP-OFF TRIGGER -->
           <article class="dashboard-card" id="card-attendance-engine">
             <div class="card-header">
-              <span class="card-meta">Attendance & Retention</span>
+              <span class="card-meta">Attendance &amp; Retention</span>
               <span class="status-badge warning">RETENTION WATCH</span>
             </div>
 
@@ -300,7 +312,8 @@
               <span class="alert-dot" aria-hidden="true"></span>
               <div class="alert-content">
                 <strong class="alert-title">Dropout Risk Flagged: Elena Rostova</strong>
-                <span class="alert-text">Absent for 13 consecutive days. Automated coach retention check triggered.</span>
+                <span class="alert-text">Absent for 13 consecutive days. Automated coach retention check
+                  triggered.</span>
               </div>
             </div>
 
@@ -336,7 +349,7 @@
               <span class="status-badge neutral">0% FEES</span>
             </div>
 
-            <h3 class="card-title">Internal Ledger & Receipts</h3>
+            <h3 class="card-title">Internal Ledger &amp; Receipts</h3>
             <p class="card-desc">Manual off-platform settlements (cash/card/transfer).</p>
 
             <!-- Recent Ledger Records -->
@@ -397,7 +410,8 @@
     </footer>
 
     <!-- MODAL 1: REGISTER DOJO SCHOOL TENANT -->
-    <div class="modal-backdrop" id="modal-register" role="dialog" aria-modal="true" aria-labelledby="title-register-modal">
+    <div class="modal-backdrop" id="modal-register" role="dialog" aria-modal="true"
+      aria-labelledby="title-register-modal">
       <div class="modal-card">
         <div class="modal-head">
           <div>
@@ -410,7 +424,8 @@
         <form id="form-register-school" class="modal-form">
           <div class="form-group">
             <label for="input-reg-school-name" class="form-label">School / Academy Name</label>
-            <input type="text" id="input-reg-school-name" class="form-input" placeholder="e.g. Vance Gracie Jiu-Jitsu" value="Vance Gracie Jiu-Jitsu" required>
+            <input type="text" id="input-reg-school-name" class="form-input" placeholder="e.g. Vance Gracie Jiu-Jitsu"
+              value="Vance Gracie Jiu-Jitsu" required>
           </div>
 
           <div class="form-row">
@@ -479,32 +494,55 @@
         <form id="form-join-school" class="modal-form">
           <div class="form-group">
             <label for="input-join-code" class="form-label">School Registration Code</label>
-            <input type="text" id="input-join-code" class="form-input code-input" placeholder="e.g. KAIZEN-2026" value="KAIZEN-2026" required>
+            <input type="text" id="input-join-code" class="form-input code-input" placeholder="e.g. KAIZEN-2026"
+              value="KAIZEN-2026" required>
             <span class="form-sub-hint">Ask your head coach or academy desk for this unique access code.</span>
           </div>
 
           <div class="form-group">
             <label for="input-join-student-name" class="form-label">Student Full Name</label>
-            <input type="text" id="input-join-student-name" class="form-input" placeholder="e.g. Lucas Silva" value="Lucas Silva" required>
+            <input type="text" id="input-join-student-name" class="form-input" placeholder="e.g. Lucas Silva"
+              value="Lucas Silva" required>
           </div>
 
           <div class="form-group">
             <label for="input-join-email" class="form-label">Email Address</label>
-            <input type="email" id="input-join-email" class="form-input" placeholder="e.g. lucas@example.com" value="lucas@example.com" required>
+            <input type="email" id="input-join-email" class="form-input" placeholder="e.g. lucas@example.com"
+              value="lucas@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-row" for="checkbox-join-is-minor">
+              <input type="checkbox" id="checkbox-join-is-minor">
+              <span class="checkbox-label-text">Student is under 18 years old (Minor enrollment)</span>
+            </label>
+          </div>
+
+          <div class="guardian-fields" id="guardian-fields-container">
+            <div class="form-group">
+              <label for="input-join-guardian-name" class="form-label">Guardian Full Name *</label>
+              <input type="text" id="input-join-guardian-name" class="form-input" placeholder="e.g. Roberto Silva">
+            </div>
+
+            <div class="form-group">
+              <label for="input-join-guardian-email" class="form-label">Guardian Email Address</label>
+              <input type="email" id="input-join-guardian-email" class="form-input" placeholder="e.g. roberto@example.com">
+            </div>
           </div>
 
           <div class="form-feedback" id="feedback-join"></div>
 
           <div class="modal-btn-row">
             <button type="button" class="btn-modal-cancel" id="btn-cancel-join">Cancel</button>
-            <button type="submit" class="btn-modal-submit">Verify & Join Dojo</button>
+            <button type="submit" class="btn-modal-submit">Verify &amp; Join Dojo</button>
           </div>
         </form>
       </div>
     </div>
 
     <!-- MODAL 3: PUBLIC SCHOOL DIRECTORY (CROSS-TENANT ISOLATION DEMO) -->
-    <div class="modal-backdrop" id="modal-directory" role="dialog" aria-modal="true" aria-labelledby="title-directory-modal">
+    <div class="modal-backdrop" id="modal-directory" role="dialog" aria-modal="true"
+      aria-labelledby="title-directory-modal">
       <div class="modal-card">
         <div class="modal-head">
           <div>
@@ -515,7 +553,8 @@
         </div>
 
         <p class="directory-intro">
-          Global directory queries only expose public school metadata. Internal student rosters, attendances, and ledgers are strictly blocked by RLS policies.
+          Global directory queries only expose public school metadata. Internal student rosters, attendances, and
+          ledgers are strictly blocked by RLS policies.
         </p>
 
         <div class="directory-list">
@@ -553,4 +592,5 @@
   <!-- Interactive State Controller for Martial Arts Platform -->
   <script src="./app.js"></script>
 </body>
+
 </html>

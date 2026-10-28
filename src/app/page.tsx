@@ -9,8 +9,9 @@ import { useTenant } from '@/context/tenant-context';
 import { schoolRegistrationSchema, studentJoinCodeSchema } from '@/lib/validation/schemas';
 import type { DisciplineType } from '@/types/domain';
 
+
 export default function HomePage() {
-  const { setActiveSchool } = useTenant();
+  const { activeSchool, setActiveSchool, registerPendingStudent } = useTenant();
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [isJoinModalOpen, setJoinModalOpen] = useState(false);
   const [isDirectoryModalOpen, setDirectoryModalOpen] = useState(false);
@@ -28,6 +29,9 @@ export default function HomePage() {
   const [inputCode, setInputCode] = useState('');
   const [studentName, setStudentName] = useState('');
   const [studentEmail, setStudentEmail] = useState('');
+  const [isMinor, setIsMinor] = useState(false);
+  const [guardianName, setGuardianName] = useState('');
+  const [guardianEmail, setGuardianEmail] = useState('');
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
 
   // Handle Dojo Registration
@@ -77,11 +81,15 @@ export default function HomePage() {
   // Handle Student Join with Code
   const handleJoinSchool = (e: React.FormEvent) => {
     e.preventDefault();
+    const normalizedCode = inputCode.trim().toUpperCase();
+
     const result = studentJoinCodeSchema.safeParse({
-      registrationCode: inputCode.toUpperCase(),
-      studentFullName: studentName,
-      studentEmail,
-      isMinor: false
+      registrationCode: normalizedCode,
+      studentFullName: studentName.trim(),
+      studentEmail: studentEmail.trim(),
+      isMinor,
+      guardianFullName: isMinor ? guardianName.trim() : undefined,
+      guardianEmail: isMinor && guardianEmail.trim() ? guardianEmail.trim() : undefined
     });
 
     if (!result.success) {
@@ -89,11 +97,45 @@ export default function HomePage() {
       return;
     }
 
-    setFormFeedback(`Join code verified for ${inputCode.toUpperCase()}! Status: PENDING_APPROVAL. Roster reads are locked until coach sign-off.`);
-    setTimeout(() => {
-      setJoinModalOpen(false);
-      setFormFeedback(null);
-    }, 1800);
+    if (!activeSchool) {
+      setFormFeedback('No active school tenant found to associate registration.');
+      return;
+    }
+
+    // Verify tenant registration code matches active school tenant
+    const schoolCode = (activeSchool.registration_code || activeSchool.join_code || '').toUpperCase();
+    if (schoolCode && normalizedCode !== schoolCode) {
+      setFormFeedback(`Join code mismatch: Code "${normalizedCode}" does not belong to active tenant "${activeSchool.name}".`);
+      return;
+    }
+
+    // Wire into tenant database with school_id constraint and PENDING_APPROVAL status
+    try {
+      registerPendingStudent({
+        studentFullName: studentName.trim(),
+        studentEmail: studentEmail.trim(),
+        isMinor,
+        guardianFullName: isMinor ? guardianName.trim() : undefined,
+        guardianEmail: isMinor && guardianEmail.trim() ? guardianEmail.trim() : undefined
+      });
+
+      setFormFeedback(
+        `Join code verified for ${normalizedCode}! Enrolled in ${activeSchool.name}. Status: PENDING_APPROVAL (school_id: ${activeSchool.id.slice(0, 8)}...). Roster and technique reads are locked until coach sign-off.`
+      );
+      setTimeout(() => {
+        setJoinModalOpen(false);
+        setFormFeedback(null);
+        setInputCode('');
+        setStudentName('');
+        setStudentEmail('');
+        setIsMinor(false);
+        setGuardianName('');
+        setGuardianEmail('');
+      }, 2000);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error registering student under tenant.';
+      setFormFeedback(message);
+    }
   };
 
   return (
@@ -130,17 +172,23 @@ export default function HomePage() {
 
       {/* MODAL 1: REGISTER DOJO SCHOOL */}
       {isRegisterModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="title-register-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm"
+        >
           <div className="w-full max-w-lg p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="font-label text-xs font-bold text-tertiary uppercase">Tenant Creation</span>
-                <h3 className="font-headline text-xl font-bold text-primary">Register Martial Arts School</h3>
+                <h3 id="title-register-modal" className="font-headline text-xl font-bold text-primary">Register Martial Arts School</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setRegisterModalOpen(false)}
                 className="text-surface-on-variant hover:text-surface-foreground"
+                aria-label="Close modal"
               >
                 ✕
               </button>
@@ -282,17 +330,23 @@ export default function HomePage() {
 
       {/* MODAL 2: JOIN WITH REGISTRATION CODE */}
       {isJoinModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="title-join-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm"
+        >
           <div className="w-full max-w-md p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="font-label text-xs font-bold text-tertiary uppercase">Member Onboarding</span>
-                <h3 className="font-headline text-xl font-bold text-primary">Join Dojo with School Code</h3>
+                <h3 id="title-join-modal" className="font-headline text-xl font-bold text-primary">Join Dojo with School Code</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setJoinModalOpen(false)}
                 className="text-surface-on-variant hover:text-surface-foreground"
+                aria-label="Close modal"
               >
                 ✕
               </button>
@@ -344,6 +398,63 @@ export default function HomePage() {
                 />
               </div>
 
+              {/* MINOR STUDENT TOGGLE */}
+              <div className="pt-1">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    id="checkbox-is-minor"
+                    checked={isMinor}
+                    onChange={(e) => setIsMinor(e.target.checked)}
+                    className="h-4 w-4 rounded border-outline-variant bg-surface-container-low text-primary accent-primary"
+                  />
+                  <span className="font-title text-xs font-semibold text-surface-foreground">
+                    Student is under 18 years old (Minor enrollment)
+                  </span>
+                </label>
+              </div>
+
+              {/* GUARDIAN FIELDS (CONDITIONALLY SHOWN FOR MINORS) */}
+              {isMinor && (
+                <div className="space-y-3 p-3 rounded-lg bg-surface-container-low border border-outline-variant">
+                  <div>
+                    <span className="font-label text-xs font-bold text-tertiary uppercase block">
+                      Parent / Guardian Information
+                    </span>
+                    <span className="font-body text-xs text-surface-on-variant block">
+                      Required for linking guardian read-only progress views.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
+                      Guardian Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required={isMinor}
+                      placeholder="e.g. Roberto Silva"
+                      value={guardianName}
+                      onChange={(e) => setGuardianName(e.target.value)}
+                      className="w-full px-3 py-2 rounded-md bg-surface-container-lowest border border-outline-variant font-body text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
+                      Guardian Email Address
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="e.g. roberto@example.com"
+                      value={guardianEmail}
+                      onChange={(e) => setGuardianEmail(e.target.value)}
+                      className="w-full px-3 py-2 rounded-md bg-surface-container-lowest border border-outline-variant font-body text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
               {formFeedback && (
                 <div className="p-2 rounded bg-tertiary-container text-tertiary-on-container font-body text-xs font-medium">
                   {formFeedback}
@@ -372,17 +483,23 @@ export default function HomePage() {
 
       {/* MODAL 3: PUBLIC SCHOOL DIRECTORY (CROSS-TENANT ISOLATION DEMO) */}
       {isDirectoryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="title-directory-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm"
+        >
           <div className="w-full max-w-lg p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="font-label text-xs font-bold text-tertiary uppercase">Public Directory</span>
-                <h3 className="font-headline text-xl font-bold text-primary">Accredited Martial Arts Dojos</h3>
+                <h3 id="title-directory-modal" className="font-headline text-xl font-bold text-primary">Accredited Martial Arts Dojos</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setDirectoryModalOpen(false)}
                 className="text-surface-on-variant hover:text-surface-foreground"
+                aria-label="Close modal"
               >
                 ✕
               </button>

@@ -1084,6 +1084,41 @@ textarea {
   display: block;
 }
 
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.checkbox-label-text {
+  font-family: var(--font-family-title);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.guardian-fields {
+  display: none;
+  padding: 12px;
+  background-color: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--border-radius-card);
+  margin-top: 8px;
+}
+
+.guardian-fields.active {
+  display: block;
+}
+
 .modal-btn-row {
   display: flex;
   gap: 12px;

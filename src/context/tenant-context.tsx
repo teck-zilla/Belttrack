@@ -9,13 +9,22 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { School } from '@/types/domain';
+import type { School, SchoolMember } from '@/types/domain';
+import { assertTenantMatch } from '@/lib/prisma-extension';
 
 interface TenantContextType {
   activeSchool: School | null;
   isIsolated: boolean;
   setActiveSchool: (school: School) => void;
   clearTenant: () => void;
+  pendingMembers: SchoolMember[];
+  registerPendingStudent: (params: {
+    studentFullName: string;
+    studentEmail: string;
+    isMinor: boolean;
+    guardianFullName?: string;
+    guardianEmail?: string;
+  }) => SchoolMember;
 }
 
 const DEFAULT_DEMO_SCHOOL: School = {
@@ -36,6 +45,7 @@ const TenantContext = createContext<TenantContextType | undefined>(undefined);
 
 export function TenantProvider({ children }: { children: React.ReactNode }) {
   const [activeSchool, setActiveSchoolState] = useState<School | null>(DEFAULT_DEMO_SCHOOL);
+  const [pendingMembers, setPendingMembers] = useState<SchoolMember[]>([]);
 
   const setActiveSchool = (school: School) => {
     setActiveSchoolState(school);
@@ -45,13 +55,56 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     setActiveSchoolState(null);
   };
 
+  const registerPendingStudent = ({
+    studentFullName,
+    studentEmail,
+    isMinor,
+    guardianFullName,
+    guardianEmail
+  }: {
+    studentFullName: string;
+    studentEmail: string;
+    isMinor: boolean;
+    guardianFullName?: string;
+    guardianEmail?: string;
+  }): SchoolMember => {
+    if (!activeSchool?.id) {
+      throw new Error('Tenant isolation violation: schoolId must be provided for all private operations.');
+    }
+
+    const newStudentId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'stud-' + Date.now();
+    const newMember: SchoolMember = {
+      id: newStudentId,
+      school_id: activeSchool.id,
+      user_id: 'usr_' + newStudentId.slice(0, 8),
+      role: 'student',
+      status: 'pending_approval',
+      full_name: studentFullName,
+      email: studentEmail,
+      guardian_name: isMinor ? guardianFullName : undefined,
+      guardian_email: isMinor ? guardianEmail : undefined,
+      stripes_count: 0,
+      total_classes_attended: 0,
+      is_flagged_inactive: false,
+      enrolled_at: new Date().toISOString()
+    };
+
+    // Assert strict school_id tenant match
+    assertTenantMatch(newMember.school_id, activeSchool.id);
+
+    setPendingMembers(prev => [...prev, newMember]);
+    return newMember;
+  };
+
   return (
     <TenantContext.Provider
       value={{
         activeSchool,
         isIsolated: Boolean(activeSchool?.id),
         setActiveSchool,
-        clearTenant
+        clearTenant,
+        pendingMembers,
+        registerPendingStudent
       }}
     >
       {children}

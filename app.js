@@ -146,24 +146,70 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const checkboxIsMinor = document.getElementById('checkbox-join-is-minor');
+  const guardianContainer = document.getElementById('guardian-fields-container');
+  const inputJoinGuardianName = document.getElementById('input-join-guardian-name');
+  const inputJoinGuardianEmail = document.getElementById('input-join-guardian-email');
+
+  if (checkboxIsMinor && guardianContainer) {
+    checkboxIsMinor.addEventListener('change', () => {
+      if (checkboxIsMinor.checked) {
+        guardianContainer.classList.add('active');
+        if (inputJoinGuardianName) inputJoinGuardianName.required = true;
+      } else {
+        guardianContainer.classList.remove('active');
+        if (inputJoinGuardianName) {
+          inputJoinGuardianName.required = false;
+          inputJoinGuardianName.value = '';
+        }
+        if (inputJoinGuardianEmail) inputJoinGuardianEmail.value = '';
+      }
+    });
+  }
+
   if (formJoin) {
     formJoin.addEventListener('submit', (e) => {
       e.preventDefault();
       const inputJoinCode = document.getElementById('input-join-code');
       const inputJoinStudent = document.getElementById('input-join-student-name');
+      const inputJoinEmail = document.getElementById('input-join-email');
 
-      const codeVal = inputJoinCode.value.trim().toUpperCase();
-      const studentVal = inputJoinStudent.value.trim();
+      const codeVal = inputJoinCode ? inputJoinCode.value.trim().toUpperCase() : '';
+      const studentVal = inputJoinStudent ? inputJoinStudent.value.trim() : '';
+      const emailVal = inputJoinEmail ? inputJoinEmail.value.trim() : '';
+      const isMinor = checkboxIsMinor ? checkboxIsMinor.checked : false;
+      const guardianNameVal = inputJoinGuardianName ? inputJoinGuardianName.value.trim() : '';
+
+      if (isMinor && !guardianNameVal) {
+        if (feedbackJoin) {
+          feedbackJoin.textContent = 'Guardian full name is required for minor students.';
+          feedbackJoin.classList.add('active');
+        }
+        return;
+      }
+
+      const activeCode = (state.school.code || '').toUpperCase();
+      if (activeCode && codeVal !== activeCode) {
+        if (feedbackJoin) {
+          feedbackJoin.textContent = `Join code mismatch: Code "${codeVal}" does not belong to active tenant "${state.school.name}".`;
+          feedbackJoin.classList.add('active');
+        }
+        return;
+      }
 
       if (feedbackJoin) {
-        feedbackJoin.textContent = `Access code ${codeVal} verified! Account status: PENDING_APPROVAL. Roster and techniques unlock upon coach verification.`;
+        feedbackJoin.textContent = `Access code ${codeVal} verified! Enrolled under tenant "${state.school.name}". Status: PENDING_APPROVAL. Roster and techniques unlock upon coach verification.`;
         feedbackJoin.classList.add('active');
       }
 
       setTimeout(() => {
         closeModal(modalJoin);
         if (feedbackJoin) feedbackJoin.classList.remove('active');
-      }, 1800);
+        if (checkboxIsMinor) {
+          checkboxIsMinor.checked = false;
+          if (guardianContainer) guardianContainer.classList.remove('active');
+        }
+      }, 2000);
     });
   }
 
