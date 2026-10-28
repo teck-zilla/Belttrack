@@ -9,9 +9,11 @@
     "type-check": "tsc --noEmit",
     "serve": "node server.js",
     "build:tokens": "node build-tokens.js",
-    "audit": "node audit.js"
+    "audit": "node audit.js",
+    "db:generate": "prisma generate"
   },
   "dependencies": {
+    "@prisma/client": "^6.4.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.460.0",
     "next": "^16.4.3",
@@ -26,6 +28,7 @@
     "@types/react-dom": "^18.3.1",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
+    "prisma": "^6.4.1",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.6.3"
   }

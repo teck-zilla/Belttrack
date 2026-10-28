@@ -64,6 +64,7 @@ BELTTRACK APP/
 │   │   ├── auth-context.tsx          # Persona state (Owner / Coach / Student)
 │   │   └── tenant-context.tsx        # Isolated Dojo tenant context (school_id scope)
 │   ├── lib/
+│   │   ├── prisma.ts                 # Next.js-safe singleton Prisma Client instance
 │   │   ├── prisma-extension.ts       # Multi-tenant Prisma query extension (school_id scope)
 │   │   └── validation/
 │   │       └── schemas.ts            # Zod schemas for registration, join codes, & ledger
@@ -77,6 +78,7 @@ BELTTRACK APP/
 │   └── rls_policies.sql              # Database-level Row-Level Security isolation policies
 ├── docs/
 │   └── product_requirement_document_prd_belttrack_v1.md # Approved Product Requirement Document
+├── .env.example                      # Template for PostgreSQL connection configuration
 ├── index.html                        # Semantic, responsive standalone home screen
 ├── index.css                         # 100% token-powered martial arts stylesheet
 ├── app.js                            # Interactive state controller (modals, grading simulation)
@@ -87,7 +89,7 @@ BELTTRACK APP/
 ├── tailwind.config.ts                # Tailwind theme mapping tokens to CSS variables
 ├── postcss.config.mjs                # PostCSS configuration
 ├── tsconfig.json                     # Strict TypeScript configuration
-├── package.json                      # Next.js, React, Tailwind, and Zod dependencies
+├── package.json                      # Next.js, React, Tailwind, Prisma, and Zod dependencies
 ├── audit.js                          # Automated recursive token compliance audit
 └── server.js                         # Local test server (Port 3000)
 ```
@@ -111,8 +113,31 @@ BELTTRACK APP/
 
 * **Role-Based Onboarding Entry Points**:
   - **Dojo Owner / Head Coach**: "Register Your Martial Arts School" modal generating custom tenant registration codes.
-  - **Student / Guardian**: "Join with School Registration Code" modal.
+  - **Student / Guardian**: "Join with School Registration Code" modal with minor enrollment toggle, conditional guardian fields, and strict tenant `school_id` isolation (`PENDING_APPROVAL` status).
   - **Public Directory**: Accredited school directory showing public metadata without exposing private rosters.
+
+---
+
+## 🗄️ Database & Prisma ORM Setup
+
+The application is configured to connect to PostgreSQL via Prisma ORM:
+
+1. **Environment File Configuration**:
+   - Copy `.env.example` to `.env`:
+     ```powershell
+     cp .env.example .env
+     ```
+   - Update `DATABASE_URL` with your active PostgreSQL credentials:
+     ```env
+     DATABASE_URL="postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DATABASE>?schema=public"
+     ```
+
+2. **Client Generation & Tenant Isolation**:
+   - Generate TypeScript client types from `prisma/schema.prisma`:
+     ```powershell
+     npm run db:generate
+     ```
+   - All tenant queries are protected via `src/lib/prisma-extension.ts` ensuring zero cross-tenant leakage.
 
 ---
 
@@ -127,10 +152,13 @@ npm run audit
 npm run build:tokens
 # or: node build-tokens.js
 
-# 3. Start Next.js development server
+# 3. Generate Prisma client typings
+npm run db:generate
+
+# 4. Start Next.js development server
 npm run dev
 
-# 4. Alternatively, start local standalone server
+# 5. Alternatively, start local standalone server
 npm run serve
 # or: node server.js
 ```
