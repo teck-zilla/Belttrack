@@ -10,7 +10,7 @@ export function HeroSection() {
       </div>
 
       <h1 className="font-display text-4xl sm:text-5xl font-extrabold uppercase tracking-tight text-primary leading-tight mb-4">
-        Private Martial Arts School Management & Rank Progression
+        Private Martial Arts Dojo Management & Belt Progression Platform
       </h1>
 
       <p className="font-body text-base sm:text-lg text-surface-on-variant leading-relaxed max-w-2xl mx-auto mb-8 font-medium">

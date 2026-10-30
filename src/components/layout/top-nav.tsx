@@ -40,7 +40,7 @@ export function TopNav({
               </span>
             </div>
             <p className="font-title text-xs text-surface-on-variant font-medium">
-              Private Dojo Management & Rank Tracker
+              Private martial arts dojo management and belt progression platform.
             </p>
           </div>
         </div>

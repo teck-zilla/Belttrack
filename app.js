@@ -83,14 +83,28 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --------------------------------------------------------------------------
-  // MODAL CONTROLS
+  // MODAL CONTROLS & DYNAMIC TITLE MANAGEMENT
   // --------------------------------------------------------------------------
+  function updateDynamicTitle(title) {
+    if (typeof document !== 'undefined') {
+      document.title = title; // strictly dynamic, zero static string
+    }
+  }
+
   function openModal(modal) {
-    if (modal) modal.classList.add('active');
+    if (modal) {
+      modal.classList.add('active');
+      if (modal === modalRegister) updateDynamicTitle('Register School');
+      else if (modal === modalJoin) updateDynamicTitle('Join Dojo');
+      else if (modal === modalDirectory) updateDynamicTitle('Public School Directory');
+    }
   }
 
   function closeModal(modal) {
-    if (modal) modal.classList.remove('active');
+    if (modal) {
+      modal.classList.remove('active');
+      updateDynamicTitle('Dashboard');
+    }
   }
 
   // Register Modal

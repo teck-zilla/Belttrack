@@ -203,6 +203,13 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
+      <head>
+        <title>Dashboard</title>
+        <link rel="canonical" href="https://belttrack.app" />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="keywords" content="martial arts management, dojo software, bjj belt tracker, roll call attendance, private dojo tenant" />
+      </head>
+
       <TopNav
         onOpenDirectory={() => setDirectoryModalOpen(true)}
         onOpenRegister={() => setRegisterModalOpen(true)}
