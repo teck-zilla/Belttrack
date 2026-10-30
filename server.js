@@ -10,14 +10,23 @@ const MIME_TYPES = {
   '.json': 'application/json; charset=utf-8',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
-  '.svg': 'image/svg+xml'
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon'
 };
 
 const server = http.createServer((req, res) => {
   let reqUrl = req.url.split('?')[0];
   if (reqUrl === '/') reqUrl = '/index.html';
+  if (reqUrl === '/favicon.ico') reqUrl = '/favicon.svg';
 
-  const filePath = path.join(__dirname, reqUrl);
+  let filePath = path.join(__dirname, reqUrl);
+  if (!fs.existsSync(filePath)) {
+    const publicPath = path.join(__dirname, 'public', reqUrl);
+    if (fs.existsSync(publicPath)) {
+      filePath = publicPath;
+    }
+  }
+
   const ext = path.extname(filePath).toLowerCase();
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
