@@ -10,7 +10,8 @@
     "serve": "node server.js",
     "build:tokens": "node build-tokens.js",
     "audit": "node audit.js",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push"
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",

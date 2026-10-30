@@ -51,6 +51,12 @@ All visual properties are bound strictly to design tokens exported in [`tokens-c
 BELTTRACK APP/
 ├── src/
 │   ├── app/
+│   │   ├── api/
+│   │   │   ├── schools/
+│   │   │   │   ├── register/route.ts # Tenant creation & Owner User persistence
+│   │   │   │   └── directory/route.ts# Public accredited school discovery
+│   │   │   └── students/
+│   │   │       └── join/route.ts     # Join code validation & PENDING_APPROVAL enrollment
 │   │   ├── layout.tsx                # Next.js RootLayout with providers & typography tokens
 │   │   └── page.tsx                  # Home screen with navigation, role entries, & preview
 │   ├── components/
@@ -111,33 +117,48 @@ BELTTRACK APP/
   - Manual cash/transfer settlement entries with receipt slugs (`REC-2026-BJJ-084`).
   - Closed single source of truth with 0% platform cuts.
 
-* **Role-Based Onboarding Entry Points**:
-  - **Dojo Owner / Head Coach**: "Register Your Martial Arts School" modal generating custom tenant registration codes.
-  - **Student / Guardian**: "Join with School Registration Code" modal with minor enrollment toggle, conditional guardian fields, and strict tenant `school_id` isolation (`PENDING_APPROVAL` status).
-  - **Public Directory**: Accredited school directory showing public metadata without exposing private rosters.
+* **Role-Based Onboarding Entry Points (Live DB Wired)**:
+  - **Dojo Owner / Head Coach**: "Register Your Martial Arts School" modal persisting tenant schools and owner accounts directly to PostgreSQL via `POST /api/schools/register`.
+  - **Student / Guardian**: "Join with School Registration Code" modal verifying join codes against live DB records, persisting student profiles with minor enrollment and guardian relations via `POST /api/students/join` (`PENDING_APPROVAL` status).
+  - **Public Directory**: Accredited school directory dynamically querying accredited schools from PostgreSQL via `GET /api/schools/directory` without exposing private rosters.
 
 ---
 
 ## 🗄️ Database & Prisma ORM Setup
 
-The application is configured to connect to PostgreSQL via Prisma ORM:
+The application is fully wired to PostgreSQL (hosted on Supabase) via Prisma ORM:
 
-1. **Environment File Configuration**:
+1. **Dual-URL Connection Configuration**:
    - Copy `.env.example` to `.env`:
      ```powershell
      cp .env.example .env
      ```
-   - Update `DATABASE_URL` with your active PostgreSQL credentials:
+   - Configure both transaction and direct session connection URLs:
      ```env
-     DATABASE_URL="postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DATABASE>?schema=public"
+     # Transaction pooler URL (for Next.js runtime queries via port 6543)
+     DATABASE_URL="postgresql://<USER>:<PASSWORD>@<HOST>:6543/<DATABASE>?pgbouncer=true"
+
+     # Direct session pooler URL (for Prisma DDL & migrations via port 5432)
+     DIRECT_URL="postgresql://<USER>:<PASSWORD>@<HOST>:5432/<DATABASE>"
      ```
 
-2. **Client Generation & Tenant Isolation**:
+2. **Schema Synchronization & Client Generation**:
+   - Push the complete schema (12 isolated tenant tables and 5 domain enums) to PostgreSQL:
+     ```powershell
+     npm run db:push
+     ```
    - Generate TypeScript client types from `prisma/schema.prisma`:
      ```powershell
      npm run db:generate
      ```
-   - All tenant queries are protected via `src/lib/prisma-extension.ts` ensuring zero cross-tenant leakage.
+
+3. **Multi-Tenant Safeguards & API Layer**:
+   - **Singleton Client**: Exported from `src/lib/prisma.ts` with connection pooling protection.
+   - **Query Isolation**: Protected via `src/lib/prisma-extension.ts` ensuring all private domain entities bind strictly to `school_id`.
+   - **Route Handlers**:
+     - `POST /api/schools/register` – Atomic school & owner creation.
+     - `POST /api/students/join` – Code validation & `PENDING_APPROVAL` enrollment.
+     - `GET /api/schools/directory` – Public accredited school metadata discovery.
 
 ---
 
@@ -152,13 +173,16 @@ npm run audit
 npm run build:tokens
 # or: node build-tokens.js
 
-# 3. Generate Prisma client typings
+# 3. Synchronize schema with PostgreSQL database
+npm run db:push
+
+# 4. Generate Prisma client typings
 npm run db:generate
 
-# 4. Start Next.js development server
+# 5. Start Next.js development server
 npm run dev
 
-# 5. Alternatively, start local standalone server
+# 6. Alternatively, start local standalone server
 npm run serve
 # or: node server.js
 ```

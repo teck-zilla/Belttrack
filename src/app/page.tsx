@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TopNav } from '@/components/layout/top-nav';
 import { HeroSection } from '@/components/home/hero-section';
 import { RoleEntryCards } from '@/components/home/role-entry-cards';
@@ -9,6 +9,14 @@ import { useTenant } from '@/context/tenant-context';
 import { schoolRegistrationSchema, studentJoinCodeSchema } from '@/lib/validation/schemas';
 import type { DisciplineType } from '@/types/domain';
 
+interface DirectorySchool {
+  id: string;
+  name: string;
+  slug: string;
+  city: string;
+  discipline: string;
+  joinCode: string;
+}
 
 export default function HomePage() {
   const { activeSchool, setActiveSchool, registerPendingStudent } = useTenant();
@@ -33,9 +41,34 @@ export default function HomePage() {
   const [guardianName, setGuardianName] = useState('');
   const [guardianEmail, setGuardianEmail] = useState('');
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Handle Dojo Registration
-  const handleRegisterSchool = (e: React.FormEvent) => {
+  // Directory state
+  const [directorySchools, setDirectorySchools] = useState<DirectorySchool[]>([]);
+  const [isLoadingDirectory, setIsLoadingDirectory] = useState(false);
+
+  // Fetch accredited schools when opening directory modal
+  useEffect(() => {
+    if (isDirectoryModalOpen) {
+      setIsLoadingDirectory(true);
+      fetch('/api/schools/directory')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && Array.isArray(data.schools)) {
+            setDirectorySchools(data.schools);
+          }
+        })
+        .catch(() => {
+          // Graceful fallback to static demo list
+        })
+        .finally(() => {
+          setIsLoadingDirectory(false);
+        });
+    }
+  }, [isDirectoryModalOpen]);
+
+  // Handle Dojo Registration (Persists to Database via API)
+  const handleRegisterSchool = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = schoolRegistrationSchema.safeParse({
       schoolName,
@@ -54,32 +87,49 @@ export default function HomePage() {
       return;
     }
 
-    // Set new isolated tenant with a unique UUID
-    const newTenantId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'tenant-' + Date.now();
-    setActiveSchool({
-      id: newTenantId,
-      name: schoolName,
-      slug: schoolName.toLowerCase().replace(/\s+/g, '-'),
-      registration_code: generatedCode,
-      join_code: generatedCode,
-      discipline,
-      city,
-      country,
-      timezone,
-      is_public: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    });
+    try {
+      setIsSubmitting(true);
+      setFormFeedback('Persisting school tenant to database...');
 
-    setFormFeedback('School tenant registered successfully! Access code generated.');
-    setTimeout(() => {
-      setRegisterModalOpen(false);
-      setFormFeedback(null);
-    }, 1200);
+      const response = await fetch('/api/schools/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          schoolName,
+          discipline,
+          ownerFullName: ownerName,
+          ownerEmail,
+          city,
+          country,
+          timezone,
+          customCode: generatedCode
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to register school tenant');
+      }
+
+      // Update active tenant state with verified DB record
+      setActiveSchool(data.school);
+      setFormFeedback(`Dojo tenant "${data.school.name}" successfully registered in database! Code: ${data.school.registration_code}`);
+
+      setTimeout(() => {
+        setRegisterModalOpen(false);
+        setFormFeedback(null);
+      }, 1500);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Database error registering school tenant';
+      setFormFeedback(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  // Handle Student Join with Code
-  const handleJoinSchool = (e: React.FormEvent) => {
+  // Handle Student Join with Code (Persists to Database via API)
+  const handleJoinSchool = async (e: React.FormEvent) => {
     e.preventDefault();
     const normalizedCode = inputCode.trim().toUpperCase();
 
@@ -97,20 +147,30 @@ export default function HomePage() {
       return;
     }
 
-    if (!activeSchool) {
-      setFormFeedback('No active school tenant found to associate registration.');
-      return;
-    }
-
-    // Verify tenant registration code matches active school tenant
-    const schoolCode = (activeSchool.registration_code || activeSchool.join_code || '').toUpperCase();
-    if (schoolCode && normalizedCode !== schoolCode) {
-      setFormFeedback(`Join code mismatch: Code "${normalizedCode}" does not belong to active tenant "${activeSchool.name}".`);
-      return;
-    }
-
-    // Wire into tenant database with school_id constraint and PENDING_APPROVAL status
     try {
+      setIsSubmitting(true);
+      setFormFeedback('Verifying registration code in database...');
+
+      const response = await fetch('/api/students/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          registrationCode: normalizedCode,
+          studentFullName: studentName.trim(),
+          studentEmail: studentEmail.trim(),
+          isMinor,
+          guardianFullName: isMinor ? guardianName.trim() : undefined,
+          guardianEmail: isMinor && guardianEmail.trim() ? guardianEmail.trim() : undefined
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit join request');
+      }
+
+      // Sync with tenant context
       registerPendingStudent({
         studentFullName: studentName.trim(),
         studentEmail: studentEmail.trim(),
@@ -120,8 +180,9 @@ export default function HomePage() {
       });
 
       setFormFeedback(
-        `Join code verified for ${normalizedCode}! Enrolled in ${activeSchool.name}. Status: PENDING_APPROVAL (school_id: ${activeSchool.id.slice(0, 8)}...). Roster and technique reads are locked until coach sign-off.`
+        `Registration code verified! Enrolled in "${data.schoolName}". Status: PENDING_APPROVAL. Roster and technique reads are locked until coach sign-off.`
       );
+
       setTimeout(() => {
         setJoinModalOpen(false);
         setFormFeedback(null);
@@ -133,8 +194,10 @@ export default function HomePage() {
         setGuardianEmail('');
       }, 2000);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error registering student under tenant.';
+      const message = err instanceof Error ? err.message : 'Database error processing join request';
       setFormFeedback(message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -318,9 +381,10 @@ export default function HomePage() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2 px-4 rounded-md bg-primary text-primary-foreground font-title text-xs font-semibold hover:bg-tertiary transition-colors"
+                  disabled={isSubmitting}
+                  className="flex-1 py-2 px-4 rounded-md bg-primary text-primary-foreground font-title text-xs font-semibold hover:bg-tertiary transition-colors disabled:opacity-50"
                 >
-                  Create Dojo Tenant
+                  {isSubmitting ? 'Registering...' : 'Create Dojo Tenant'}
                 </button>
               </div>
             </form>
@@ -471,9 +535,10 @@ export default function HomePage() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2 px-4 rounded-md bg-primary text-primary-foreground font-title text-xs font-semibold hover:bg-tertiary transition-colors"
+                  disabled={isSubmitting}
+                  className="flex-1 py-2 px-4 rounded-md bg-primary text-primary-foreground font-title text-xs font-semibold hover:bg-tertiary transition-colors disabled:opacity-50"
                 >
-                  Verify & Join
+                  {isSubmitting ? 'Verifying...' : 'Verify & Join'}
                 </button>
               </div>
             </form>
@@ -509,36 +574,61 @@ export default function HomePage() {
               Global directory queries only expose public school metadata. Internal student rosters, attendances, and ledgers are strictly blocked by RLS.
             </p>
 
-            <div className="space-y-2 mb-4 font-body text-xs">
-              <div className="p-3 rounded-lg bg-surface-container-low border border-outline-variant flex justify-between items-center">
-                <div>
-                  <span className="font-title font-semibold text-primary block">Kaizen BJJ Academy</span>
-                  <span className="text-surface-on-variant">London, United Kingdom • Brazilian Jiu-Jitsu</span>
+            <div className="space-y-2 mb-4 font-body text-xs max-h-72 overflow-y-auto">
+              {isLoadingDirectory ? (
+                <div className="p-4 text-center text-surface-on-variant font-medium">
+                  Loading verified schools from database...
                 </div>
-                <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded">
-                  KAIZEN-2026
-                </span>
-              </div>
+              ) : directorySchools.length > 0 ? (
+                directorySchools.map((s) => (
+                  <div
+                    key={s.id}
+                    className="p-3 rounded-lg bg-surface-container-low border border-outline-variant flex justify-between items-center"
+                  >
+                    <div>
+                      <span className="font-title font-semibold text-primary block">{s.name}</span>
+                      <span className="text-surface-on-variant capitalize">
+                        {s.city} • {s.discipline.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded">
+                      {s.joinCode}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <>
+                  <div className="p-3 rounded-lg bg-surface-container-low border border-outline-variant flex justify-between items-center">
+                    <div>
+                      <span className="font-title font-semibold text-primary block">Kaizen BJJ Academy</span>
+                      <span className="text-surface-on-variant">London, United Kingdom • Brazilian Jiu-Jitsu</span>
+                    </div>
+                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded">
+                      KAIZEN-2026
+                    </span>
+                  </div>
 
-              <div className="p-3 rounded-lg bg-surface-container-low border border-outline-variant flex justify-between items-center">
-                <div>
-                  <span className="font-title font-semibold text-primary block">Kodokan Judo Institute Hub</span>
-                  <span className="text-surface-on-variant">Tokyo, Japan • Traditional Judo</span>
-                </div>
-                <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded">
-                  KODOKAN-77
-                </span>
-              </div>
+                  <div className="p-3 rounded-lg bg-surface-container-low border border-outline-variant flex justify-between items-center">
+                    <div>
+                      <span className="font-title font-semibold text-primary block">Kodokan Judo Institute Hub</span>
+                      <span className="text-surface-on-variant">Tokyo, Japan • Traditional Judo</span>
+                    </div>
+                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded">
+                      KODOKAN-77
+                    </span>
+                  </div>
 
-              <div className="p-3 rounded-lg bg-surface-container-low border border-outline-variant flex justify-between items-center">
-                <div>
-                  <span className="font-title font-semibold text-primary block">Apex Taekwondo Academy</span>
-                  <span className="text-surface-on-variant">Seoul, South Korea • WT Taekwondo</span>
-                </div>
-                <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded">
-                  APEX-TKD
-                </span>
-              </div>
+                  <div className="p-3 rounded-lg bg-surface-container-low border border-outline-variant flex justify-between items-center">
+                    <div>
+                      <span className="font-title font-semibold text-primary block">Apex Taekwondo Academy</span>
+                      <span className="text-surface-on-variant">Seoul, South Korea • WT Taekwondo</span>
+                    </div>
+                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded">
+                      APEX-TKD
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
 
             <button
