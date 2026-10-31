@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnOpenDirectory = document.getElementById('btn-open-directory');
   const btnCloseDirectory = document.getElementById('btn-close-directory');
   const btnCloseDirectoryAction = document.getElementById('btn-close-directory-action');
+  const brandHomeLink = document.getElementById('brand-home-link');
 
   // Dynamic Grading Demo
   const btnSimulateCheckin = document.getElementById('btn-simulate-checkin');
@@ -65,22 +66,262 @@ document.addEventListener('DOMContentLoaded', () => {
   const fillAttendance = document.getElementById('fill-attendance');
   const badgeGradingStatus = document.getElementById('badge-grading-status');
 
+  // Dynamic Role View Elements
+  const cardRankTitle = document.getElementById('card-rank-title');
+  const cardRankDesc = document.getElementById('card-rank-desc');
+  const cardAttendanceMeta = document.getElementById('card-attendance-meta');
+  const badgeAttendanceStatus = document.getElementById('badge-attendance-status');
+  const cardAttendanceTitle = document.getElementById('card-attendance-title');
+  const attendanceAlertBox = document.getElementById('attendance-alert-box');
+  const attendanceScheduleList = document.getElementById('attendance-schedule-list');
+  const attendanceStatFooter = document.getElementById('attendance-stat-footer');
+  const cardLedgerMeta = document.getElementById('card-ledger-meta');
+  const badgeLedgerStatus = document.getElementById('badge-ledger-status');
+  const cardLedgerTitle = document.getElementById('card-ledger-title');
+  const cardLedgerDesc = document.getElementById('card-ledger-desc');
+  const ledgerEntriesList = document.getElementById('ledger-entries-list');
+  const ledgerPolicyBox = document.getElementById('ledger-policy-box');
+  const ledgerStatFooter = document.getElementById('ledger-stat-footer');
+
+  function updateRoleView(role) {
+    state.activeRole = role;
+    const isOwnerGroup = role === 'owner' || role === 'coach';
+
+    // 1. Persona Indicator Label
+    if (personaLabel) {
+      personaLabel.textContent = isOwnerGroup
+        ? 'Owner / Head Coach'
+        : 'Student / Guardian';
+    }
+
+    // 2. Card 1: Rank & Curriculum View
+    if (cardRankTitle) {
+      cardRankTitle.textContent = 'Brazilian Jiu-Jitsu (Gi Track)';
+    }
+    if (cardRankDesc) {
+      cardRankDesc.textContent = isOwnerGroup
+        ? 'Student: Lucas Silva • Current: White Belt (3 Stripes)'
+        : 'Self: Lucas Silva (Adult 18+) • Linked Minor: Leo Silva (Age 11)';
+    }
+    if (btnSimulateCheckin) {
+      btnSimulateCheckin.disabled = false;
+      btnSimulateCheckin.style.opacity = '';
+      btnSimulateCheckin.style.cursor = '';
+      btnSimulateCheckin.textContent = isOwnerGroup
+        ? '+ Simulate Check-in & Sign-off'
+        : '+ Simulate Check-in (Adult)';
+    }
+
+    // 3. Card 2: Attendance & Schedule View
+    if (cardAttendanceMeta) {
+      cardAttendanceMeta.textContent = isOwnerGroup
+        ? 'Attendance & Retention'
+        : 'Personal & Dependent Attendance';
+    }
+
+    if (badgeAttendanceStatus) {
+      if (isOwnerGroup) {
+        badgeAttendanceStatus.textContent = 'RETENTION WATCH';
+        badgeAttendanceStatus.className = 'status-badge warning';
+      } else {
+        badgeAttendanceStatus.textContent = 'ACTIVE ENROLLMENT';
+        badgeAttendanceStatus.className = 'status-badge';
+      }
+    }
+
+    if (cardAttendanceTitle) {
+      cardAttendanceTitle.textContent = isOwnerGroup
+        ? 'Active Mat Roll-Call & Retention Watch'
+        : 'My Schedule & Minor Supervision';
+    }
+
+    if (attendanceAlertBox) {
+      if (isOwnerGroup) {
+        attendanceAlertBox.innerHTML = `
+          <span class="alert-dot" aria-hidden="true"></span>
+          <div class="alert-content">
+            <strong class="alert-title">Dropout Risk Flagged: Elena Rostova</strong>
+            <span class="alert-text">Absent for 13 consecutive days. Automated coach retention check triggered.</span>
+          </div>
+        `;
+      } else {
+        attendanceAlertBox.innerHTML = `
+          <span class="alert-dot" aria-hidden="true"></span>
+          <div class="alert-content">
+            <strong class="alert-title">Guardian Supervision & Attendance Status</strong>
+            <span class="alert-text">Lucas Silva is in good standing (42/50 classes). Minor dependent Leo Silva is supervised strictly under guardian read-only controls.</span>
+          </div>
+        `;
+      }
+    }
+
+    if (attendanceScheduleList) {
+      if (isOwnerGroup) {
+        attendanceScheduleList.innerHTML = `
+          <div class="schedule-item">
+            <div>
+              <strong class="schedule-name">BJJ Fundamentals (Gi)</strong>
+              <span class="schedule-time">Coach Marcus • 18:00 - 19:15</span>
+            </div>
+            <span class="schedule-count highlight">18 Checked In</span>
+          </div>
+          <div class="schedule-item">
+            <div>
+              <strong class="schedule-name">Competition Sparring</strong>
+              <span class="schedule-time">Coach Elena • 19:30 - 20:45</span>
+            </div>
+            <span class="schedule-count">12 Confirmed</span>
+          </div>
+        `;
+      } else {
+        attendanceScheduleList.innerHTML = `
+          <div class="schedule-item">
+            <div>
+              <strong class="schedule-name">BJJ Fundamentals (Gi)</strong>
+              <span class="schedule-time">Today • 18:00 - 19:15</span>
+            </div>
+            <span class="schedule-count highlight">Lucas Silva (Enrolled)</span>
+          </div>
+          <div class="schedule-item">
+            <div>
+              <strong class="schedule-name">Kids BJJ Fundamentals</strong>
+              <span class="schedule-time">Saturday • 10:00 - 11:00</span>
+            </div>
+            <span class="schedule-count highlight">Leo Silva (Guardian Read-Only)</span>
+          </div>
+        `;
+      }
+    }
+
+    if (attendanceStatFooter) {
+      if (isOwnerGroup) {
+        attendanceStatFooter.innerHTML = '<span>Overall Dojo Mat Attendance:</span><span class="metric-val">94.2% Retention</span>';
+      } else {
+        attendanceStatFooter.innerHTML = '<span>Mat Attendance Status:</span><span class="metric-val">Current &amp; Verified</span>';
+      }
+    }
+
+    // 4. Card 3: Ledger & Bookkeeping View
+    if (cardLedgerMeta) {
+      cardLedgerMeta.textContent = isOwnerGroup
+        ? 'Internal Bookkeeping & Matrix'
+        : 'Personal & Guardian Receipts';
+    }
+
+    if (badgeLedgerStatus) {
+      if (isOwnerGroup) {
+        badgeLedgerStatus.textContent = '0% FEES';
+        badgeLedgerStatus.className = 'status-badge neutral';
+      } else {
+        badgeLedgerStatus.textContent = 'SETTLED';
+        badgeLedgerStatus.className = 'status-badge neutral';
+      }
+    }
+
+    if (cardLedgerTitle) {
+      cardLedgerTitle.textContent = isOwnerGroup
+        ? 'Internal Ledger & Technique Log'
+        : 'My Tuition & Dependent Receipts';
+    }
+
+    if (cardLedgerDesc) {
+      cardLedgerDesc.textContent = isOwnerGroup
+        ? 'Admin ledger entries with real-time coach verification records.'
+        : 'Private dojo receipts for adult student and linked minor dependent.';
+    }
+
+    if (ledgerEntriesList) {
+      if (isOwnerGroup) {
+        ledgerEntriesList.innerHTML = `
+          <div class="ledger-item">
+            <div class="ledger-top">
+              <span class="ledger-title">Monthly Tuition (Cash Settlement)</span>
+              <span class="ledger-amount">$120.00</span>
+            </div>
+            <div class="ledger-bottom">
+              <span>Student: Mateo Diaz</span>
+              <span class="ledger-receipt">REC-2026-BJJ-084</span>
+            </div>
+          </div>
+          <div class="ledger-item">
+            <div class="ledger-top">
+              <span class="ledger-title">Armbar from Guard (Coach Verified)</span>
+              <span class="ledger-amount">Verified</span>
+            </div>
+            <div class="ledger-bottom">
+              <span>Lucas Silva • Mat Sign-off</span>
+              <span class="ledger-receipt">TECH-BJJ-01</span>
+            </div>
+          </div>
+        `;
+      } else {
+        ledgerEntriesList.innerHTML = `
+          <div class="ledger-item">
+            <div class="ledger-top">
+              <span class="ledger-title">Monthly Tuition (Gi Track)</span>
+              <span class="ledger-amount">$120.00</span>
+            </div>
+            <div class="ledger-bottom">
+              <span>Lucas Silva (Self)</span>
+              <span class="ledger-receipt">REC-2026-BJJ-084</span>
+            </div>
+          </div>
+          <div class="ledger-item">
+            <div class="ledger-top">
+              <span class="ledger-title">Junior Monthly Tuition (Kids)</span>
+              <span class="ledger-amount">$95.00</span>
+            </div>
+            <div class="ledger-bottom">
+              <span>Leo Silva (Minor) • Guardian Settled</span>
+              <span class="ledger-receipt">REC-2026-BJJ-092</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    if (ledgerPolicyBox) {
+      if (isOwnerGroup) {
+        ledgerPolicyBox.innerHTML = `
+          <strong class="zero-fee-title">Closed Single Source of Truth</strong>
+          <p class="zero-fee-text">No third-party payment gateways, no subscription cuts. Coach mat verifications & cash settlements recorded offline.</p>
+        `;
+      } else {
+        ledgerPolicyBox.innerHTML = `
+          <strong class="zero-fee-title">Direct Dojo Settlement Only</strong>
+          <p class="zero-fee-text">Zero online payment fees. Minor dependent records are strictly managed through the guardian persona.</p>
+        `;
+      }
+    }
+
+    if (ledgerStatFooter) {
+      if (isOwnerGroup) {
+        ledgerStatFooter.innerHTML = '<span>Settled This Month:</span><span class="metric-val">$4,860.00 (Offline)</span>';
+      } else {
+        ledgerStatFooter.innerHTML = '<span>Receipt Status:</span><span class="metric-val">All Dues Settled (Offline)</span>';
+      }
+    }
+  }
+
   // --------------------------------------------------------------------------
   // ROLE SWITCHER
   // --------------------------------------------------------------------------
   rolePills.forEach((pill) => {
     pill.addEventListener('click', () => {
-      rolePills.forEach((p) => p.classList.remove('active'));
+      rolePills.forEach((p) => {
+        p.classList.remove('active');
+        p.setAttribute('aria-pressed', 'false');
+      });
       pill.classList.add('active');
+      pill.setAttribute('aria-pressed', 'true');
 
       const role = pill.getAttribute('data-role');
-      state.activeRole = role;
-
-      if (personaLabel) {
-        personaLabel.textContent = role === 'owner' ? 'Owner / Admin' : role === 'coach' ? 'Coach' : 'Student / Parent';
-      }
+      updateRoleView(role);
     });
   });
+
+  // Initialize initial role view
+  updateRoleView(state.activeRole);
 
   // --------------------------------------------------------------------------
   // MODAL CONTROLS & DYNAMIC TITLE MANAGEMENT
@@ -129,6 +370,20 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target === modal) closeModal(modal);
     });
   });
+
+  // Brand Logo Link (Always return to Home)
+  if (brandHomeLink) {
+    brandHomeLink.addEventListener('click', (e) => {
+      closeModal(modalRegister);
+      closeModal(modalJoin);
+      closeModal(modalDirectory);
+      if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html')) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        history.pushState(null, '', '/');
+      }
+    });
+  }
 
   // --------------------------------------------------------------------------
   // FORM SUBMISSIONS
@@ -250,7 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fillAttendance.style.width = `${percent}%`;
       }
 
-      btnSimulateCheckin.textContent = `+ Simulate Roll-Call Check-in (${count} classes)`;
+      btnSimulateCheckin.textContent = '+ Simulate Check-in';
 
       if (count >= total) {
         if (badgeGradingStatus) {

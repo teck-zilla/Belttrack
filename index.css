@@ -20,6 +20,10 @@
   padding: 0;
 }
 
+
+
+
+
 html,
 body {
   height: 100%;
@@ -72,6 +76,14 @@ textarea {
   display: flex;
   align-items: center;
   gap: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.6s ease;
+}
+
+.brand:hover .brand-symbol {
+  box-shadow: var(--shadow-soft-shadow);
+  transform: scale(1.03);
 }
 
 .brand-symbol {
@@ -173,20 +185,22 @@ textarea {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 0.5rem 0.875rem;
   background-color: var(--color-surface-container);
   color: var(--color-on-surface);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 8px;
-  font-family: var(--font-family-title);
+  border-radius: 0.625rem;
+  font-family: var(--font-family-label);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: var(--typography-label-medium-letter-spacing);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.6s ease;
 }
 
 .btn-directory:hover {
   background-color: var(--color-surface-container-high);
+  box-shadow: var(--shadow-soft-shadow);
 }
 
 .role-selector {
@@ -194,21 +208,33 @@ textarea {
   align-items: center;
   background-color: var(--color-surface-container);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 8px;
-  padding: 2px;
+  border-radius: 0.625rem;
+  padding: 0.125rem;
+  gap: 0.125rem;
 }
 
 .role-pill {
-  padding: 6px 12px;
+  padding: 0.375rem 0.75rem;
   border: none;
   background: transparent;
-  font-family: var(--font-family-title);
+  font-family: var(--font-family-label);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: var(--typography-label-medium-letter-spacing);
   color: var(--color-on-surface-variant);
-  border-radius: 6px;
+  border-radius: 0.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.6s ease;
+}
+
+.role-pill:hover:not(.active) {
+  color: var(--color-on-surface);
+  box-shadow: var(--shadow-soft-shadow);
+}
+
+.role-pill:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
 }
 
 .role-pill.active {
@@ -298,7 +324,7 @@ textarea {
 .pillar-num {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 10px;
   background-color: var(--color-primary-container);
   color: var(--color-on-primary-container);
   font-family: var(--font-family-display);
@@ -349,12 +375,13 @@ textarea {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: all 0.25s ease;
+  transition: all 0.6s ease;
 }
 
 .entry-card:hover {
   border-color: var(--color-primary);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-soft-shadow);
 }
 
 .entry-card-header {
@@ -434,53 +461,55 @@ textarea {
 
 .btn-primary-action {
   width: 100%;
-  padding: 14px 20px;
+  padding: 0.875rem 1.25rem;
   background-color: var(--color-primary);
   color: var(--color-on-primary);
   border: none;
-  border-radius: 10px;
-  font-family: var(--font-family-title);
+  border-radius: 0.625rem;
+  font-family: var(--font-family-label);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: var(--typography-label-large-letter-spacing);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   box-shadow: var(--shadow-soft-shadow-2);
-  transition: all 0.2s ease;
+  transition: all 0.6s ease;
 }
 
 .btn-primary-action:hover {
   background-color: var(--color-tertiary);
   color: var(--color-on-tertiary);
-  box-shadow: var(--shadow-medium-shadow-2);
+  box-shadow: var(--shadow-soft-shadow);
 }
 
 .btn-secondary-action {
   width: 100%;
-  padding: 14px 20px;
+  padding: 0.875rem 1.25rem;
   background-color: var(--color-surface-container-high);
   color: var(--color-on-surface);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 10px;
-  font-family: var(--font-family-title);
+  border-radius: 0.625rem;
+  font-family: var(--font-family-label);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: var(--typography-label-large-letter-spacing);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   box-shadow: var(--shadow-soft-shadow-2);
-  transition: all 0.2s ease;
+  transition: all 0.6s ease;
 }
 
 .btn-secondary-action:hover {
   background-color: var(--color-tertiary);
   color: var(--color-on-tertiary);
   border-color: var(--color-tertiary);
-  box-shadow: var(--shadow-medium-shadow-2);
+  box-shadow: var(--shadow-soft-shadow);
 }
 
 /* ==========================================================================
@@ -593,6 +622,10 @@ textarea {
   font-weight: 600;
   color: var(--color-primary);
   margin-bottom: 4px;
+}
+
+#card-attendance-engine .card-title {
+  margin-bottom: 12px;
 }
 
 .card-desc {
@@ -715,20 +748,22 @@ textarea {
 
 .btn-card-action {
   width: 100%;
-  padding: 8px 12px;
+  padding: 0.5rem 0.75rem;
   background-color: var(--color-surface-container);
   color: var(--color-on-surface);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 6px;
-  font-family: var(--font-family-title);
+  border-radius: 0.625rem;
+  font-family: var(--font-family-label);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: var(--typography-label-medium-letter-spacing);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.6s ease;
 }
 
 .btn-card-action:hover {
   background-color: var(--color-surface-container-high);
+  box-shadow: var(--shadow-soft-shadow);
 }
 
 /* Alert Box */
@@ -739,7 +774,7 @@ textarea {
   padding: 12px;
   background-color: var(--color-surface-container);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 8px;
+  border-radius: 10px;
   margin-bottom: 16px;
 }
 
@@ -786,7 +821,7 @@ textarea {
   padding: 10px 12px;
   background-color: var(--color-surface-container-low);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 12px;
 }
 
@@ -841,7 +876,7 @@ textarea {
   padding: 10px 12px;
   background-color: var(--color-surface-container-low);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 12px;
 }
 
@@ -881,7 +916,7 @@ textarea {
   padding: 10px 12px;
   background-color: var(--color-surface-container);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 12px;
   margin-bottom: 14px;
 }
@@ -992,9 +1027,9 @@ textarea {
 }
 
 .btn-close-modal {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
   border: 1px solid var(--color-outline-variant);
   background-color: var(--color-surface-container);
   color: var(--color-on-surface);
@@ -1002,10 +1037,12 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.6s ease;
 }
 
 .btn-close-modal:hover {
   background-color: var(--color-surface-container-high);
+  box-shadow: var(--shadow-soft-shadow);
 }
 
 .modal-form {
@@ -1042,7 +1079,7 @@ textarea {
   padding: 10px 12px;
   background-color: var(--color-surface-container-low);
   border: 1.5px solid var(--color-outline-variant);
-  border-radius: 8px;
+  border-radius: 10px;
   font-family: var(--font-family-body);
   font-size: 13px;
   color: var(--color-on-surface);
@@ -1072,7 +1109,7 @@ textarea {
 .form-feedback {
   display: none;
   padding: 10px 14px;
-  border-radius: 6px;
+  border-radius: 10px;
   background-color: var(--color-tertiary-container);
   color: var(--color-on-tertiary-container);
   font-family: var(--font-family-body);
@@ -1111,7 +1148,7 @@ textarea {
   padding: 12px;
   background-color: var(--color-surface-container-low);
   border: 1px solid var(--color-outline-variant);
-  border-radius: var(--border-radius-card);
+  border-radius: 10px;
   margin-top: 8px;
 }
 
@@ -1127,54 +1164,62 @@ textarea {
 
 .btn-modal-cancel {
   flex: 1;
-  padding: 10px 16px;
+  padding: 0.625rem 1rem;
   border: 1px solid var(--color-outline-variant);
-  border-radius: 8px;
+  border-radius: 0.625rem;
   background-color: var(--color-surface-container);
   color: var(--color-on-surface);
-  font-family: var(--font-family-title);
-  font-size: 13px;
-  font-weight: 600;
+  font-family: var(--font-family-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: var(--typography-label-medium-letter-spacing);
   cursor: pointer;
+  transition: all 0.6s ease;
 }
 
 .btn-modal-cancel:hover {
   background-color: var(--color-surface-container-high);
+  box-shadow: var(--shadow-soft-shadow);
 }
 
 .btn-modal-submit {
   flex: 1.5;
-  padding: 10px 16px;
+  padding: 0.625rem 1rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 0.625rem;
   background-color: var(--color-primary);
   color: var(--color-on-primary);
-  font-family: var(--font-family-title);
-  font-size: 13px;
-  font-weight: 600;
+  font-family: var(--font-family-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: var(--typography-label-medium-letter-spacing);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.6s ease;
 }
 
 .btn-modal-submit:hover {
   background-color: var(--color-tertiary);
+  box-shadow: var(--shadow-soft-shadow);
 }
 
 .btn-modal-full {
   width: 100%;
-  padding: 10px 16px;
+  padding: 0.625rem 1rem;
   border: 1px solid var(--color-outline-variant);
-  border-radius: 8px;
+  border-radius: 0.625rem;
   background-color: var(--color-surface-container);
   color: var(--color-on-surface);
-  font-family: var(--font-family-title);
-  font-size: 13px;
-  font-weight: 600;
+  font-family: var(--font-family-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: var(--typography-label-medium-letter-spacing);
   cursor: pointer;
+  transition: all 0.6s ease;
 }
 
 .btn-modal-full:hover {
   background-color: var(--color-surface-container-high);
+  box-shadow: var(--shadow-soft-shadow);
 }
 
 /* Directory Modal */
@@ -1198,7 +1243,7 @@ textarea {
   padding: 12px 14px;
   background-color: var(--color-surface-container-low);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 12px;
 }
 
@@ -1230,6 +1275,7 @@ textarea {
    ========================================================================== */
 
 @media (max-width: 900px) {
+
   .pillars-grid,
   .entry-grid,
   .cards-grid {
@@ -1248,5 +1294,134 @@ textarea {
 
   .hero-title {
     font-size: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .role-selector {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .role-pill {
+    flex: 1;
+    text-align: center;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .persona-indicator {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 24px 16px;
+  }
+
+  .nav-container {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .hero-title {
+    font-size: 24px;
+    line-height: 1.2;
+  }
+
+  .hero-lead {
+    font-size: 14px;
+  }
+
+  .hero-pill {
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .role-pill {
+    padding: 0.375rem 0.5rem;
+    font-size: 11px;
+  }
+
+  .btn-directory {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .metric-labels,
+  .metric-info-row {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .schedule-item {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .schedule-item>div {
+    min-width: 0;
+  }
+
+  .ledger-top,
+  .ledger-bottom {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .modal-card {
+    padding: 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .modal-btn-row {
+    flex-direction: column;
+  }
+
+  .directory-item {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .footer-container {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 360px) {
+  .brand-name {
+    font-size: 20px;
+  }
+
+  .brand-sub {
+    font-size: 10px;
+  }
+
+  .tenant-name {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

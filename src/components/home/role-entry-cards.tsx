@@ -13,7 +13,7 @@ export function RoleEntryCards({
     <section className="max-w-4xl mx-auto px-4 mb-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* DOJO OWNER & HEAD COACH ENTRY */}
-        <div className="p-6 rounded-xl bg-surface-container-lowest border-2 border-outline-variant hover:border-primary transition-all shadow-medium-2 flex flex-col justify-between">
+        <div className="p-6 rounded-xl bg-surface-container-lowest border-2 border-outline-variant hover:border-primary hover:shadow-soft transition-all duration-[600ms] shadow-medium-2 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="font-label text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-primary-container text-primary-on-container">
@@ -29,7 +29,7 @@ export function RoleEntryCards({
             </h2>
 
             <p className="font-body text-sm text-surface-on-variant mb-6 font-medium leading-relaxed">
-              Create an isolated dojo tenant. Configure custom belt ladders (White to Black), generate your unique student access code, and schedule weekly roll-call sessions.
+              Create an isolated dojo tenant. Configure custom belt ladders (White to Black), generate your school join code, and schedule weekly roll-call sessions.
             </p>
 
             <ul className="space-y-2 mb-6 font-body text-xs text-surface-foreground font-medium">
@@ -57,7 +57,7 @@ export function RoleEntryCards({
           <button
             type="button"
             onClick={onOpenRegister}
-            className="w-full py-3 px-4 rounded-lg bg-primary text-primary-foreground font-title text-sm font-semibold hover:bg-tertiary hover:text-tertiary-foreground transition-all shadow-soft-2 flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 rounded-[10px] bg-primary text-primary-foreground font-label text-sm font-medium hover:bg-tertiary hover:text-tertiary-foreground hover:shadow-soft transition-all duration-[600ms] shadow-soft-2 flex items-center justify-center gap-2"
           >
             <span>Register New School Tenant</span>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -67,11 +67,11 @@ export function RoleEntryCards({
         </div>
 
         {/* STUDENT & MINOR GUARDIAN ENTRY */}
-        <div className="p-6 rounded-xl bg-surface-container-lowest border-2 border-outline-variant hover:border-tertiary transition-all shadow-medium-2 flex flex-col justify-between">
+        <div className="p-6 rounded-xl bg-surface-container-lowest border-2 border-outline-variant hover:border-tertiary hover:shadow-soft transition-all duration-[600ms] shadow-medium-2 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="font-label text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-tertiary-container text-tertiary-on-container">
-                Students & Parents
+                Students & Guardians
               </span>
               <span className="font-display text-2xl font-extrabold text-tertiary">
                 02
@@ -79,11 +79,11 @@ export function RoleEntryCards({
             </div>
 
             <h2 className="font-headline text-2xl font-bold text-primary mb-2">
-              Join with School Registration Code
+              Join with School Join Code
             </h2>
 
             <p className="font-body text-sm text-surface-on-variant mb-6 font-medium leading-relaxed">
-              Enrolled in an accredited dojo? Input the unique school registration code provided by your head coach to access personal or child attendance and belt milestones.
+              Enrolled in an accredited dojo? Input the school join code provided by your head coach to access personal or child attendance and belt milestones.
             </p>
 
             <ul className="space-y-2 mb-6 font-body text-xs text-surface-foreground font-medium">
@@ -111,9 +111,9 @@ export function RoleEntryCards({
           <button
             type="button"
             onClick={onOpenJoin}
-            className="w-full py-3 px-4 rounded-lg bg-surface-container-high text-surface-foreground border border-outline-variant font-title text-sm font-semibold hover:bg-tertiary hover:text-tertiary-foreground hover:border-tertiary transition-all shadow-soft-2 flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 rounded-[10px] bg-surface-container-high text-surface-foreground border border-outline-variant font-label text-sm font-medium hover:bg-tertiary hover:text-tertiary-foreground hover:border-tertiary hover:shadow-soft transition-all duration-[600ms] shadow-soft-2 flex items-center justify-center gap-2"
           >
-            <span>Enter School Registration Code</span>
+            <span>Enter School Join Code</span>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>

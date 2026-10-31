@@ -47,7 +47,7 @@
       <div class="nav-container">
 
         <!-- Brand & Platform Identity -->
-        <div class="brand">
+        <a href="/" class="brand" id="brand-home-link" aria-label="BeltTrack Home">
           <div class="brand-symbol" aria-hidden="true">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -62,9 +62,9 @@
               <span class="brand-name">BeltTrack</span>
               <span class="brand-badge">Martial OS</span>
             </div>
-            <span class="brand-sub">Private martial arts dojo management and belt progression platform.</span>
+            <span class="brand-sub">Single Source of Truth for Martial Arts Academies</span>
           </div>
-        </div>
+        </a>
 
         <!-- Active Dojo Tenant Indicator -->
         <div class="tenant-badge" id="active-tenant-indicator">
@@ -84,15 +84,12 @@
           </button>
 
           <!-- Role-Based Persona Selector -->
-          <div class="role-selector" role="radiogroup" aria-label="Simulate Persona Role">
-            <button type="button" class="role-pill active" data-role="owner">
-              Owner / Admin
+          <div class="role-selector" role="group" aria-label="Simulate Persona Role">
+            <button type="button" class="role-pill active" data-role="owner" aria-pressed="true">
+              Owner / Head Coach
             </button>
-            <button type="button" class="role-pill" data-role="coach">
-              Coach
-            </button>
-            <button type="button" class="role-pill" data-role="student">
-              Student / Parent
+            <button type="button" class="role-pill" data-role="student" aria-pressed="false">
+              Student / Guardian
             </button>
           </div>
         </div>
@@ -106,7 +103,7 @@
       <!-- HERO & ARCHITECTURAL OVERVIEW -->
       <section class="hero-section">
         <div class="hero-pill">
-          <span class="pill-text">Version 1 Foundational Scaffolding</span>
+          <span class="pill-text">Dojo Operating System</span>
           <span class="pill-separator-dot" aria-hidden="true"></span>
           <span class="pill-text">Strict Multi-Tenant Isolation</span>
         </div>
@@ -164,8 +161,8 @@
 
             <h2 class="entry-title">Register Your Martial Arts School</h2>
             <p class="entry-desc">
-              Create an isolated dojo tenant. Configure custom belt ladders (White to Black), generate your unique
-              student access code, and schedule weekly roll-call sessions.
+              Create an isolated dojo tenant. Configure custom belt ladders (White to Black), generate your school join
+              code, and schedule weekly roll-call sessions.
             </p>
 
             <ul class="entry-checklist">
@@ -200,13 +197,13 @@
           <!-- ENTRY CARD 2: STUDENT & MINOR GUARDIAN -->
           <div class="entry-card" id="card-student-entry">
             <div class="entry-card-header">
-              <span class="entry-tag accent">Students &amp; Parents</span>
+              <span class="entry-tag accent">Students &amp; Guardians</span>
               <span class="entry-num accent">02</span>
             </div>
 
-            <h2 class="entry-title">Join with School Registration Code</h2>
+            <h2 class="entry-title">Join with School Join Code</h2>
             <p class="entry-desc">
-              Enrolled in an accredited dojo? Input the unique school registration code provided by your head coach to
+              Enrolled in an accredited dojo? Input the school join code provided by your head coach to
               access personal or child attendance and belt milestones.
             </p>
 
@@ -232,7 +229,7 @@
             </ul>
 
             <button type="button" class="btn-secondary-action" id="btn-open-join">
-              <span>Enter School Registration Code</span>
+              <span>Enter School Join Code</span>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
@@ -251,7 +248,7 @@
             <h2 class="dashboard-title">Dojo Operating Dashboard</h2>
           </div>
           <div class="persona-indicator">
-            Viewing as: <strong id="persona-label">Owner / Admin</strong>
+            Viewing as: <strong id="persona-label">Owner / Head Coach</strong>
           </div>
         </div>
 
@@ -264,8 +261,8 @@
               <span class="status-badge" id="badge-grading-status">IN PROGRESS</span>
             </div>
 
-            <h3 class="card-title">Brazilian Jiu-Jitsu (Gi Track)</h3>
-            <p class="card-desc">Student: Lucas Silva • Current: White Belt (3 Stripes)</p>
+            <h3 class="card-title" id="card-rank-title">Brazilian Jiu-Jitsu (Gi Track)</h3>
+            <p class="card-desc" id="card-rank-desc">Student: Lucas Silva • Current: White Belt (3 Stripes)</p>
 
             <!-- Visual Martial Arts Belt -->
             <div class="martial-belt-visual" aria-label="White Belt with 3 Stripes">
@@ -310,7 +307,7 @@
 
             <div class="card-footer-action">
               <button type="button" class="btn-card-action" id="btn-simulate-checkin">
-                + Simulate Roll-Call Check-in (42 classes)
+                + Simulate Check-in
               </button>
             </div>
           </article>
@@ -318,25 +315,24 @@
           <!-- CARD 2: ATTENDANCE & INACTIVE STUDENT DROP-OFF TRIGGER -->
           <article class="dashboard-card" id="card-attendance-engine">
             <div class="card-header">
-              <span class="card-meta">Attendance &amp; Retention</span>
-              <span class="status-badge warning">RETENTION WATCH</span>
+              <span class="card-meta" id="card-attendance-meta">Attendance &amp; Retention</span>
+              <span class="status-badge warning" id="badge-attendance-status">RETENTION WATCH</span>
             </div>
 
-            <h3 class="card-title">Active Mat Roll-Call</h3>
-            <p class="card-desc">Automated drop-off flags absent students (10–14 days).</p>
+            <h3 class="card-title" id="card-attendance-title">Active Mat Roll-Call</h3>
 
             <!-- Drop-Off Risk Alert Box -->
-            <div class="alert-box">
+            <div class="alert-box" id="attendance-alert-box">
               <span class="alert-dot" aria-hidden="true"></span>
               <div class="alert-content">
-                <strong class="alert-title">Dropout Risk Flagged: Elena Rostova</strong>
-                <span class="alert-text">Absent for 13 consecutive days. Automated coach retention check
+                <strong class="alert-title" id="attendance-alert-title">Dropout Risk Flagged: Elena Rostova</strong>
+                <span class="alert-text" id="attendance-alert-text">Absent for 13 consecutive days. Automated coach retention check
                   triggered.</span>
               </div>
             </div>
 
             <!-- Schedule Items -->
-            <div class="schedule-list">
+            <div class="schedule-list" id="attendance-schedule-list">
               <div class="schedule-item">
                 <div>
                   <strong class="schedule-name">BJJ Fundamentals (Gi)</strong>
@@ -354,7 +350,7 @@
               </div>
             </div>
 
-            <div class="card-stat-footer">
+            <div class="card-stat-footer" id="attendance-stat-footer">
               <span>Overall Dojo Mat Attendance:</span>
               <span class="metric-val">94.2% Retention</span>
             </div>
@@ -363,15 +359,15 @@
           <!-- CARD 3: INTERNAL LEDGER & MANUAL SETTLEMENT (ZERO-MONETIZATION) -->
           <article class="dashboard-card" id="card-ledger-engine">
             <div class="card-header">
-              <span class="card-meta">Internal Bookkeeping</span>
-              <span class="status-badge neutral">0% FEES</span>
+              <span class="card-meta" id="card-ledger-meta">Internal Bookkeeping</span>
+              <span class="status-badge neutral" id="badge-ledger-status">0% FEES</span>
             </div>
 
-            <h3 class="card-title">Internal Ledger &amp; Receipts</h3>
-            <p class="card-desc">Manual off-platform settlements (cash/card/transfer).</p>
+            <h3 class="card-title" id="card-ledger-title">Internal Ledger &amp; Receipts</h3>
+            <p class="card-desc" id="card-ledger-desc">Immutable records with 0% platform cuts.</p>
 
             <!-- Recent Ledger Records -->
-            <div class="ledger-list">
+            <div class="ledger-list" id="ledger-entries-list">
               <div class="ledger-item">
                 <div class="ledger-top">
                   <span class="ledger-title">Monthly Tuition (Cash Settlement)</span>
@@ -396,14 +392,14 @@
             </div>
 
             <!-- Zero-Monetization Policy Box -->
-            <div class="zero-fee-box">
-              <strong class="zero-fee-title">Closed Single Source of Truth</strong>
-              <p class="zero-fee-text">
+            <div class="zero-fee-box" id="ledger-policy-box">
+              <strong class="zero-fee-title" id="ledger-policy-title">Closed Single Source of Truth</strong>
+              <p class="zero-fee-text" id="ledger-policy-text">
                 No third-party payment gateways, no subscription cuts, and zero feature paywalls.
               </p>
             </div>
 
-            <div class="card-stat-footer">
+            <div class="card-stat-footer" id="ledger-stat-footer">
               <span>Settled This Month:</span>
               <span class="metric-val">$4,860.00 (Offline)</span>
             </div>
@@ -460,7 +456,7 @@
             </div>
 
             <div class="form-group half">
-              <label for="input-reg-code" class="form-label">Unique School Code</label>
+              <label for="input-reg-code" class="form-label">School Join Code</label>
               <input type="text" id="input-reg-code" class="form-input code-input" value="VANCE-BJJ-2026" required>
             </div>
           </div>
@@ -504,17 +500,17 @@
         <div class="modal-head">
           <div>
             <span class="modal-tag">Member Onboarding</span>
-            <h3 class="modal-title" id="title-join-modal">Join Dojo with School Code</h3>
+            <h3 class="modal-title" id="title-join-modal">Join Dojo with School Join Code</h3>
           </div>
           <button type="button" class="btn-close-modal" id="btn-close-join" aria-label="Close modal">✕</button>
         </div>
 
         <form id="form-join-school" class="modal-form">
           <div class="form-group">
-            <label for="input-join-code" class="form-label">School Registration Code</label>
+            <label for="input-join-code" class="form-label">School Join Code</label>
             <input type="text" id="input-join-code" class="form-input code-input" placeholder="e.g. KAIZEN-2026"
               value="KAIZEN-2026" required>
-            <span class="form-sub-hint">Ask your head coach or academy desk for this unique access code.</span>
+            <span class="form-sub-hint">Ask your head coach or academy desk for your school's join code.</span>
           </div>
 
           <div class="form-group">
@@ -571,8 +567,7 @@
         </div>
 
         <p class="directory-intro">
-          Global directory queries only expose public school metadata. Internal student rosters, attendances, and
-          ledgers are strictly blocked by RLS policies.
+          Verified martial arts schools. Private student rosters and attendance records remain strictly isolated.
         </p>
 
         <div class="directory-list">
