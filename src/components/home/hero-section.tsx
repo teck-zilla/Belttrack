@@ -3,14 +3,14 @@ import React from 'react';
 export function HeroSection() {
   return (
     <section className="text-center max-w-4xl mx-auto py-10 px-4">
-      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container text-tertiary-on-container font-label text-xs font-bold uppercase tracking-wider mb-4 border border-outline-variant">
-        <span>V1 Foundational Scaffolding</span>
-        <span className="w-1 h-1 rounded-full bg-tertiary" />
+      <div className="inline-flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-3 py-1 rounded-full bg-tertiary-container text-tertiary-on-container font-label text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 border border-outline-variant max-w-full text-center">
+        <span>Dojo Operating System</span>
+        <span className="w-1 h-1 rounded-full bg-tertiary hidden xs:inline-block" />
         <span>Strict Multi-Tenant Isolation</span>
       </div>
 
-      <h1 className="font-display text-4xl sm:text-5xl font-extrabold uppercase tracking-tight text-primary leading-tight mb-4">
-        Private Martial Arts School Management & Rank Progression
+      <h1 className="font-display text-3xl sm:text-5xl font-extrabold uppercase tracking-tight text-primary leading-tight mb-4 break-words">
+        Private Martial Arts Dojo Management & Belt Progression Platform
       </h1>
 
       <p className="font-body text-base sm:text-lg text-surface-on-variant leading-relaxed max-w-2xl mx-auto mb-8 font-medium">
@@ -21,7 +21,7 @@ export function HeroSection() {
       {/* Core Architectural Pillars */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto text-left">
         <div className="p-4 rounded-lg bg-surface-container-lowest border border-outline-variant shadow-soft-2">
-          <div className="w-8 h-8 rounded bg-primary-container text-primary-on-container flex items-center justify-center mb-2 font-display text-lg font-extrabold">
+          <div className="w-8 h-8 rounded-[10px] bg-primary-container text-primary-on-container flex items-center justify-center mb-2 font-display text-lg font-extrabold">
             1
           </div>
           <h2 className="font-title text-sm font-semibold text-primary mb-1">
@@ -33,7 +33,7 @@ export function HeroSection() {
         </div>
 
         <div className="p-4 rounded-lg bg-surface-container-lowest border border-outline-variant shadow-soft-2">
-          <div className="w-8 h-8 rounded bg-primary-container text-primary-on-container flex items-center justify-center mb-2 font-display text-lg font-extrabold">
+          <div className="w-8 h-8 rounded-[10px] bg-primary-container text-primary-on-container flex items-center justify-center mb-2 font-display text-lg font-extrabold">
             2
           </div>
           <h2 className="font-title text-sm font-semibold text-primary mb-1">
@@ -45,7 +45,7 @@ export function HeroSection() {
         </div>
 
         <div className="p-4 rounded-lg bg-surface-container-lowest border border-outline-variant shadow-soft-2">
-          <div className="w-8 h-8 rounded bg-primary-container text-primary-on-container flex items-center justify-center mb-2 font-display text-lg font-extrabold">
+          <div className="w-8 h-8 rounded-[10px] bg-primary-container text-primary-on-container flex items-center justify-center mb-2 font-display text-lg font-extrabold">
             3
           </div>
           <h2 className="font-title text-sm font-semibold text-primary mb-1">

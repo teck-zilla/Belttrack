@@ -203,6 +203,13 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
+      <head>
+        <title>Dashboard</title>
+        <link rel="canonical" href="https://belttrack.app" />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="keywords" content="martial arts management, dojo software, bjj belt tracker, roll call attendance, private dojo tenant" />
+      </head>
+
       <TopNav
         onOpenDirectory={() => setDirectoryModalOpen(true)}
         onOpenRegister={() => setRegisterModalOpen(true)}
@@ -241,7 +248,7 @@ export default function HomePage() {
           aria-labelledby="title-register-modal"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm"
         >
-          <div className="w-full max-w-lg p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2">
+          <div className="w-full max-w-lg p-4 sm:p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="font-label text-xs font-bold text-tertiary uppercase">Tenant Creation</span>
@@ -267,11 +274,11 @@ export default function HomePage() {
                   required
                   value={schoolName}
                   onChange={(e) => setSchoolName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-md bg-surface-container-low border border-outline-variant font-body text-sm"
+                  className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
                     Discipline
@@ -279,7 +286,7 @@ export default function HomePage() {
                   <select
                     value={discipline}
                     onChange={(e) => setDiscipline(e.target.value as DisciplineType)}
-                    className="w-full px-3 py-2 rounded-md bg-surface-container-low border border-outline-variant font-body text-sm"
+                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
                   >
                     <option value="brazilian_jiu_jitsu">Brazilian Jiu-Jitsu</option>
                     <option value="judo">Judo</option>
@@ -292,19 +299,19 @@ export default function HomePage() {
 
                 <div>
                   <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
-                    Unique School Code
+                    School Join Code
                   </label>
                   <input
                     type="text"
                     required
                     value={generatedCode}
                     onChange={(e) => setGeneratedCode(e.target.value.toUpperCase())}
-                    className="w-full px-3 py-2 rounded-md bg-surface-container-low border border-outline-variant font-label text-sm uppercase"
+                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-label text-sm uppercase"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
                     Country
@@ -314,7 +321,7 @@ export default function HomePage() {
                     required
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
-                    className="w-full px-3 py-2 rounded-md bg-surface-container-low border border-outline-variant font-body text-sm"
+                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
                   />
                 </div>
                 <div>
@@ -324,7 +331,7 @@ export default function HomePage() {
                   <select
                     value={timezone}
                     onChange={(e) => setTimezone(e.target.value)}
-                    className="w-full px-3 py-2 rounded-md bg-surface-container-low border border-outline-variant font-body text-sm"
+                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
                   >
                     <option value="UTC">UTC (Coordinated Universal Time)</option>
                     <option value="Europe/London">Europe/London (GMT/BST)</option>
@@ -338,7 +345,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
                     Head Coach Name
@@ -348,7 +355,7 @@ export default function HomePage() {
                     required
                     value={ownerName}
                     onChange={(e) => setOwnerName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-md bg-surface-container-low border border-outline-variant font-body text-sm"
+                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
                   />
                 </div>
                 <div>
@@ -360,29 +367,29 @@ export default function HomePage() {
                     required
                     value={ownerEmail}
                     onChange={(e) => setOwnerEmail(e.target.value)}
-                    className="w-full px-3 py-2 rounded-md bg-surface-container-low border border-outline-variant font-body text-sm"
+                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
                   />
                 </div>
               </div>
 
               {formFeedback && (
-                <div className="p-2 rounded bg-tertiary-container text-tertiary-on-container font-body text-xs font-medium">
+                <div className="p-2 rounded-[10px] bg-tertiary-container text-tertiary-on-container font-body text-xs font-medium">
                   {formFeedback}
                 </div>
               )}
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setRegisterModalOpen(false)}
-                  className="flex-1 py-2 px-4 rounded-md border border-outline-variant font-title text-xs font-semibold hover:bg-surface-container"
+                  className="flex-1 py-2 px-4 rounded-[10px] border border-outline-variant font-label text-xs font-medium hover:bg-surface-container hover:shadow-soft transition-all duration-[600ms]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 py-2 px-4 rounded-md bg-primary text-primary-foreground font-title text-xs font-semibold hover:bg-tertiary transition-colors disabled:opacity-50"
+                  className="flex-1 py-2 px-4 rounded-[10px] bg-primary text-primary-foreground font-label text-xs font-medium hover:bg-tertiary hover:shadow-soft transition-all duration-[600ms] disabled:opacity-50"
                 >
                   {isSubmitting ? 'Registering...' : 'Create Dojo Tenant'}
                 </button>
@@ -400,11 +407,11 @@ export default function HomePage() {
           aria-labelledby="title-join-modal"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm"
         >
-          <div className="w-full max-w-md p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2">
+          <div className="w-full max-w-md p-4 sm:p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="font-label text-xs font-bold text-tertiary uppercase">Member Onboarding</span>
-                <h3 id="title-join-modal" className="font-headline text-xl font-bold text-primary">Join Dojo with School Code</h3>
+                <h3 id="title-join-modal" className="font-headline text-xl font-bold text-primary">Join Dojo with School Join Code</h3>
               </div>
               <button
                 type="button"
@@ -419,7 +426,7 @@ export default function HomePage() {
             <form onSubmit={handleJoinSchool} className="space-y-4">
               <div>
                 <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
-                  School Registration Code
+                  School Join Code
                 </label>
                 <input
                   type="text"
@@ -427,7 +434,7 @@ export default function HomePage() {
                   placeholder="e.g. KAIZEN-2026"
                   value={inputCode}
                   onChange={(e) => setInputCode(e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2 rounded-md bg-surface-container-low border border-outline-variant font-label text-sm uppercase"
+                  className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-label text-sm uppercase"
                 />
                 <span className="font-body text-xs text-surface-on-variant mt-1 block">
                   Ask your head coach or academy front desk for this code.
@@ -444,7 +451,7 @@ export default function HomePage() {
                   placeholder="e.g. Lucas Silva"
                   value={studentName}
                   onChange={(e) => setStudentName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-md bg-surface-container-low border border-outline-variant font-body text-sm"
+                  className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
                 />
               </div>
 
@@ -458,7 +465,7 @@ export default function HomePage() {
                   placeholder="e.g. lucas@example.com"
                   value={studentEmail}
                   onChange={(e) => setStudentEmail(e.target.value)}
-                  className="w-full px-3 py-2 rounded-md bg-surface-container-low border border-outline-variant font-body text-sm"
+                  className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
                 />
               </div>
 
@@ -480,7 +487,7 @@ export default function HomePage() {
 
               {/* GUARDIAN FIELDS (CONDITIONALLY SHOWN FOR MINORS) */}
               {isMinor && (
-                <div className="space-y-3 p-3 rounded-lg bg-surface-container-low border border-outline-variant">
+                <div className="space-y-3 p-3 rounded-[10px] bg-surface-container-low border border-outline-variant">
                   <div>
                     <span className="font-label text-xs font-bold text-tertiary uppercase block">
                       Parent / Guardian Information
@@ -500,7 +507,7 @@ export default function HomePage() {
                       placeholder="e.g. Roberto Silva"
                       value={guardianName}
                       onChange={(e) => setGuardianName(e.target.value)}
-                      className="w-full px-3 py-2 rounded-md bg-surface-container-lowest border border-outline-variant font-body text-sm"
+                      className="w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border border-outline-variant font-body text-sm"
                     />
                   </div>
 
@@ -513,30 +520,30 @@ export default function HomePage() {
                       placeholder="e.g. roberto@example.com"
                       value={guardianEmail}
                       onChange={(e) => setGuardianEmail(e.target.value)}
-                      className="w-full px-3 py-2 rounded-md bg-surface-container-lowest border border-outline-variant font-body text-sm"
+                      className="w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border border-outline-variant font-body text-sm"
                     />
                   </div>
                 </div>
               )}
 
               {formFeedback && (
-                <div className="p-2 rounded bg-tertiary-container text-tertiary-on-container font-body text-xs font-medium">
+                <div className="p-2 rounded-[10px] bg-tertiary-container text-tertiary-on-container font-body text-xs font-medium">
                   {formFeedback}
                 </div>
               )}
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setJoinModalOpen(false)}
-                  className="flex-1 py-2 px-4 rounded-md border border-outline-variant font-title text-xs font-semibold hover:bg-surface-container"
+                  className="flex-1 py-2 px-4 rounded-[10px] border border-outline-variant font-label text-xs font-medium hover:bg-surface-container hover:shadow-soft transition-all duration-[600ms]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 py-2 px-4 rounded-md bg-primary text-primary-foreground font-title text-xs font-semibold hover:bg-tertiary transition-colors disabled:opacity-50"
+                  className="flex-1 py-2 px-4 rounded-[10px] bg-primary text-primary-foreground font-label text-xs font-medium hover:bg-tertiary hover:shadow-soft transition-all duration-[600ms] disabled:opacity-50"
                 >
                   {isSubmitting ? 'Verifying...' : 'Verify & Join'}
                 </button>
@@ -554,7 +561,7 @@ export default function HomePage() {
           aria-labelledby="title-directory-modal"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm"
         >
-          <div className="w-full max-w-lg p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2">
+          <div className="w-full max-w-lg p-4 sm:p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="font-label text-xs font-bold text-tertiary uppercase">Public Directory</span>
@@ -571,7 +578,7 @@ export default function HomePage() {
             </div>
 
             <p className="font-body text-xs text-surface-on-variant mb-4">
-              Global directory queries only expose public school metadata. Internal student rosters, attendances, and ledgers are strictly blocked by RLS.
+              Verified martial arts schools. Private student rosters and attendance records remain strictly isolated.
             </p>
 
             <div className="space-y-2 mb-4 font-body text-xs max-h-72 overflow-y-auto">
@@ -583,47 +590,47 @@ export default function HomePage() {
                 directorySchools.map((s) => (
                   <div
                     key={s.id}
-                    className="p-3 rounded-lg bg-surface-container-low border border-outline-variant flex justify-between items-center"
+                    className="p-3 rounded-[10px] bg-surface-container-low border border-outline-variant flex flex-wrap justify-between items-center gap-2"
                   >
-                    <div>
-                      <span className="font-title font-semibold text-primary block">{s.name}</span>
-                      <span className="text-surface-on-variant capitalize">
+                    <div className="min-w-0">
+                      <span className="font-title font-semibold text-primary block break-words">{s.name}</span>
+                      <span className="text-surface-on-variant capitalize break-words">
                         {s.city} • {s.discipline.replace(/_/g, ' ')}
                       </span>
                     </div>
-                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded">
+                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded flex-shrink-0">
                       {s.joinCode}
                     </span>
                   </div>
                 ))
               ) : (
                 <>
-                  <div className="p-3 rounded-lg bg-surface-container-low border border-outline-variant flex justify-between items-center">
-                    <div>
-                      <span className="font-title font-semibold text-primary block">Kaizen BJJ Academy</span>
-                      <span className="text-surface-on-variant">London, United Kingdom • Brazilian Jiu-Jitsu</span>
+                  <div className="p-3 rounded-[10px] bg-surface-container-low border border-outline-variant flex flex-wrap justify-between items-center gap-2">
+                    <div className="min-w-0">
+                      <span className="font-title font-semibold text-primary block break-words">Kaizen BJJ Academy</span>
+                      <span className="text-surface-on-variant break-words">London, United Kingdom • Brazilian Jiu-Jitsu</span>
                     </div>
-                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded">
+                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded flex-shrink-0">
                       KAIZEN-2026
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-lg bg-surface-container-low border border-outline-variant flex justify-between items-center">
-                    <div>
-                      <span className="font-title font-semibold text-primary block">Kodokan Judo Institute Hub</span>
-                      <span className="text-surface-on-variant">Tokyo, Japan • Traditional Judo</span>
+                  <div className="p-3 rounded-[10px] bg-surface-container-low border border-outline-variant flex flex-wrap justify-between items-center gap-2">
+                    <div className="min-w-0">
+                      <span className="font-title font-semibold text-primary block break-words">Kodokan Judo Institute Hub</span>
+                      <span className="text-surface-on-variant break-words">Tokyo, Japan • Traditional Judo</span>
                     </div>
-                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded">
+                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded flex-shrink-0">
                       KODOKAN-77
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-lg bg-surface-container-low border border-outline-variant flex justify-between items-center">
-                    <div>
-                      <span className="font-title font-semibold text-primary block">Apex Taekwondo Academy</span>
-                      <span className="text-surface-on-variant">Seoul, South Korea • WT Taekwondo</span>
+                  <div className="p-3 rounded-[10px] bg-surface-container-low border border-outline-variant flex flex-wrap justify-between items-center gap-2">
+                    <div className="min-w-0">
+                      <span className="font-title font-semibold text-primary block break-words">Apex Taekwondo Academy</span>
+                      <span className="text-surface-on-variant break-words">Seoul, South Korea • WT Taekwondo</span>
                     </div>
-                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded">
+                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded flex-shrink-0">
                       APEX-TKD
                     </span>
                   </div>
@@ -634,7 +641,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setDirectoryModalOpen(false)}
-              className="w-full py-2 px-4 rounded-md bg-surface-container font-title text-xs font-semibold hover:bg-surface-container-high transition-colors"
+              className="w-full py-2 px-4 rounded-[10px] bg-surface-container font-label text-xs font-medium hover:bg-surface-container-high hover:shadow-soft transition-all duration-[600ms]"
             >
               Close Directory
             </button>

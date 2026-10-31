@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1B2A4A" />
+      <stop offset="100%" stop-color="#0B1120" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)" />
+
+  <!-- Top Accent Bar -->
+  <rect x="0" y="0" width="1200" height="12" fill="#2563EB" />
+
+  <!-- Square BT Emblem -->
+  <g transform="translate(100, 150)">
+    <rect width="120" height="120" fill="#1B2A4A" stroke="#2563EB" stroke-width="4" />
+    <rect x="0" y="104" width="120" height="16" fill="#2563EB" />
+    <text
+      x="60"
+      y="78"
+      font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+      font-size="64"
+      font-weight="900"
+      fill="#FFFFFF"
+      text-anchor="middle"
+      letter-spacing="-2"
+    >BT</text>
+  </g>
+
+  <!-- Typography -->
+  <g transform="translate(260, 190)">
+    <text
+      x="0"
+      y="0"
+      font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+      font-size="68"
+      font-weight="900"
+      fill="#FFFFFF"
+      letter-spacing="-1"
+    >BeltTrack</text>
+
+    <text
+      x="330"
+      y="-14"
+      font-family="monospace, ui-monospace"
+      font-size="20"
+      font-weight="700"
+      fill="#2563EB"
+    >MARTIAL OS</text>
+  </g>
+
+  <!-- Short Tagline (<10 words) -->
+  <text
+    x="260"
+    y="250"
+    font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    font-size="28"
+    font-weight="500"
+    fill="#CBD5E1"
+  >Private martial arts dojo management and belt progression platform.</text>
+
+  <!-- Badges & Pillars -->
+  <g transform="translate(100, 450)">
+    <rect x="0" y="0" width="280" height="50" rx="8" fill="#1B2A4A" stroke="#334155" stroke-width="1.5" />
+    <text x="140" y="32" font-family="monospace, ui-monospace" font-size="16" font-weight="700" fill="#94A3B8" text-anchor="middle">STRICT MULTI-TENANCY</text>
+
+    <rect x="310" y="0" width="280" height="50" rx="8" fill="#1B2A4A" stroke="#334155" stroke-width="1.5" />
+    <text x="450" y="32" font-family="monospace, ui-monospace" font-size="16" font-weight="700" fill="#94A3B8" text-anchor="middle">ZERO MONETIZATION CORE</text>
+
+    <rect x="620" y="0" width="280" height="50" rx="8" fill="#1B2A4A" stroke="#334155" stroke-width="1.5" />
+    <text x="760" y="32" font-family="monospace, ui-monospace" font-size="16" font-weight="700" fill="#94A3B8" text-anchor="middle">CURRICULUM ENGINE</text>
+  </g>
+</svg>
+
