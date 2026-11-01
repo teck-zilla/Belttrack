@@ -420,6 +420,9 @@
         <p class="footer-copy">
           Strict Multi-Tenancy • Zero Monetization Core • Self-Contained Source of Truth
         </p>
+        <div class="footer-links">
+          <button type="button" class="btn-footer-link" id="btn-open-terms">Terms &amp; Conditions</button>
+        </div>
       </div>
     </footer>
 
@@ -484,6 +487,13 @@
             <input type="email" id="input-reg-email" class="form-input" value="marcus@vancebjj.com" required>
           </div>
 
+          <div class="form-group">
+            <label class="checkbox-row" for="checkbox-reg-terms">
+              <input type="checkbox" id="checkbox-reg-terms" required checked>
+              <span class="checkbox-label-text">I agree to the BeltTrack Platform Terms &amp; Tenant Isolation Policy</span>
+            </label>
+          </div>
+
           <div class="form-feedback" id="feedback-register"></div>
 
           <div class="modal-btn-row">
@@ -544,6 +554,13 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <label class="checkbox-row" for="checkbox-join-terms">
+              <input type="checkbox" id="checkbox-join-terms" required checked>
+              <span class="checkbox-label-text">I agree to the Dojo Terms of Service &amp; Minor Supervision Policy</span>
+            </label>
+          </div>
+
           <div class="form-feedback" id="feedback-join"></div>
 
           <div class="modal-btn-row">
@@ -594,6 +611,51 @@
             </div>
             <span class="directory-code">APEX-TKD</span>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 4: TERMS & CONDITIONS -->
+    <div class="modal-backdrop" id="modal-terms" role="dialog" aria-modal="true"
+      aria-labelledby="title-terms-modal">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div>
+            <span class="modal-tag">Platform Governance</span>
+            <h3 class="modal-title" id="title-terms-modal">Terms &amp; Conditions</h3>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-terms" aria-label="Close modal">✕</button>
+        </div>
+
+        <div class="terms-body">
+          <section class="terms-section">
+            <h4 class="terms-heading">1. Purpose &amp; Single Source of Truth</h4>
+            <p class="terms-text">BeltTrack operates as a closed, self-contained martial arts school management platform. It acts as an internal record system for curriculum tracking, belt progression eligibility, attendance roll-calls, and offline settlement bookkeeping.</p>
+          </section>
+
+          <section class="terms-section">
+            <h4 class="terms-heading">2. Zero-Monetization &amp; Payment Disclaimer</h4>
+            <p class="terms-text">BeltTrack does not process online payments, charge subscription cuts, or act as an escrow agent. All tuition, promotion fees, and equipment records reflect off-platform settlements (cash, direct transfer) transacted directly between the dojo and member.</p>
+          </section>
+
+          <section class="terms-section">
+            <h4 class="terms-heading">3. Strict Multi-Tenant Data Isolation</h4>
+            <p class="terms-text">Each martial arts academy operates under strict Row-Level Security (RLS) tenant isolation. Student rosters, techniques, attendance, and financial records remain strictly private to the authenticated dojo.</p>
+          </section>
+
+          <section class="terms-section">
+            <h4 class="terms-heading">4. Physical Activity &amp; Martial Arts Liability</h4>
+            <p class="terms-text">BeltTrack is an administrative software tool and does not provide physical training, coaching liability insurance, or physical safety guarantees. In-person martial arts instruction is subject to each academy's separate physical waivers.</p>
+          </section>
+
+          <section class="terms-section">
+            <h4 class="terms-heading">5. Minor Students &amp; Guardian Consent</h4>
+            <p class="terms-text">Students under the age of 18 must be enrolled with verified parent or legal guardian details. Guardians hold linked read-only preview permissions over dependent progress and records.</p>
+          </section>
+        </div>
+
+        <div class="modal-btn-row">
+          <button type="button" class="btn-modal-full" id="btn-acknowledge-terms">I Understand &amp; Close</button>
         </div>
       </div>
     </div>

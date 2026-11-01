@@ -23,6 +23,7 @@ export default function HomePage() {
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [isJoinModalOpen, setJoinModalOpen] = useState(false);
   const [isDirectoryModalOpen, setDirectoryModalOpen] = useState(false);
+  const [isTermsModalOpen, setTermsModalOpen] = useState(false);
 
   // Form states
   const [schoolName, setSchoolName] = useState('Vance Gracie Jiu-Jitsu');
@@ -234,9 +235,18 @@ export default function HomePage() {
             </span>
             <span>• Private Martial Arts Management OS</span>
           </div>
-          <p>
-            Strict Multi-Tenancy • Zero Monetization Core • Self-Contained Source of Truth
-          </p>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setTermsModalOpen(true)}
+              className="text-tertiary underline underline-offset-2 hover:text-primary transition-colors cursor-pointer"
+            >
+              Terms &amp; Conditions
+            </button>
+            <p>
+              Strict Multi-Tenancy • Zero Monetization Core • Self-Contained Source of Truth
+            </p>
+          </div>
         </div>
       </footer>
 
@@ -370,6 +380,26 @@ export default function HomePage() {
                     className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
                   />
                 </div>
+              </div>
+
+              <div className="flex items-start gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="reg-terms-check"
+                  required
+                  className="mt-1 rounded border-outline-variant text-primary focus:ring-primary"
+                />
+                <label htmlFor="reg-terms-check" className="font-body text-xs text-surface-on-variant cursor-pointer">
+                  I agree to the{' '}
+                  <button
+                    type="button"
+                    onClick={() => setTermsModalOpen(true)}
+                    className="text-tertiary underline underline-offset-2 hover:text-primary transition-colors cursor-pointer"
+                  >
+                    Terms &amp; Conditions
+                  </button>{' '}
+                  and acknowledge BeltTrack is an offline, non-custodial single source of truth with strict tenant isolation.
+                </label>
               </div>
 
               {formFeedback && (
@@ -526,6 +556,26 @@ export default function HomePage() {
                 </div>
               )}
 
+              <div className="flex items-start gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="join-terms-check"
+                  required
+                  className="mt-1 rounded border-outline-variant text-primary focus:ring-primary"
+                />
+                <label htmlFor="join-terms-check" className="font-body text-xs text-surface-on-variant cursor-pointer">
+                  I agree to the{' '}
+                  <button
+                    type="button"
+                    onClick={() => setTermsModalOpen(true)}
+                    className="text-tertiary underline underline-offset-2 hover:text-primary transition-colors cursor-pointer"
+                  >
+                    Terms &amp; Conditions
+                  </button>{' '}
+                  and acknowledge that physical martial arts carries inherent risks and membership requires coach sign-off.
+                </label>
+              </div>
+
               {formFeedback && (
                 <div className="p-2 rounded-[10px] bg-tertiary-container text-tertiary-on-container font-body text-xs font-medium">
                   {formFeedback}
@@ -636,6 +686,80 @@ export default function HomePage() {
                   </div>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: TERMS & CONDITIONS */}
+      {isTermsModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="title-terms-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm"
+        >
+          <div className="w-full max-w-lg p-4 sm:p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2 max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between pb-3 border-b border-outline-variant">
+              <div>
+                <span className="font-label text-xs font-bold text-tertiary uppercase tracking-wider">Legal &amp; Platform Governance</span>
+                <h3 id="title-terms-modal" className="font-headline text-xl font-bold text-primary">Terms &amp; Conditions</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTermsModalOpen(false)}
+                className="text-surface-on-variant hover:text-surface-foreground"
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="overflow-y-auto my-4 pr-2 space-y-4 font-body text-xs text-surface-on-variant">
+              <section className="space-y-1">
+                <h4 className="font-title text-xs font-bold text-primary">1. Single Source of Truth &amp; Platform Purpose</h4>
+                <p>
+                  BeltTrack operates as a closed, private single source of truth for martial arts school curriculum, belt promotion eligibility, mat attendance, and immutable internal ledger records. The software facilitates administrative recording and provides progress transparency between dojo operators, instructors, adult students, and guardians.
+                </p>
+              </section>
+
+              <section className="space-y-1">
+                <h4 className="font-title text-xs font-bold text-primary">2. Zero-Monetization &amp; Offline Settlement Disclaimer</h4>
+                <p>
+                  BeltTrack maintains a zero-monetization architecture. The platform does not process payments, integrate payment gateways, hold customer funds, or charge subscription cuts. All tuition, membership dues, and belt testing fees are settled offline directly with your martial arts academy. Receipts generated within the application serve strictly as non-custodial administrative accounting ledger records.
+                </p>
+              </section>
+
+              <section className="space-y-1">
+                <h4 className="font-title text-xs font-bold text-primary">3. Strict Multi-Tenant Data Isolation</h4>
+                <p>
+                  Every academy operates within an isolated tenant partition identified by a unique school code. Member rosters, attendance logs, and curriculum progress are strictly inaccessible to cross-tenant entities, public users, or unauthenticated parties. The public directory publishes only verified academy name, slug, city, and discipline.
+                </p>
+              </section>
+
+              <section className="space-y-1">
+                <h4 className="font-title text-xs font-bold text-primary">4. Martial Arts Physical Activity Liability Release</h4>
+                <p>
+                  Martial arts disciplines (including Brazilian Jiu-Jitsu, Judo, Muay Thai, Karate, and Taekwondo) involve physical contact, strenuous exertion, and inherent risks of bodily injury. BeltTrack is solely an administrative tool and does not provide athletic or medical guidance. Students and guardians assume all physical risks associated with participation at their respective academies.
+                </p>
+              </section>
+
+              <section className="space-y-1">
+                <h4 className="font-title text-xs font-bold text-primary">5. Minor Dependent Supervision &amp; Guardian Consent</h4>
+                <p>
+                  Accounts for student practitioners under the age of 18 must be linked to a responsible parent or legal guardian. Guardians retain read-only visibility over dependent attendance, promotion criteria, and tuition records. BeltTrack does not market directly to minors or collect unsolicited personal information from children.
+                </p>
+              </section>
+            </div>
+
+            <div className="pt-3 border-t border-outline-variant flex justify-end">
+              <button
+                type="button"
+                onClick={() => setTermsModalOpen(false)}
+                className="py-2 px-6 rounded-[10px] bg-primary text-primary-foreground font-label text-xs font-medium hover:bg-tertiary hover:shadow-soft transition-all duration-[600ms]"
+              >
+                I Understand &amp; Agree
+              </button>
             </div>
           </div>
         </div>

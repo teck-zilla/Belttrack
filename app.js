@@ -59,6 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCloseDirectory = document.getElementById('btn-close-directory');
   const brandHomeLink = document.getElementById('brand-home-link');
 
+  const modalTerms = document.getElementById('modal-terms');
+  const btnOpenTerms = document.getElementById('btn-open-terms');
+  const btnCloseTerms = document.getElementById('btn-close-terms');
+  const btnAcknowledgeTerms = document.getElementById('btn-acknowledge-terms');
+
   // Dynamic Grading Demo
   const btnSimulateCheckin = document.getElementById('btn-simulate-checkin');
   const textAttendanceProgress = document.getElementById('text-attendance-progress');
@@ -337,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (modal === modalRegister) updateDynamicTitle('Register School');
       else if (modal === modalJoin) updateDynamicTitle('Join Dojo');
       else if (modal === modalDirectory) updateDynamicTitle('Public School Directory');
+      else if (modal === modalTerms) updateDynamicTitle('Terms & Conditions');
     }
   }
 
@@ -361,8 +367,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnOpenDirectory) btnOpenDirectory.addEventListener('click', () => openModal(modalDirectory));
   if (btnCloseDirectory) btnCloseDirectory.addEventListener('click', () => closeModal(modalDirectory));
 
+  // Terms Modal
+  if (btnOpenTerms) btnOpenTerms.addEventListener('click', () => openModal(modalTerms));
+  if (btnCloseTerms) btnCloseTerms.addEventListener('click', () => closeModal(modalTerms));
+  if (btnAcknowledgeTerms) btnAcknowledgeTerms.addEventListener('click', () => closeModal(modalTerms));
+
   // Close on backdrop click
-  [modalRegister, modalJoin, modalDirectory].forEach((modal) => {
+  [modalRegister, modalJoin, modalDirectory, modalTerms].forEach((modal) => {
     if (!modal) return;
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeModal(modal);
@@ -375,6 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
       closeModal(modalRegister);
       closeModal(modalJoin);
       closeModal(modalDirectory);
+      closeModal(modalTerms);
       if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html')) {
         e.preventDefault();
         window.scrollTo({ top: 0, behavior: 'smooth' });
