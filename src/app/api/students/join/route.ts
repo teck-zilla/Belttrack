@@ -35,6 +35,18 @@ export async function POST(request: Request) {
       );
     }
 
+    // Verify student email is not already registered
+    const existingStudent = await prisma.user.findUnique({
+      where: { email: studentEmail.toLowerCase().trim() }
+    });
+
+    if (existingStudent) {
+      return NextResponse.json(
+        { error: `An account with email "${studentEmail}" already exists. Please sign in instead.` },
+        { status: 409 }
+      );
+    }
+
     // Split student name
     const parts = studentFullName.trim().split(/\s+/);
     const firstName = parts[0] || studentFullName;
@@ -64,29 +76,46 @@ export async function POST(request: Request) {
         }
       });
 
-      // 3. If minor, create Guardian record and link
+      // 3. If minor, find or create Guardian record and link
       if (isMinor && guardianFullName) {
-        const gEmail = guardianEmail
+        const gEmail = (guardianEmail
           ? guardianEmail.toLowerCase()
-          : `guardian.${studentUser.id.slice(0, 8)}@example.com`;
+          : `guardian.${studentUser.id.slice(0, 8)}@example.com`).trim();
 
-        const guardianUser = await tx.user.create({
-          data: {
-            schoolId: school.id,
-            email: gEmail,
-            hashedPassword: 'managed-auth-preview',
-            role: 'GUARDIAN',
-            status: 'PENDING_APPROVAL'
+        let guardianUser = await tx.user.findUnique({
+          where: { email: gEmail }
+        });
+
+        if (!guardianUser) {
+          guardianUser = await tx.user.create({
+            data: {
+              schoolId: school.id,
+              email: gEmail,
+              hashedPassword: 'managed-auth-preview',
+              role: 'GUARDIAN',
+              status: 'PENDING_APPROVAL'
+            }
+          });
+        }
+
+        const existingLink = await tx.guardianStudent.findUnique({
+          where: {
+            guardianId_studentId: {
+              guardianId: guardianUser.id,
+              studentId: studentUser.id
+            }
           }
         });
 
-        await tx.guardianStudent.create({
-          data: {
-            guardianId: guardianUser.id,
-            studentId: studentUser.id,
-            isApproved: false
-          }
-        });
+        if (!existingLink) {
+          await tx.guardianStudent.create({
+            data: {
+              guardianId: guardianUser.id,
+              studentId: studentUser.id,
+              isApproved: false
+            }
+          });
+        }
       }
 
       return { studentUser, profile };
@@ -116,6 +145,12 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error: unknown) {
+    if (typeof error === 'object' && error !== null && 'code' in error && (error as { code: string }).code === 'P2002') {
+      return NextResponse.json(
+        { error: 'An account with this email address already exists. Please sign in instead.' },
+        { status: 409 }
+      );
+    }
     const message = error instanceof Error ? error.message : 'Database error processing join request';
     return NextResponse.json({ error: message }, { status: 500 });
   }

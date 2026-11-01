@@ -505,6 +505,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   // FIELD VALIDATION RULES ("empty field error", "structure error", "enter a valid email address")
   // --------------------------------------------------------------------------
+  function isValidSchoolJoinCode(code) {
+    return /^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$/.test((code || '').trim());
+  }
+
   function isValidEmail(email) {
     return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test((email || '').trim());
   }
@@ -533,6 +537,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fieldId === 'input-reg-country') {
       if (trimmed.length < 2) {
         return 'structure error';
+      }
+    }
+
+    // School Join Code field: format must always be string-string-number with max lengths 6-4-4
+    if (['input-reg-code', 'input-join-code'].includes(fieldId)) {
+      if (!isValidSchoolJoinCode(trimmed)) {
+        return 'wrong details';
       }
     }
 
@@ -567,9 +578,30 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const isEmailField = ['input-reg-email', 'input-join-email', 'input-join-guardian-email'].includes(field.id) || field.type === 'email';
+      const isCodeField = ['input-reg-code', 'input-join-code'].includes(field.id);
 
       field.addEventListener('blur', () => {
         if (field.closest('#guardian-fields-container') && (!checkboxIsMinor || !checkboxIsMinor.checked)) {
+          return;
+        }
+
+        if (isCodeField) {
+          if (!field.value.trim()) {
+            field.classList.add('input-error');
+            if (errorEl) {
+              errorEl.textContent = 'empty field error';
+              errorEl.classList.add('active');
+            }
+          } else if (!isValidSchoolJoinCode(field.value)) {
+            field.classList.add('input-error');
+            if (errorEl) {
+              errorEl.textContent = 'wrong details';
+              errorEl.classList.add('active');
+            }
+          } else {
+            field.classList.remove('input-error');
+            if (errorEl) errorEl.classList.remove('active');
+          }
           return;
         }
 
@@ -610,6 +642,19 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       field.addEventListener('input', () => {
+        if (isCodeField) {
+          if (field.value.trim() && !isValidSchoolJoinCode(field.value)) {
+            field.classList.add('input-error');
+            if (errorEl) {
+              errorEl.textContent = 'wrong details';
+              errorEl.classList.add('active');
+            }
+          } else {
+            field.classList.remove('input-error');
+            if (errorEl) errorEl.classList.remove('active');
+          }
+          return;
+        }
         if (isEmailField) {
           if (field.id === 'input-join-guardian-email' && (!checkboxIsMinor || !checkboxIsMinor.checked) && !field.value.trim()) {
             field.classList.remove('input-error');
@@ -692,7 +737,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const codeInput = document.getElementById('input-reg-code');
 
       const newName = schoolNameInput.value.trim() || 'Vance BJJ';
-      const newCode = codeInput.value.trim().toUpperCase() || 'VANCE-2026';
+      const newCode = codeInput.value.trim().toUpperCase() || 'VANCE-BJJ-2026';
 
       state.school.name = newName;
       state.school.code = newCode;

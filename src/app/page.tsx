@@ -50,6 +50,9 @@ export default function HomePage() {
   const isValidEmail = (email: string) =>
     /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test((email || '').trim());
 
+  const isValidSchoolJoinCode = (code: string) =>
+    /^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$/.test((code || '').trim());
+
   const emailFields = ['ownerEmail', 'studentEmail', 'guardianEmail'];
 
   const validateField = (fieldId: string, val: string): string | null => {
@@ -58,7 +61,7 @@ export default function HomePage() {
       return 'empty field error';
     }
 
-    // Email fields: real-time valid email check
+    // Email fields: valid email check
     if (emailFields.includes(fieldId)) {
       if (!isValidEmail(trimmed)) {
         return 'enter a valid email address';
@@ -79,6 +82,13 @@ export default function HomePage() {
       }
     }
 
+    // School Join Code field: format must always be string-string-number with max lengths 6-4-4
+    if (['generatedCode', 'inputCode'].includes(fieldId)) {
+      if (!isValidSchoolJoinCode(trimmed)) {
+        return 'wrong details';
+      }
+    }
+
     // Name field: length should be at least 3 characters and must have 2 words or names separated by an empty string
     if (['ownerName', 'studentName', 'guardianName'].includes(fieldId)) {
       const words = trimmed.split(/\s+/).filter(Boolean);
@@ -91,6 +101,22 @@ export default function HomePage() {
   };
 
   const handleBlur = (fieldId: string, val: string) => {
+    if (['generatedCode', 'inputCode'].includes(fieldId)) {
+      if (!val || !val.trim()) {
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'empty field error' }));
+      } else if (!isValidSchoolJoinCode(val)) {
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'wrong details' }));
+      } else {
+        setFieldErrors((prev) => {
+          if (!prev[fieldId]) return prev;
+          const next = { ...prev };
+          delete next[fieldId];
+          return next;
+        });
+      }
+      return;
+    }
+
     if (fieldId === 'guardianEmail' && (!isMinor || !val.trim()) && !fieldErrors['guardianEmail']) {
       return;
     }
@@ -128,6 +154,21 @@ export default function HomePage() {
 
   const handleInputChange = (fieldId: string, val: string, setter: (v: string) => void) => {
     setter(val);
+
+    // Real-time School Join Code validation: string-string-number (max lengths 6-4-4)
+    if (['generatedCode', 'inputCode'].includes(fieldId)) {
+      if (val.trim() && !isValidSchoolJoinCode(val)) {
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'wrong details' }));
+      } else {
+        setFieldErrors((prev) => {
+          if (!prev[fieldId]) return prev;
+          const next = { ...prev };
+          delete next[fieldId];
+          return next;
+        });
+      }
+      return;
+    }
 
     // Real-time email validation: persists until user enters a valid email address
     if (emailFields.includes(fieldId)) {
@@ -690,7 +731,7 @@ export default function HomePage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. KAIZEN-2026"
+                  placeholder="e.g. KAIZEN-BJJ-2026"
                   value={inputCode}
                   onChange={(e) => handleInputChange('inputCode', e.target.value.toUpperCase(), setInputCode)}
                   onBlur={() => handleBlur('inputCode', inputCode)}
