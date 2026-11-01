@@ -198,6 +198,27 @@ textarea {
   transition: all 0.6s ease;
 }
 
+.btn-signin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 0.875rem;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border: 1px solid transparent;
+  border-radius: 0.625rem;
+  font-family: var(--font-family-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: var(--typography-label-medium-letter-spacing);
+  cursor: pointer;
+  transition: all 0.6s ease;
+}
+
+.btn-signin:hover {
+  box-shadow: var(--shadow-soft-shadow-2);
+}
+
 .btn-directory:hover {
   background-color: var(--color-surface-container-high);
   box-shadow: var(--shadow-soft-shadow);

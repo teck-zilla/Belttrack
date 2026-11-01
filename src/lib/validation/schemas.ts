@@ -161,3 +161,14 @@ export const ledgerEntrySchema = z.object({
   reversalRefSlug: z.string().regex(/^REC-\d{4}-[A-Z0-9]+-\d+$/, 'Reversal reference slug must match receipt format').optional(),
   notes: z.string().max(250).optional()
 });
+
+/**
+ * 6. LOGIN AUTHENTICATION SCHEMA
+ */
+export const loginSchema = z.object({
+  email: z.string().email('enter a valid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters')
+});
+
+export type LoginInput = z.infer<typeof loginSchema>;
+
