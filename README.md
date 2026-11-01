@@ -124,6 +124,65 @@ BELTTRACK APP/
 
 ---
 
+## 📋 Form Fields & Validation Specifications
+
+All client forms and API mutations are validated through runtime Zod schemas defined in [`src/lib/validation/schemas.ts`](./src/lib/validation/schemas.ts):
+
+### 1. Dojo School Tenant Registration Form
+*Modal: "Register Martial Arts School" (`form-register-school` / `schoolRegistrationSchema`)*
+
+| Field Label | Schema Key | Input Type | Required? | Validation Rules & Constraints |
+| :--- | :--- | :--- | :--- | :--- |
+| **School / Academy Name** | `schoolName` | Text | **Required** | Min 3, max 80 characters. |
+| **Discipline** | `discipline` | Dropdown Select | **Required** | Enum: `brazilian_jiu_jitsu`, `judo`, `karate`, `taekwondo`, `muay_thai`, `krav_maga`. |
+| **School Join Code** | `customCode` | Text (Uppercase) | **Required** | 4 to 16 characters. Alphanumeric uppercase with dashes (`-`) or underscores (`_`). |
+| **City** | `city` | Text | **Required** | Min 2, max 50 characters. |
+| **Country** | `country` | Text | **Required** | Min 2, max 50 characters. |
+| **Operating Timezone** | `timezone` | Dropdown Select | **Required** | Standard IANA timezone (defaults to `'UTC'`). |
+| **Head Coach / Owner Full Name** | `ownerFullName` | Text | **Required** | Min 2, max 60 characters. |
+| **Owner Email** | `ownerEmail` | Email | **Required** | Valid email format. |
+| **Public Directory Listing** | `isPublicInDirectory` | Boolean | Optional | Defaults to `true` (exposes only accredited name, city, discipline). |
+
+### 2. Member & Minor Guardian Dojo Join Form
+*Modal: "Join Dojo with School Join Code" (`form-join-school` / `studentJoinCodeSchema`)*
+
+| Field Label | Schema Key | Input Type | Required? | Validation Rules & Constraints |
+| :--- | :--- | :--- | :--- | :--- |
+| **School Join Code** | `registrationCode` | Text (Uppercase) | **Required** | 4 to 16 characters. Must match an active registered dojo join code. |
+| **Student Full Name** | `studentFullName` | Text | **Required** | Min 2, max 60 characters. |
+| **Email Address** | `studentEmail` | Email | **Required** | Valid email format. |
+| **Under-18 Minor Toggle** | `isMinor` | Checkbox | Optional | Defaults to `false`. Conditionally renders guardian fields when checked. |
+| **Guardian Full Name** | `guardianFullName` | Text | **Conditionally Required** | **Mandatory if `isMinor` is true**; blocks enrollment if blank. Max 60 characters. |
+| **Guardian Email Address** | `guardianEmail` | Email | Optional | Valid email format if provided. |
+
+### 3. Core Engine Action Schemas (Backend / Operational)
+
+* **Roll-Call Attendance Check-In (`attendanceCheckInSchema`)**:
+  - `schoolId`: UUID (**Required**) — Scopes attendance record to tenant dojo.
+  - `studentId`: UUID (**Required**) — Student member identifier.
+  - `className`: Text (**Required**, min 2 chars) — E.g., `BJJ Fundamentals (Gi)`.
+  - `isSparringLogged`: Boolean (Optional, default `false`).
+  - `idempotencyKey`: String (Optional) — Prevents duplicate attendance logging within the same session.
+
+* **Technique Sign-Off Verification (`techniqueSignoffSchema`)**:
+  - `schoolId`: UUID (**Required**) — Scopes technique sign-off to tenant curriculum.
+  - `studentId`: UUID (**Required**) — Student undergoing evaluation.
+  - `techniqueId`: UUID (**Required**) — Technique milestone identifier.
+  - `coachNotes`: Text (Optional, max 500 characters).
+
+* **Internal Ledger Settlement Entry (`ledgerEntrySchema`)**:
+  - `schoolId`: UUID (**Required**) — Enforces strict tenant financial boundary.
+  - `studentId`: UUID (**Required**) — Paying student or guardian member.
+  - `amountCents`: Positive Integer (**Required**) — Value in cents (e.g. `12000` = $120.00).
+  - `currency`: 3-letter ISO code (**Required**, default `USD`).
+  - `category`: Enum (**Required**) — `tuition`, `testing_fee`, `uniform_equipment`, `correction_reversal`, `gear`, `seminar`.
+  - `paymentMethod`: Enum (**Required**) — `cash`, `bank_transfer`, `manual_card`, `other`.
+  - `receiptSlug`: Text (Optional/Auto-generated) — Formatted as `REC-[YEAR]-[DISCIPLINE]-[INCREMENT]` (e.g. `REC-2026-BJJ-084`).
+  - `reversalRefSlug`: Text (Optional) — Reversal reference pointer for offsetting corrections.
+  - `notes`: Text (Optional, max 250 characters).
+
+---
+
 ## 🗄️ Database & Prisma ORM Setup
 
 The application is fully wired to PostgreSQL (hosted on Supabase) via Prisma ORM:
