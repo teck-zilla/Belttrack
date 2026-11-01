@@ -36,23 +36,26 @@ export const membershipStatusEnum = z.enum([
 export const schoolRegistrationSchema = z.object({
   schoolName: z
     .string()
-    .min(3, 'School name must be at least 3 characters')
+    .min(4, 'School name must be above 3 characters')
     .max(80, 'School name must be under 80 characters'),
   discipline: disciplineEnum,
   ownerFullName: z
     .string()
-    .min(2, 'Owner full name is required')
-    .max(60, 'Owner full name must be under 60 characters'),
+    .min(3, 'Owner full name must be at least 3 characters')
+    .max(60, 'Owner full name must be under 60 characters')
+    .refine((val) => val.trim().split(/\s+/).filter(Boolean).length >= 2, {
+      message: 'Owner name must have at least 2 words or names'
+    }),
   ownerEmail: z
     .string()
-    .email('Please enter a valid email address'),
+    .email('enter a valid email address'),
   city: z
     .string()
     .min(2, 'City is required')
     .max(50, 'City must be under 50 characters'),
   country: z
     .string()
-    .min(2, 'Country is required')
+    .min(2, 'Country length should not fall below 2 characters')
     .max(50, 'Country must be under 50 characters'),
   timezone: z
     .string()
@@ -82,21 +85,27 @@ export const studentJoinCodeSchema = z.object({
     .regex(/^[A-Z0-9_-]+$/i, 'Registration code is alphanumeric'),
   studentFullName: z
     .string()
-    .min(2, 'Student full name is required')
-    .max(60, 'Student name must be under 60 characters'),
+    .min(3, 'Student full name must be at least 3 characters')
+    .max(60, 'Student name must be under 60 characters')
+    .refine((val) => val.trim().split(/\s+/).filter(Boolean).length >= 2, {
+      message: 'Student name must have at least 2 words or names'
+    }),
   studentEmail: z
     .string()
-    .email('Please enter a valid email address'),
+    .email('enter a valid email address'),
   isMinor: z
     .boolean()
     .default(false),
   guardianFullName: z
     .string()
     .max(60)
-    .optional(),
+    .optional()
+    .refine((val) => !val || (val.trim().length >= 3 && val.trim().split(/\s+/).filter(Boolean).length >= 2), {
+      message: 'Guardian name must be at least 3 characters and have at least 2 words or names'
+    }),
   guardianEmail: z
     .string()
-    .email('Please enter a valid guardian email address')
+    .email('enter a valid email address')
     .optional()
 }).refine(data => {
   if (data.isMinor && !data.guardianFullName) {

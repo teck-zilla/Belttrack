@@ -23,6 +23,7 @@ export default function HomePage() {
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [isJoinModalOpen, setJoinModalOpen] = useState(false);
   const [isDirectoryModalOpen, setDirectoryModalOpen] = useState(false);
+  const [isTermsModalOpen, setTermsModalOpen] = useState(false);
 
   // Form states
   const [schoolName, setSchoolName] = useState('Vance Gracie Jiu-Jitsu');
@@ -42,6 +43,126 @@ export default function HomePage() {
   const [guardianEmail, setGuardianEmail] = useState('');
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const isValidEmail = (email: string) =>
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test((email || '').trim());
+
+  const emailFields = ['ownerEmail', 'studentEmail', 'guardianEmail'];
+
+  const validateField = (fieldId: string, val: string): string | null => {
+    const trimmed = (val || '').trim();
+    if (!trimmed) {
+      return 'empty field error';
+    }
+
+    // Email fields: real-time valid email check
+    if (emailFields.includes(fieldId)) {
+      if (!isValidEmail(trimmed)) {
+        return 'enter a valid email address';
+      }
+    }
+
+    // School / Academy Name field: length should be above 3 characters
+    if (fieldId === 'schoolName') {
+      if (trimmed.length <= 3) {
+        return 'structure error';
+      }
+    }
+
+    // Country field: length should not fall below 2 characters
+    if (fieldId === 'country') {
+      if (trimmed.length < 2) {
+        return 'structure error';
+      }
+    }
+
+    // Name field: length should be at least 3 characters and must have 2 words or names separated by an empty string
+    if (['ownerName', 'studentName', 'guardianName'].includes(fieldId)) {
+      const words = trimmed.split(/\s+/).filter(Boolean);
+      if (trimmed.length < 3 || words.length < 2) {
+        return 'structure error';
+      }
+    }
+
+    return null;
+  };
+
+  const handleBlur = (fieldId: string, val: string) => {
+    if (fieldId === 'guardianEmail' && (!isMinor || !val.trim()) && !fieldErrors['guardianEmail']) {
+      return;
+    }
+
+    if (emailFields.includes(fieldId)) {
+      if (!val || !val.trim()) {
+        const existing = fieldErrors[fieldId];
+        const msg = existing === 'enter a valid email address' ? 'enter a valid email address' : 'empty field error';
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: msg }));
+      } else if (!isValidEmail(val)) {
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'enter a valid email address' }));
+      } else {
+        setFieldErrors((prev) => {
+          if (!prev[fieldId]) return prev;
+          const next = { ...prev };
+          delete next[fieldId];
+          return next;
+        });
+      }
+      return;
+    }
+
+    const err = validateField(fieldId, val);
+    if (err) {
+      setFieldErrors((prev) => ({ ...prev, [fieldId]: err }));
+    } else {
+      setFieldErrors((prev) => {
+        if (!prev[fieldId]) return prev;
+        const next = { ...prev };
+        delete next[fieldId];
+        return next;
+      });
+    }
+  };
+
+  const handleInputChange = (fieldId: string, val: string, setter: (v: string) => void) => {
+    setter(val);
+
+    // Real-time email validation: persists until user enters a valid email address
+    if (emailFields.includes(fieldId)) {
+      if (fieldId === 'guardianEmail' && !isMinor && !val.trim()) {
+        setFieldErrors((prev) => {
+          const next = { ...prev };
+          delete next[fieldId];
+          return next;
+        });
+        return;
+      }
+
+      if (!isValidEmail(val)) {
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'enter a valid email address' }));
+      } else {
+        setFieldErrors((prev) => {
+          const next = { ...prev };
+          delete next[fieldId];
+          return next;
+        });
+      }
+      return;
+    }
+
+    if (fieldErrors[fieldId]) {
+      const err = validateField(fieldId, val);
+      if (!err) {
+        setFieldErrors((prev) => {
+          const next = { ...prev };
+          delete next[fieldId];
+          return next;
+        });
+      } else {
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: err }));
+      }
+    }
+  };
 
   // Directory state
   const [directorySchools, setDirectorySchools] = useState<DirectorySchool[]>([]);
@@ -70,6 +191,27 @@ export default function HomePage() {
   // Handle Dojo Registration (Persists to Database via API)
   const handleRegisterSchool = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errors: Record<string, string> = {};
+    const eSchool = validateField('schoolName', schoolName);
+    if (eSchool) errors['schoolName'] = eSchool;
+
+    const eCode = validateField('generatedCode', generatedCode);
+    if (eCode) errors['generatedCode'] = eCode;
+
+    const eCountry = validateField('country', country);
+    if (eCountry) errors['country'] = eCountry;
+
+    const eOwner = validateField('ownerName', ownerName);
+    if (eOwner) errors['ownerName'] = eOwner;
+
+    const eEmail = validateField('ownerEmail', ownerEmail);
+    if (eEmail) errors['ownerEmail'] = eEmail;
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors((prev) => ({ ...prev, ...errors }));
+      return;
+    }
+
     const result = schoolRegistrationSchema.safeParse({
       schoolName,
       discipline,
@@ -131,6 +273,31 @@ export default function HomePage() {
   // Handle Student Join with Code (Persists to Database via API)
   const handleJoinSchool = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errors: Record<string, string> = {};
+    const eCode = validateField('inputCode', inputCode);
+    if (eCode) errors['inputCode'] = eCode;
+
+    const eStudent = validateField('studentName', studentName);
+    if (eStudent) errors['studentName'] = eStudent;
+
+    const eEmail = validateField('studentEmail', studentEmail);
+    if (eEmail) errors['studentEmail'] = eEmail;
+
+    if (isMinor) {
+      const eGuardian = validateField('guardianName', guardianName);
+      if (eGuardian) errors['guardianName'] = eGuardian;
+
+      if (guardianEmail.trim()) {
+        const eGuardEmail = validateField('guardianEmail', guardianEmail);
+        if (eGuardEmail) errors['guardianEmail'] = eGuardEmail;
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors((prev) => ({ ...prev, ...errors }));
+      return;
+    }
+
     const normalizedCode = inputCode.trim().toUpperCase();
 
     const result = studentJoinCodeSchema.safeParse({
@@ -234,9 +401,18 @@ export default function HomePage() {
             </span>
             <span>• Private Martial Arts Management OS</span>
           </div>
-          <p>
-            Strict Multi-Tenancy • Zero Monetization Core • Self-Contained Source of Truth
-          </p>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setTermsModalOpen(true)}
+              className="text-tertiary underline underline-offset-2 hover:text-primary transition-colors cursor-pointer"
+            >
+              Terms &amp; Conditions
+            </button>
+            <p>
+              Strict Multi-Tenancy • Zero Monetization Core • Self-Contained Source of Truth
+            </p>
+          </div>
         </div>
       </footer>
 
@@ -273,9 +449,15 @@ export default function HomePage() {
                   type="text"
                   required
                   value={schoolName}
-                  onChange={(e) => setSchoolName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                  onChange={(e) => handleInputChange('schoolName', e.target.value, setSchoolName)}
+                  onBlur={() => handleBlur('schoolName', schoolName)}
+                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['schoolName'] ? 'border-error' : 'border-outline-variant'}`}
                 />
+                {fieldErrors['schoolName'] && (
+                  <span className="font-body text-[11px] text-error mt-1 block">
+                    {fieldErrors['schoolName']}
+                  </span>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -285,8 +467,18 @@ export default function HomePage() {
                   </label>
                   <select
                     value={discipline}
-                    onChange={(e) => setDiscipline(e.target.value as DisciplineType)}
-                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                    onChange={(e) => {
+                      setDiscipline(e.target.value as DisciplineType);
+                      if (fieldErrors['discipline']) {
+                        setFieldErrors((prev) => {
+                          const next = { ...prev };
+                          delete next['discipline'];
+                          return next;
+                        });
+                      }
+                    }}
+                    onBlur={() => handleBlur('discipline', discipline)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['discipline'] ? 'border-error' : 'border-outline-variant'}`}
                   >
                     <option value="brazilian_jiu_jitsu">Brazilian Jiu-Jitsu</option>
                     <option value="judo">Judo</option>
@@ -295,6 +487,11 @@ export default function HomePage() {
                     <option value="muay_thai">Muay Thai</option>
                     <option value="krav_maga">Krav Maga</option>
                   </select>
+                  {fieldErrors['discipline'] && (
+                    <span className="font-body text-[11px] text-error mt-1 block">
+                      {fieldErrors['discipline']}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -305,9 +502,15 @@ export default function HomePage() {
                     type="text"
                     required
                     value={generatedCode}
-                    onChange={(e) => setGeneratedCode(e.target.value.toUpperCase())}
-                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-label text-sm uppercase"
+                    onChange={(e) => handleInputChange('generatedCode', e.target.value.toUpperCase(), setGeneratedCode)}
+                    onBlur={() => handleBlur('generatedCode', generatedCode)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-label text-sm uppercase ${fieldErrors['generatedCode'] ? 'border-error' : 'border-outline-variant'}`}
                   />
+                  {fieldErrors['generatedCode'] && (
+                    <span className="font-body text-[11px] text-error mt-1 block">
+                      {fieldErrors['generatedCode']}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -320,9 +523,15 @@ export default function HomePage() {
                     type="text"
                     required
                     value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                    onChange={(e) => handleInputChange('country', e.target.value, setCountry)}
+                    onBlur={() => handleBlur('country', country)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['country'] ? 'border-error' : 'border-outline-variant'}`}
                   />
+                  {fieldErrors['country'] && (
+                    <span className="font-body text-[11px] text-error mt-1 block">
+                      {fieldErrors['country']}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
@@ -330,8 +539,18 @@ export default function HomePage() {
                   </label>
                   <select
                     value={timezone}
-                    onChange={(e) => setTimezone(e.target.value)}
-                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                    onChange={(e) => {
+                      setTimezone(e.target.value);
+                      if (fieldErrors['timezone']) {
+                        setFieldErrors((prev) => {
+                          const next = { ...prev };
+                          delete next['timezone'];
+                          return next;
+                        });
+                      }
+                    }}
+                    onBlur={() => handleBlur('timezone', timezone)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['timezone'] ? 'border-error' : 'border-outline-variant'}`}
                   >
                     <option value="UTC">UTC (Coordinated Universal Time)</option>
                     <option value="Europe/London">Europe/London (GMT/BST)</option>
@@ -342,6 +561,11 @@ export default function HomePage() {
                     <option value="Asia/Bangkok">Asia/Bangkok (ICT)</option>
                     <option value="Australia/Sydney">Australia/Sydney (AEST)</option>
                   </select>
+                  {fieldErrors['timezone'] && (
+                    <span className="font-body text-[11px] text-error mt-1 block">
+                      {fieldErrors['timezone']}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -354,9 +578,15 @@ export default function HomePage() {
                     type="text"
                     required
                     value={ownerName}
-                    onChange={(e) => setOwnerName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                    onChange={(e) => handleInputChange('ownerName', e.target.value, setOwnerName)}
+                    onBlur={() => handleBlur('ownerName', ownerName)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['ownerName'] ? 'border-error' : 'border-outline-variant'}`}
                   />
+                  {fieldErrors['ownerName'] && (
+                    <span className="font-body text-[11px] text-error mt-1 block">
+                      {fieldErrors['ownerName']}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
@@ -366,10 +596,36 @@ export default function HomePage() {
                     type="email"
                     required
                     value={ownerEmail}
-                    onChange={(e) => setOwnerEmail(e.target.value)}
-                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                    onChange={(e) => handleInputChange('ownerEmail', e.target.value, setOwnerEmail)}
+                    onBlur={() => handleBlur('ownerEmail', ownerEmail)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['ownerEmail'] ? 'border-error' : 'border-outline-variant'}`}
                   />
+                  {fieldErrors['ownerEmail'] && (
+                    <span className="font-body text-[11px] text-error mt-1 block">
+                      {fieldErrors['ownerEmail']}
+                    </span>
+                  )}
                 </div>
+              </div>
+
+              <div className="flex items-start gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="reg-terms-check"
+                  required
+                  className="mt-1 rounded border-outline-variant text-primary focus:ring-primary"
+                />
+                <label htmlFor="reg-terms-check" className="font-body text-xs text-surface-on-variant cursor-pointer">
+                  I agree to the{' '}
+                  <button
+                    type="button"
+                    onClick={() => setTermsModalOpen(true)}
+                    className="text-tertiary underline underline-offset-2 hover:text-primary transition-colors cursor-pointer"
+                  >
+                    Terms &amp; Conditions
+                  </button>{' '}
+                  and acknowledge BeltTrack is an offline, non-custodial single source of truth with strict tenant isolation.
+                </label>
               </div>
 
               {formFeedback && (
@@ -381,7 +637,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setRegisterModalOpen(false)}
+                  onClick={() => { setRegisterModalOpen(false); setFieldErrors({}); }}
                   className="flex-1 py-2 px-4 rounded-[10px] border border-outline-variant font-label text-xs font-medium hover:bg-surface-container hover:shadow-soft transition-all duration-[600ms]"
                 >
                   Cancel
@@ -433,9 +689,15 @@ export default function HomePage() {
                   required
                   placeholder="e.g. KAIZEN-2026"
                   value={inputCode}
-                  onChange={(e) => setInputCode(e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-label text-sm uppercase"
+                  onChange={(e) => handleInputChange('inputCode', e.target.value.toUpperCase(), setInputCode)}
+                  onBlur={() => handleBlur('inputCode', inputCode)}
+                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-label text-sm uppercase ${fieldErrors['inputCode'] ? 'border-error' : 'border-outline-variant'}`}
                 />
+                {fieldErrors['inputCode'] && (
+                  <span className="font-body text-[11px] text-error mt-1 block">
+                    {fieldErrors['inputCode']}
+                  </span>
+                )}
                 <span className="font-body text-xs text-surface-on-variant mt-1 block">
                   Ask your head coach or academy front desk for this code.
                 </span>
@@ -450,9 +712,15 @@ export default function HomePage() {
                   required
                   placeholder="e.g. Lucas Silva"
                   value={studentName}
-                  onChange={(e) => setStudentName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                  onChange={(e) => handleInputChange('studentName', e.target.value, setStudentName)}
+                  onBlur={() => handleBlur('studentName', studentName)}
+                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['studentName'] ? 'border-error' : 'border-outline-variant'}`}
                 />
+                {fieldErrors['studentName'] && (
+                  <span className="font-body text-[11px] text-error mt-1 block">
+                    {fieldErrors['studentName']}
+                  </span>
+                )}
               </div>
 
               <div>
@@ -464,9 +732,15 @@ export default function HomePage() {
                   required
                   placeholder="e.g. lucas@example.com"
                   value={studentEmail}
-                  onChange={(e) => setStudentEmail(e.target.value)}
-                  className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                  onChange={(e) => handleInputChange('studentEmail', e.target.value, setStudentEmail)}
+                  onBlur={() => handleBlur('studentEmail', studentEmail)}
+                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['studentEmail'] ? 'border-error' : 'border-outline-variant'}`}
                 />
+                {fieldErrors['studentEmail'] && (
+                  <span className="font-body text-[11px] text-error mt-1 block">
+                    {fieldErrors['studentEmail']}
+                  </span>
+                )}
               </div>
 
               {/* MINOR STUDENT TOGGLE */}
@@ -476,7 +750,17 @@ export default function HomePage() {
                     type="checkbox"
                     id="checkbox-is-minor"
                     checked={isMinor}
-                    onChange={(e) => setIsMinor(e.target.checked)}
+                    onChange={(e) => {
+                      setIsMinor(e.target.checked);
+                      if (!e.target.checked) {
+                        setFieldErrors((prev) => {
+                          const next = { ...prev };
+                          delete next['guardianName'];
+                          delete next['guardianEmail'];
+                          return next;
+                        });
+                      }
+                    }}
                     className="h-4 w-4 rounded border-outline-variant bg-surface-container-low text-primary accent-primary"
                   />
                   <span className="font-title text-xs font-semibold text-surface-foreground">
@@ -506,9 +790,15 @@ export default function HomePage() {
                       required={isMinor}
                       placeholder="e.g. Roberto Silva"
                       value={guardianName}
-                      onChange={(e) => setGuardianName(e.target.value)}
-                      className="w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border border-outline-variant font-body text-sm"
+                      onChange={(e) => handleInputChange('guardianName', e.target.value, setGuardianName)}
+                      onBlur={() => handleBlur('guardianName', guardianName)}
+                      className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border font-body text-sm ${fieldErrors['guardianName'] ? 'border-error' : 'border-outline-variant'}`}
                     />
+                    {fieldErrors['guardianName'] && (
+                      <span className="font-body text-[11px] text-error mt-1 block">
+                        {fieldErrors['guardianName']}
+                      </span>
+                    )}
                   </div>
 
                   <div>
@@ -519,12 +809,38 @@ export default function HomePage() {
                       type="email"
                       placeholder="e.g. roberto@example.com"
                       value={guardianEmail}
-                      onChange={(e) => setGuardianEmail(e.target.value)}
-                      className="w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border border-outline-variant font-body text-sm"
+                      onChange={(e) => handleInputChange('guardianEmail', e.target.value, setGuardianEmail)}
+                      onBlur={() => handleBlur('guardianEmail', guardianEmail)}
+                      className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border font-body text-sm ${fieldErrors['guardianEmail'] ? 'border-error' : 'border-outline-variant'}`}
                     />
+                    {fieldErrors['guardianEmail'] && (
+                      <span className="font-body text-[11px] text-error mt-1 block">
+                        {fieldErrors['guardianEmail']}
+                      </span>
+                    )}
                   </div>
                 </div>
               )}
+
+              <div className="flex items-start gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="join-terms-check"
+                  required
+                  className="mt-1 rounded border-outline-variant text-primary focus:ring-primary"
+                />
+                <label htmlFor="join-terms-check" className="font-body text-xs text-surface-on-variant cursor-pointer">
+                  I agree to the{' '}
+                  <button
+                    type="button"
+                    onClick={() => setTermsModalOpen(true)}
+                    className="text-tertiary underline underline-offset-2 hover:text-primary transition-colors cursor-pointer"
+                  >
+                    Terms &amp; Conditions
+                  </button>{' '}
+                  and acknowledge that physical martial arts carries inherent risks and membership requires coach sign-off.
+                </label>
+              </div>
 
               {formFeedback && (
                 <div className="p-2 rounded-[10px] bg-tertiary-container text-tertiary-on-container font-body text-xs font-medium">
@@ -535,7 +851,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setJoinModalOpen(false)}
+                  onClick={() => { setJoinModalOpen(false); setFieldErrors({}); }}
                   className="flex-1 py-2 px-4 rounded-[10px] border border-outline-variant font-label text-xs font-medium hover:bg-surface-container hover:shadow-soft transition-all duration-[600ms]"
                 >
                   Cancel
@@ -636,6 +952,80 @@ export default function HomePage() {
                   </div>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: TERMS & CONDITIONS */}
+      {isTermsModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="title-terms-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm"
+        >
+          <div className="w-full max-w-lg p-4 sm:p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2 max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between pb-3 border-b border-outline-variant">
+              <div>
+                <span className="font-label text-xs font-bold text-tertiary uppercase tracking-wider">Legal &amp; Platform Governance</span>
+                <h3 id="title-terms-modal" className="font-headline text-xl font-bold text-primary">Terms &amp; Conditions</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTermsModalOpen(false)}
+                className="text-surface-on-variant hover:text-surface-foreground"
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="overflow-y-auto my-4 pr-2 space-y-4 font-body text-xs text-surface-on-variant">
+              <section className="space-y-1">
+                <h4 className="font-title text-xs font-bold text-primary">1. Single Source of Truth &amp; Platform Purpose</h4>
+                <p>
+                  BeltTrack operates as a closed, private single source of truth for martial arts school curriculum, belt promotion eligibility, mat attendance, and immutable internal ledger records. The software facilitates administrative recording and provides progress transparency between dojo operators, instructors, adult students, and guardians.
+                </p>
+              </section>
+
+              <section className="space-y-1">
+                <h4 className="font-title text-xs font-bold text-primary">2. Zero-Monetization &amp; Offline Settlement Disclaimer</h4>
+                <p>
+                  BeltTrack maintains a zero-monetization architecture. The platform does not process payments, integrate payment gateways, hold customer funds, or charge subscription cuts. All tuition, membership dues, and belt testing fees are settled offline directly with your martial arts academy. Receipts generated within the application serve strictly as non-custodial administrative accounting ledger records.
+                </p>
+              </section>
+
+              <section className="space-y-1">
+                <h4 className="font-title text-xs font-bold text-primary">3. Strict Multi-Tenant Data Isolation</h4>
+                <p>
+                  Every academy operates within an isolated tenant partition identified by a unique school code. Member rosters, attendance logs, and curriculum progress are strictly inaccessible to cross-tenant entities, public users, or unauthenticated parties. The public directory publishes only verified academy name, slug, city, and discipline.
+                </p>
+              </section>
+
+              <section className="space-y-1">
+                <h4 className="font-title text-xs font-bold text-primary">4. Martial Arts Physical Activity Liability Release</h4>
+                <p>
+                  Martial arts disciplines (including Brazilian Jiu-Jitsu, Judo, Muay Thai, Karate, and Taekwondo) involve physical contact, strenuous exertion, and inherent risks of bodily injury. BeltTrack is solely an administrative tool and does not provide athletic or medical guidance. Students and guardians assume all physical risks associated with participation at their respective academies.
+                </p>
+              </section>
+
+              <section className="space-y-1">
+                <h4 className="font-title text-xs font-bold text-primary">5. Minor Dependent Supervision &amp; Guardian Consent</h4>
+                <p>
+                  Accounts for student practitioners under the age of 18 must be linked to a responsible parent or legal guardian. Guardians retain read-only visibility over dependent attendance, promotion criteria, and tuition records. BeltTrack does not market directly to minors or collect unsolicited personal information from children.
+                </p>
+              </section>
+            </div>
+
+            <div className="pt-3 border-t border-outline-variant flex justify-end">
+              <button
+                type="button"
+                onClick={() => setTermsModalOpen(false)}
+                className="py-2 px-6 rounded-[10px] bg-primary text-primary-foreground font-label text-xs font-medium hover:bg-tertiary hover:shadow-soft transition-all duration-[600ms]"
+              >
+                I Understand &amp; Agree
+              </button>
             </div>
           </div>
         </div>
