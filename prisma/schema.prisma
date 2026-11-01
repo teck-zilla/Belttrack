@@ -65,9 +65,10 @@ model School {
 
 model User {
   id               String            @id @default(uuid())
+  supabaseUid      String?           @unique @map("supabase_uid")
   schoolId         String            @map("school_id")
   email            String            @unique
-  hashedPassword   String
+  hashedPassword   String?
   role             Role              @default(STUDENT)
   status           MembershipStatus  @default(PENDING_APPROVAL)
   createdAt        DateTime          @default(now())

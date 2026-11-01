@@ -4,19 +4,20 @@ import React from 'react';
 import Link from 'next/link';
 import { useTenant } from '@/context/tenant-context';
 import { useAuth } from '@/context/auth-context';
-import type { UserRole } from '@/types/domain';
 
 export function TopNav({
   onOpenDirectory,
   onOpenRegister,
-  onOpenJoin
+  onOpenJoin,
+  onOpenLogin
 }: {
   onOpenDirectory?: () => void;
   onOpenRegister?: () => void;
   onOpenJoin?: () => void;
+  onOpenLogin?: () => void;
 }) {
   const { activeSchool } = useTenant();
-  const { activeRole, switchRole } = useAuth();
+  const { activeRole, switchRole, user, isRealSession, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 bg-surface-container-lowest border-b border-outline-variant shadow-soft-2">
@@ -59,7 +60,7 @@ export function TopNav({
           </div>
         )}
 
-        {/* Persona Switcher & Fast Actions */}
+        {/* Persona Switcher, Actions & Auth */}
         <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-center sm:justify-end">
           {/* Public School Directory Trigger */}
           <button
@@ -107,6 +108,33 @@ export function TopNav({
               </button>
             ))}
           </div>
+
+          {/* Real Auth Actions */}
+          {isRealSession ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden lg:inline text-xs font-label text-surface-foreground px-2 py-1 rounded bg-surface-container border border-outline-variant truncate max-w-[140px]">
+                {user?.fullName || user?.email}
+              </span>
+              <button
+                type="button"
+                onClick={() => logout()}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[10px] text-xs font-label font-medium bg-error-container text-error-on-container hover:shadow-soft transition-all duration-[600ms]"
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenLogin}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-label font-medium bg-primary text-primary-foreground hover:shadow-soft-2 transition-all duration-[600ms]"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+              Sign In
+            </button>
+          )}
         </div>
       </div>
     </header>

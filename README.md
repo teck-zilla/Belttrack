@@ -1,25 +1,118 @@
-# BeltTrack - Martial Arts School Management & Rank Progression (Version 1)
+# BeltTrack - Martial Arts School Management & Rank Progression (Version 2)
 
-A private, multi-tenant martial arts school management platform serving Dojo Administrators/Coaches and Students/Parents. The system operates as a closed, self-contained single source of truth—persisting internal records directly without external analytical engines, third-party feeds, or transaction cuts.
+A private, multi-tenant martial arts school management platform serving Dojo Administrators, Coaches, Students, and Guardians. BeltTrack acts as a self-contained single source of truth for curriculum progress, belt ranking eligibility, attendance roll-call, and internal tuition records—with strict tenant isolation, zero monetization, and a token-compliant design system.
+
+---
+
+## 🚀 Summary of Completed Transition (V1 to V2)
+
+BeltTrack has evolved from an interactive MVP preview (**V1**) into a fully authenticated production release (**V2**) backed by **Supabase Auth** and Next.js 16+ App Router server-side cookie sessions:
+
+| Phase | Milestone | Deliverables & Scope | Status |
+| :--- | :--- | :--- | :--- |
+| **Phase 1** | **Supabase SSR & Client Infrastructure** | • Browser client via `@supabase/ssr` (`src/lib/supabase/client.ts`)<br>• Server client with async Next.js cookie handling (`src/lib/supabase/server.ts`)<br>• Service-role admin client (`src/lib/supabase/admin.ts`)<br>• Session refresh proxy middleware (`src/middleware.ts`) | **Complete & Verified** |
+| **Phase 2** | **User Identity Linking & Schema Alignment** | • Added `supabase_uid String? @unique` to `prisma/schema.prisma`<br>• Made `hashedPassword` optional to decouple local auth from Supabase credentials<br>• Updated TypeScript domain models (`src/types/domain.ts`)<br>• Added `loginSchema` with runtime validations in `src/lib/validation/schemas.ts` | **Complete & Verified** |
+| **Phase 3** | **Authentication API & Route Handlers** | • `POST /api/auth/login`: Signs in via Supabase Auth and binds to PostgreSQL `school_id`<br>• `POST /api/auth/logout`: Clears session tokens and HTTP-only cookies<br>• `GET /api/auth/callback`: Handles PKCE code exchanges<br>• `GET /api/auth/me`: Resolves active session and tenant mapping | **Complete & Verified** |
+| **Phase 4** | **Client Auth State & Context Synchronization** | • `src/context/auth-context.tsx`: Subscribed to `onAuthStateChange` & `/api/auth/me`<br>• Added asynchronous `login(email, password)` and `logout()` handlers<br>• Preserved fallback demo persona preview mode for unauthenticated users<br>• Updated `src/components/layout/top-nav.tsx` with live session indicator & Sign In/Out | **Complete & Verified** |
+| **Phase 5** | **Production-Ready Login Modal & UI Parity** | • Dedicated `LoginModal` component (`src/components/home/login-modal.tsx`) with real-time error feedback<br>• Connected login modal in Next.js home page (`src/app/page.tsx`)<br>• Parity reflected in standalone interactive preview (`index.html`, `index.css`, `app.js`) | **Complete & Verified** |
+
+---
+
+## 🛠️ Installation & Setup Guide (For Developers)
+
+Follow these steps to set up and run BeltTrack locally for development:
+
+### 1. Prerequisites
+- **Node.js**: Version `18.x` or higher (`v20+` recommended)
+- **Package Manager**: `npm` (bundled with Node.js)
+- **Database**: A PostgreSQL database (e.g. Supabase instance)
+- **Supabase Project**: Free tier or self-hosted Supabase project with Authentication enabled (Email/Password provider)
+
+### 2. Clone the Repository
+```bash
+git clone https://github.com/teck-zilla/Belttrack.git
+cd Belttrack
+git checkout second-branch
+```
+
+### 3. Install Dependencies
+```bash
+npm install
+```
+
+### 4. Configure Environment Variables
+Copy `.env.example` to create your local `.env`:
+```bash
+cp .env.example .env
+```
+Fill in the credentials in `.env`:
+```env
+# ==============================================================================
+# 1. POSTGRESQL & PRISMA ORM (SUPABASE)
+# ==============================================================================
+# Transaction pooler URL (Port 6543, pgbouncer=true) for runtime queries
+DATABASE_URL="postgresql://postgres.<project-ref>:[YOUR-PASSWORD]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true"
+
+# Direct session URL (Port 5432) for Prisma DDL migrations and introspection
+DIRECT_URL="postgresql://postgres.<project-ref>:[YOUR-PASSWORD]@aws-0-[region].pooler.supabase.com:5432/postgres"
+
+# ==============================================================================
+# 2. SUPABASE AUTH & SSR (NEXT_PUBLIC + SERVICE ROLE)
+# ==============================================================================
+NEXT_PUBLIC_SUPABASE_URL="https://<project-ref>.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOi..."
+SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOi..."
+```
+
+### 5. Generate Prisma Client & Sync Schema
+Generate the Prisma Client TypeScript typings:
+```bash
+npm run db:generate
+```
+
+To push the multi-tenant PostgreSQL schema (12 tenant-isolated tables and 5 domain enums) to your database:
+```bash
+npm run db:push
+```
+
+### 6. Verify Design Token Compliance
+Run the automated test runner to ensure 100% design token compliance with zero hardcoded styling:
+```bash
+npm run audit
+```
+
+### 7. Run the Application
+**Option A: Next.js App Router (Full Stack Application)**
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+**Option B: Standalone Interactive Preview (Static HTML/CSS/JS)**
+```bash
+npm run serve
+```
+Open [http://localhost:3000](http://localhost:3000) (serves `index.html` via `server.js`).
 
 ---
 
 ## 🥋 Core Architectural Pillars
 
 1. **Strict Multi-Tenant Row-Level Security (RLS)**:
-   - Each dojo operates in an isolated tenant scope (`school_id`).
+   - Every private record is explicitly bound to `school_id`.
    - Cross-tenant queries are blocked at the database engine level.
-   - Global searches are restricted strictly to verified public school directories (name, slug, city, discipline).
-   - All student rosters, attendances, technique checklists, and billing ledgers are strictly private records.
+   - Public directory exposes only accredited name, slug, city, and discipline without leaking rosters or financials.
+   - Users entering a join code receive `PENDING_APPROVAL` status, blocking read access to rosters and techniques until coach sign-off.
 
 2. **Zero-Monetization Core**:
-   - 100% free, no ads, no feature paywalls, no expiring trials, and no tiered subscriptions.
-   - Internal ledger tracks off-platform settlements (cash, bank transfer, manual card) with system-generated receipt slugs (`REC-2026-BJJ-084`).
+   - 100% free, zero ads, zero feature paywalls, zero tiered subscriptions.
+   - Internal bookkeeping ledger tracks manual cash, bank transfer, and card receipts with immutable receipt slugs (`REC-[YEAR]-[DISCIPLINE]-[INCREMENT]`).
+   - Accounting corrections must be offsetting reversal entries with reference slugs.
 
 3. **100% Token-Compliant Design System**:
    - Zero hardcoded colors, zero raw pixel margins.
-   - All visual styles inherit from [`tokens-complete.json`](./tokens-complete.json), compiled into [`variables.css`](./variables.css) and [`typography.css`](./typography.css).
-   - Tailwind CSS is configured exclusively with design tokens as CSS variables.
+   - All visual styles inherit from [`tokens-complete.json`](./tokens-complete.json), compiled into [`variables.css`](./variables.css) and [`typography.css`](./typography.css) via `build-tokens.js`.
+   - Tailwind CSS maps utility classes directly to CSS variables.
 
 ---
 
@@ -52,42 +145,53 @@ BELTTRACK APP/
 ├── src/
 │   ├── app/
 │   │   ├── api/
+│   │   │   ├── auth/
+│   │   │   │   ├── login/route.ts    # Supabase password auth & PostgreSQL tenant resolution
+│   │   │   │   ├── logout/route.ts   # Session revocation & cookie cleanup
+│   │   │   │   ├── callback/route.ts # PKCE code exchange handler
+│   │   │   │   └── me/route.ts       # Active session introspection & tenant mapping
 │   │   │   ├── schools/
-│   │   │   │   ├── register/route.ts # Tenant creation & Owner User persistence
+│   │   │   │   ├── register/route.ts # Tenant school creation & Owner User persistence
 │   │   │   │   └── directory/route.ts# Public accredited school discovery
 │   │   │   └── students/
 │   │   │       └── join/route.ts     # Join code validation & PENDING_APPROVAL enrollment
-│   │   ├── layout.tsx                # Next.js RootLayout with providers & typography tokens
-│   │   └── page.tsx                  # Home screen with navigation, role entries, & preview
+│   │   ├── layout.tsx                # Next.js RootLayout with Auth & Tenant providers
+│   │   └── page.tsx                  # Home screen with navigation, role entries, modals, & preview
 │   ├── components/
 │   │   ├── home/
 │   │   │   ├── hero-section.tsx      # Core pillars & architectural overview
 │   │   │   ├── preview-dashboard.tsx # Rank engine, roll-call mat, & ledger cards
-│   │   │   └── role-entry-cards.tsx  # Dojo Owner register vs Student code join
+│   │   │   ├── role-entry-cards.tsx  # Dojo Owner register vs Student code join
+│   │   │   └── login-modal.tsx       # Dedicated Supabase authentication modal
 │   │   └── layout/
-│   │       └── top-nav.tsx           # Navigation with tenant indicator & role switcher
+│   │       └── top-nav.tsx           # Navigation with live session badge, Sign In/Out, & role switcher
 │   ├── context/
-│   │   ├── auth-context.tsx          # Persona state (Owner / Coach / Student)
+│   │   ├── auth-context.tsx          # Supabase auth listener, tenant sync, & persona switcher
 │   │   └── tenant-context.tsx        # Isolated Dojo tenant context (school_id scope)
 │   ├── lib/
 │   │   ├── prisma.ts                 # Next.js-safe singleton Prisma Client instance
 │   │   ├── prisma-extension.ts       # Multi-tenant Prisma query extension (school_id scope)
+│   │   ├── supabase/
+│   │   │   ├── client.ts             # Browser-side Supabase client (@supabase/ssr)
+│   │   │   ├── server.ts             # Server-side Supabase client with async cookies (@supabase/ssr)
+│   │   │   └── admin.ts              # Service-role admin client (@supabase/supabase-js)
 │   │   └── validation/
-│   │       └── schemas.ts            # Zod schemas for registration, join codes, & ledger
+│   │       └── schemas.ts            # Zod validation schemas for forms, login, & ledger
+│   ├── middleware.ts                 # Supabase session refresh proxy middleware
 │   ├── styles/
 │   │   ├── globals.css               # Next.js App Router Tailwind styles
 │   │   └── tokens.css                # Centralized token import layer
 │   └── types/
-│       └── domain.ts                 # TypeScript domain models (School, Member, Rank, Technique)
+│       └── domain.ts                 # TypeScript domain models (UserRecord, Member, Rank, Technique)
 ├── prisma/
-│   ├── schema.prisma                 # PostgreSQL multi-tenant schema with school_id bindings
+│   ├── schema.prisma                 # PostgreSQL multi-tenant schema with supabase_uid & school_id
 │   └── rls_policies.sql              # Database-level Row-Level Security isolation policies
 ├── docs/
 │   └── product_requirement_document_prd_belttrack_v1.md # Approved Product Requirement Document
-├── .env.example                      # Template for PostgreSQL connection configuration
-├── index.html                        # Semantic, responsive standalone home screen
+├── .env.example                      # Clean configuration template for database and Supabase keys
+├── index.html                        # Semantic, responsive standalone preview home screen
 ├── index.css                         # 100% token-powered martial arts stylesheet
-├── app.js                            # Interactive state controller (modals, grading simulation)
+├── app.js                            # Standalone preview interactive controller
 ├── tokens-complete.json              # Central Figma design tokens
 ├── build-tokens.js                   # Token compiler to CSS custom properties
 ├── variables.css                     # Generated CSS custom properties
@@ -95,155 +199,49 @@ BELTTRACK APP/
 ├── tailwind.config.ts                # Tailwind theme mapping tokens to CSS variables
 ├── postcss.config.mjs                # PostCSS configuration
 ├── tsconfig.json                     # Strict TypeScript configuration
-├── package.json                      # Next.js, React, Tailwind, Prisma, and Zod dependencies
+├── package.json                      # Next.js, React, Tailwind, Prisma, Supabase, and Zod dependencies
 ├── audit.js                          # Automated recursive token compliance audit
-└── server.js                         # Local test server (Port 3000)
+└── server.js                         # Local preview test server (Port 3000)
 ```
-
----
-
-## ⚡ Workflows Previewed in Version 1
-
-* **Curriculum & Rank Engine**:
-  - Live martial arts belt visualization (White belt with stripes $\to$ Blue belt).
-  - Class attendance count (42/50), time-in-rank (142/120 days), and technique checklist (8/10 verified).
-  - Interactive "+ Simulate Roll-Call Check-in" button dynamically triggers the **"GRADING ELIGIBLE"** milestone.
-
-* **Attendance & Drop-Off Alert Engine**:
-  - Roll-call schedule tracking (Fundamentals, Competition Sparring).
-  - Inactive student risk trigger flagging members absent for 10–14 consecutive days.
-
-* **Internal Bookkeeping Ledger**:
-  - Manual cash/transfer settlement entries with receipt slugs (`REC-2026-BJJ-084`).
-  - Closed single source of truth with 0% platform cuts.
-
-* **Role-Based Onboarding Entry Points (Live DB Wired)**:
-  - **Dojo Owner / Head Coach**: "Register Your Martial Arts School" modal persisting tenant schools and owner accounts directly to PostgreSQL via `POST /api/schools/register`.
-  - **Student / Guardian**: "Join with School Registration Code" modal verifying join codes against live DB records, persisting student profiles with minor enrollment and guardian relations via `POST /api/students/join` (`PENDING_APPROVAL` status).
-  - **Public Directory**: Accredited school directory dynamically querying accredited schools from PostgreSQL via `GET /api/schools/directory` without exposing private rosters.
 
 ---
 
 ## 📋 Form Fields & Validation Specifications
 
-All client forms and API mutations are validated through runtime Zod schemas defined in [`src/lib/validation/schemas.ts`](./src/lib/validation/schemas.ts):
+All forms enforce strict runtime validation through Zod schemas in [`src/lib/validation/schemas.ts`](./src/lib/validation/schemas.ts) and inline UX feedback:
 
-### 1. Dojo School Tenant Registration Form
-*Modal: "Register Martial Arts School" (`form-register-school` / `schoolRegistrationSchema`)*
+### 1. Authentication Login Form (`loginSchema` / `LoginModal`)
+- **Email Address**: Valid email formatting (`"enter a valid email address"`), `"empty field error"` on empty blur.
+- **Password**: Minimum 6 characters, `"empty field error"` on empty blur.
 
-| Field Label | Schema Key | Input Type | Required? | Validation Rules & Constraints |
-| :--- | :--- | :--- | :--- | :--- |
-| **School / Academy Name** | `schoolName` | Text | **Required** | Min 3, max 80 characters. |
-| **Discipline** | `discipline` | Dropdown Select | **Required** | Enum: `brazilian_jiu_jitsu`, `judo`, `karate`, `taekwondo`, `muay_thai`, `krav_maga`. |
-| **School Join Code** | `customCode` | Text (Uppercase) | **Required** | 4 to 16 characters. Alphanumeric uppercase with dashes (`-`) or underscores (`_`). |
-| **City** | `city` | Text | **Required** | Min 2, max 50 characters. |
-| **Country** | `country` | Text | **Required** | Min 2, max 50 characters. |
-| **Operating Timezone** | `timezone` | Dropdown Select | **Required** | Standard IANA timezone (defaults to `'UTC'`). |
-| **Head Coach / Owner Full Name** | `ownerFullName` | Text | **Required** | Min 2, max 60 characters. |
-| **Owner Email** | `ownerEmail` | Email | **Required** | Valid email format. |
-| **Public Directory Listing** | `isPublicInDirectory` | Boolean | Optional | Defaults to `true` (exposes only accredited name, city, discipline). |
+### 2. Dojo School Tenant Registration Form (`schoolRegistrationSchema`)
+- **School / Academy Name**: Above 3 characters (length > 3, max 80), `"structure error"` if length <= 3.
+- **Discipline**: Dropdown enum (`brazilian_jiu_jitsu`, `judo`, `karate`, `taekwondo`, `muay_thai`, `krav_maga`).
+- **Head Coach / Owner Full Name**: At least 3 characters and at least 2 words separated by spaces, `"structure error"` if invalid.
+- **Owner Email**: Valid email format (`"enter a valid email address"`).
+- **City & Country**: City min 2 chars; Country length >= 2 (`"structure error"` if < 2).
+- **School Join Code**: Optional custom 4-16 alphanumeric uppercase string.
 
-### 2. Member & Minor Guardian Dojo Join Form
-*Modal: "Join Dojo with School Join Code" (`form-join-school` / `studentJoinCodeSchema`)*
-
-| Field Label | Schema Key | Input Type | Required? | Validation Rules & Constraints |
-| :--- | :--- | :--- | :--- | :--- |
-| **School Join Code** | `registrationCode` | Text (Uppercase) | **Required** | 4 to 16 characters. Must match an active registered dojo join code. |
-| **Student Full Name** | `studentFullName` | Text | **Required** | Min 2, max 60 characters. |
-| **Email Address** | `studentEmail` | Email | **Required** | Valid email format. |
-| **Under-18 Minor Toggle** | `isMinor` | Checkbox | Optional | Defaults to `false`. Conditionally renders guardian fields when checked. |
-| **Guardian Full Name** | `guardianFullName` | Text | **Conditionally Required** | **Mandatory if `isMinor` is true**; blocks enrollment if blank. Max 60 characters. |
-| **Guardian Email Address** | `guardianEmail` | Email | Optional | Valid email format if provided. |
-
-### 3. Core Engine Action Schemas (Backend / Operational)
-
-* **Roll-Call Attendance Check-In (`attendanceCheckInSchema`)**:
-  - `schoolId`: UUID (**Required**) — Scopes attendance record to tenant dojo.
-  - `studentId`: UUID (**Required**) — Student member identifier.
-  - `className`: Text (**Required**, min 2 chars) — E.g., `BJJ Fundamentals (Gi)`.
-  - `isSparringLogged`: Boolean (Optional, default `false`).
-  - `idempotencyKey`: String (Optional) — Prevents duplicate attendance logging within the same session.
-
-* **Technique Sign-Off Verification (`techniqueSignoffSchema`)**:
-  - `schoolId`: UUID (**Required**) — Scopes technique sign-off to tenant curriculum.
-  - `studentId`: UUID (**Required**) — Student undergoing evaluation.
-  - `techniqueId`: UUID (**Required**) — Technique milestone identifier.
-  - `coachNotes`: Text (Optional, max 500 characters).
-
-* **Internal Ledger Settlement Entry (`ledgerEntrySchema`)**:
-  - `schoolId`: UUID (**Required**) — Enforces strict tenant financial boundary.
-  - `studentId`: UUID (**Required**) — Paying student or guardian member.
-  - `amountCents`: Positive Integer (**Required**) — Value in cents (e.g. `12000` = $120.00).
-  - `currency`: 3-letter ISO code (**Required**, default `USD`).
-  - `category`: Enum (**Required**) — `tuition`, `testing_fee`, `uniform_equipment`, `correction_reversal`, `gear`, `seminar`.
-  - `paymentMethod`: Enum (**Required**) — `cash`, `bank_transfer`, `manual_card`, `other`.
-  - `receiptSlug`: Text (Optional/Auto-generated) — Formatted as `REC-[YEAR]-[DISCIPLINE]-[INCREMENT]` (e.g. `REC-2026-BJJ-084`).
-  - `reversalRefSlug`: Text (Optional) — Reversal reference pointer for offsetting corrections.
-  - `notes`: Text (Optional, max 250 characters).
+### 3. Member & Guardian Join Code Form (`studentJoinCodeSchema`)
+- **School Join Code**: 4-16 alphanumeric characters matching an active dojo join code.
+- **Student Full Name**: Min 3 characters, at least 2 words separated by spaces (`"structure error"` if invalid).
+- **Student Email**: Valid email format (`"enter a valid email address"`).
+- **Minor Checkbox & Guardian Fields**: When minor is checked, Guardian Full Name (min 3 chars, 2+ words) is mandatory.
 
 ---
 
-## 🗄️ Database & Prisma ORM Setup
-
-The application is fully wired to PostgreSQL (hosted on Supabase) via Prisma ORM:
-
-1. **Dual-URL Connection Configuration**:
-   - Copy `.env.example` to `.env`:
-     ```powershell
-     cp .env.example .env
-     ```
-   - Configure both transaction and direct session connection URLs:
-     ```env
-     # Transaction pooler URL (for Next.js runtime queries via port 6543)
-     DATABASE_URL="postgresql://<USER>:<PASSWORD>@<HOST>:6543/<DATABASE>?pgbouncer=true"
-
-     # Direct session pooler URL (for Prisma DDL & migrations via port 5432)
-     DIRECT_URL="postgresql://<USER>:<PASSWORD>@<HOST>:5432/<DATABASE>"
-     ```
-
-2. **Schema Synchronization & Client Generation**:
-   - Push the complete schema (12 isolated tenant tables and 5 domain enums) to PostgreSQL:
-     ```powershell
-     npm run db:push
-     ```
-   - Generate TypeScript client types from `prisma/schema.prisma`:
-     ```powershell
-     npm run db:generate
-     ```
-
-3. **Multi-Tenant Safeguards & API Layer**:
-   - **Singleton Client**: Exported from `src/lib/prisma.ts` with connection pooling protection.
-   - **Query Isolation**: Protected via `src/lib/prisma-extension.ts` ensuring all private domain entities bind strictly to `school_id`.
-   - **Route Handlers**:
-     - `POST /api/schools/register` – Atomic school & owner creation.
-     - `POST /api/students/join` – Code validation & `PENDING_APPROVAL` enrollment.
-     - `GET /api/schools/directory` – Public accredited school metadata discovery.
-
----
-
-## 🚀 Running & Auditing
+## 🧪 Quality Assurance & Scripts
 
 ```powershell
-# 1. Run design system compliance audit (asserts 0 hardcoded colors)
+# 1. Run design system compliance audit (asserts 0 hardcoded colors across all files)
 npm run audit
-# or: node audit.js
 
-# 2. Re-compile design tokens (if tokens-complete.json changes)
+# 2. Run TypeScript strict type-check
+npm run type-check
+
+# 3. Build Next.js production bundle
+npm run build
+
+# 4. Re-compile design tokens (if tokens-complete.json changes)
 npm run build:tokens
-# or: node build-tokens.js
-
-# 3. Synchronize schema with PostgreSQL database
-npm run db:push
-
-# 4. Generate Prisma client typings
-npm run db:generate
-
-# 5. Start Next.js development server
-npm run dev
-
-# 6. Alternatively, start local standalone server
-npm run serve
-# or: node server.js
 ```
-
-Open **[http://localhost:3000/](http://localhost:3000/)** in your browser.

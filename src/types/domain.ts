@@ -64,10 +64,22 @@ export interface School {
  * 2. TENANT MEMBERSHIP & ROLES
  * Links auth.users to a specific school tenant with a specific role and status.
  */
+export interface UserRecord {
+  id: string;
+  supabase_uid?: string | null;
+  school_id: string; // Tenant FK
+  email: string;
+  role: UserRole;
+  status: MembershipStatus;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface SchoolMember {
   id: string;
   school_id: string; // Tenant FK
   user_id: string;
+  supabase_uid?: string;
   role: UserRole;
   status: MembershipStatus; // PENDING_APPROVAL blocks roster reads until sign-off
   full_name: string;

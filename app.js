@@ -60,6 +60,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const brandHomeLink = document.getElementById('brand-home-link');
 
   const modalTerms = document.getElementById('modal-terms');
+  const modalLogin = document.getElementById('modal-login');
+  const btnOpenLogin = document.getElementById('btn-open-login');
+  const btnCloseLogin = document.getElementById('btn-close-login');
+  const btnCancelLogin = document.getElementById('btn-cancel-login');
+  const formLogin = document.getElementById('form-login');
+  const feedbackLogin = document.getElementById('feedback-login');
+  const inputLoginEmail = document.getElementById('input-login-email');
+  const inputLoginPassword = document.getElementById('input-login-password');
+  const errorLoginEmail = document.getElementById('error-login-email');
+  const errorLoginPassword = document.getElementById('error-login-password');
   const btnOpenTerms = document.getElementById('btn-open-terms');
   const btnCloseTerms = document.getElementById('btn-close-terms');
   const btnAcknowledgeTerms = document.getElementById('btn-acknowledge-terms');
@@ -343,6 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (modal === modalJoin) updateDynamicTitle('Join Dojo');
       else if (modal === modalDirectory) updateDynamicTitle('Public School Directory');
       else if (modal === modalTerms) updateDynamicTitle('Terms & Conditions');
+      else if (modal === modalLogin) updateDynamicTitle('Sign In');
     }
   }
 
@@ -369,6 +380,99 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnOpenDirectory) btnOpenDirectory.addEventListener('click', () => openModal(modalDirectory));
   if (btnCloseDirectory) btnCloseDirectory.addEventListener('click', () => closeModal(modalDirectory));
 
+  // Login Modal
+  if (btnOpenLogin) btnOpenLogin.addEventListener('click', () => openModal(modalLogin));
+  if (btnCloseLogin) btnCloseLogin.addEventListener('click', () => closeModal(modalLogin));
+  if (btnCancelLogin) btnCancelLogin.addEventListener('click', () => closeModal(modalLogin));
+
+  if (inputLoginEmail) {
+    inputLoginEmail.addEventListener('blur', () => {
+      if (!inputLoginEmail.value.trim() && errorLoginEmail) {
+        errorLoginEmail.textContent = 'empty field error';
+        errorLoginEmail.classList.add('visible');
+        inputLoginEmail.classList.add('input-error');
+      }
+    });
+    inputLoginEmail.addEventListener('input', () => {
+      if (errorLoginEmail) {
+        errorLoginEmail.classList.remove('visible');
+        inputLoginEmail.classList.remove('input-error');
+      }
+    });
+  }
+
+  if (inputLoginPassword) {
+    inputLoginPassword.addEventListener('blur', () => {
+      if (!inputLoginPassword.value.trim() && errorLoginPassword) {
+        errorLoginPassword.textContent = 'empty field error';
+        errorLoginPassword.classList.add('visible');
+        inputLoginPassword.classList.add('input-error');
+      }
+    });
+    inputLoginPassword.addEventListener('input', () => {
+      if (errorLoginPassword) {
+        errorLoginPassword.classList.remove('visible');
+        inputLoginPassword.classList.remove('input-error');
+      }
+    });
+  }
+
+  if (formLogin) {
+    formLogin.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!inputLoginEmail || !inputLoginPassword) return;
+
+      const email = inputLoginEmail.value.trim();
+      const password = inputLoginPassword.value;
+
+      if (!email) {
+        if (errorLoginEmail) {
+          errorLoginEmail.textContent = 'empty field error';
+          errorLoginEmail.classList.add('visible');
+        }
+        return;
+      }
+
+      if (!password) {
+        if (errorLoginPassword) {
+          errorLoginPassword.textContent = 'empty field error';
+          errorLoginPassword.classList.add('visible');
+        }
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          if (feedbackLogin) {
+            feedbackLogin.textContent = data.error || 'Invalid credentials';
+            feedbackLogin.classList.add('active');
+          }
+        } else {
+          if (feedbackLogin) {
+            feedbackLogin.textContent = 'Successfully authenticated!';
+            feedbackLogin.classList.add('active');
+          }
+          setTimeout(() => {
+            closeModal(modalLogin);
+            if (feedbackLogin) feedbackLogin.classList.remove('active');
+            window.location.reload();
+          }, 800);
+        }
+      } catch (err) {
+        if (feedbackLogin) {
+          feedbackLogin.textContent = 'Connection error. Please check server.';
+          feedbackLogin.classList.add('active');
+        }
+      }
+    });
+  }
+
   // Terms Modal
   if (btnOpenTerms) btnOpenTerms.addEventListener('click', () => openModal(modalTerms));
   if (btnCloseTerms) btnCloseTerms.addEventListener('click', () => closeModal(modalTerms));
@@ -389,6 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
       closeModal(modalJoin);
       closeModal(modalDirectory);
       closeModal(modalTerms);
+      closeModal(modalLogin);
       if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html')) {
         e.preventDefault();
         window.scrollTo({ top: 0, behavior: 'smooth' });

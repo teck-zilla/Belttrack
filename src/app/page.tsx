@@ -5,6 +5,7 @@ import { TopNav } from '@/components/layout/top-nav';
 import { HeroSection } from '@/components/home/hero-section';
 import { RoleEntryCards } from '@/components/home/role-entry-cards';
 import { PreviewDashboard } from '@/components/home/preview-dashboard';
+import { LoginModal } from '@/components/home/login-modal';
 import { useTenant } from '@/context/tenant-context';
 import { schoolRegistrationSchema, studentJoinCodeSchema } from '@/lib/validation/schemas';
 import type { DisciplineType } from '@/types/domain';
@@ -24,6 +25,7 @@ export default function HomePage() {
   const [isJoinModalOpen, setJoinModalOpen] = useState(false);
   const [isDirectoryModalOpen, setDirectoryModalOpen] = useState(false);
   const [isTermsModalOpen, setTermsModalOpen] = useState(false);
+  const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 
   // Form states
   const [schoolName, setSchoolName] = useState('Vance Gracie Jiu-Jitsu');
@@ -381,6 +383,7 @@ export default function HomePage() {
         onOpenDirectory={() => setDirectoryModalOpen(true)}
         onOpenRegister={() => setRegisterModalOpen(true)}
         onOpenJoin={() => setJoinModalOpen(true)}
+        onOpenLogin={() => setLoginModalOpen(true)}
       />
 
       <main className="flex-1">
@@ -956,6 +959,14 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      {/* MODAL 5: LOGIN */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        onSwitchToRegister={() => setRegisterModalOpen(true)}
+        onSwitchToJoin={() => setJoinModalOpen(true)}
+      />
 
       {/* MODAL 4: TERMS & CONDITIONS */}
       {isTermsModalOpen && (
