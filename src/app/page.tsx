@@ -637,14 +637,6 @@ export default function HomePage() {
                 </>
               )}
             </div>
-
-            <button
-              type="button"
-              onClick={() => setDirectoryModalOpen(false)}
-              className="w-full py-2 px-4 rounded-[10px] bg-surface-container font-label text-xs font-medium hover:bg-surface-container-high hover:shadow-soft transition-all duration-[600ms]"
-            >
-              Close Directory
-            </button>
           </div>
         </div>
       )}

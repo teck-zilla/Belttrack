@@ -57,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const btnOpenDirectory = document.getElementById('btn-open-directory');
   const btnCloseDirectory = document.getElementById('btn-close-directory');
-  const btnCloseDirectoryAction = document.getElementById('btn-close-directory-action');
   const brandHomeLink = document.getElementById('brand-home-link');
 
   // Dynamic Grading Demo
@@ -361,7 +360,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Directory Modal
   if (btnOpenDirectory) btnOpenDirectory.addEventListener('click', () => openModal(modalDirectory));
   if (btnCloseDirectory) btnCloseDirectory.addEventListener('click', () => closeModal(modalDirectory));
-  if (btnCloseDirectoryAction) btnCloseDirectoryAction.addEventListener('click', () => closeModal(modalDirectory));
 
   // Close on backdrop click
   [modalRegister, modalJoin, modalDirectory].forEach((modal) => {
