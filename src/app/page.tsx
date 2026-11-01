@@ -43,6 +43,126 @@ export default function HomePage() {
   const [guardianEmail, setGuardianEmail] = useState('');
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const isValidEmail = (email: string) =>
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test((email || '').trim());
+
+  const emailFields = ['ownerEmail', 'studentEmail', 'guardianEmail'];
+
+  const validateField = (fieldId: string, val: string): string | null => {
+    const trimmed = (val || '').trim();
+    if (!trimmed) {
+      return 'empty field error';
+    }
+
+    // Email fields: real-time valid email check
+    if (emailFields.includes(fieldId)) {
+      if (!isValidEmail(trimmed)) {
+        return 'enter a valid email address';
+      }
+    }
+
+    // School / Academy Name field: length should be above 3 characters
+    if (fieldId === 'schoolName') {
+      if (trimmed.length <= 3) {
+        return 'structure error';
+      }
+    }
+
+    // Country field: length should not fall below 2 characters
+    if (fieldId === 'country') {
+      if (trimmed.length < 2) {
+        return 'structure error';
+      }
+    }
+
+    // Name field: length should be at least 3 characters and must have 2 words or names separated by an empty string
+    if (['ownerName', 'studentName', 'guardianName'].includes(fieldId)) {
+      const words = trimmed.split(/\s+/).filter(Boolean);
+      if (trimmed.length < 3 || words.length < 2) {
+        return 'structure error';
+      }
+    }
+
+    return null;
+  };
+
+  const handleBlur = (fieldId: string, val: string) => {
+    if (fieldId === 'guardianEmail' && (!isMinor || !val.trim()) && !fieldErrors['guardianEmail']) {
+      return;
+    }
+
+    if (emailFields.includes(fieldId)) {
+      if (!val || !val.trim()) {
+        const existing = fieldErrors[fieldId];
+        const msg = existing === 'enter a valid email address' ? 'enter a valid email address' : 'empty field error';
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: msg }));
+      } else if (!isValidEmail(val)) {
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'enter a valid email address' }));
+      } else {
+        setFieldErrors((prev) => {
+          if (!prev[fieldId]) return prev;
+          const next = { ...prev };
+          delete next[fieldId];
+          return next;
+        });
+      }
+      return;
+    }
+
+    const err = validateField(fieldId, val);
+    if (err) {
+      setFieldErrors((prev) => ({ ...prev, [fieldId]: err }));
+    } else {
+      setFieldErrors((prev) => {
+        if (!prev[fieldId]) return prev;
+        const next = { ...prev };
+        delete next[fieldId];
+        return next;
+      });
+    }
+  };
+
+  const handleInputChange = (fieldId: string, val: string, setter: (v: string) => void) => {
+    setter(val);
+
+    // Real-time email validation: persists until user enters a valid email address
+    if (emailFields.includes(fieldId)) {
+      if (fieldId === 'guardianEmail' && !isMinor && !val.trim()) {
+        setFieldErrors((prev) => {
+          const next = { ...prev };
+          delete next[fieldId];
+          return next;
+        });
+        return;
+      }
+
+      if (!isValidEmail(val)) {
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'enter a valid email address' }));
+      } else {
+        setFieldErrors((prev) => {
+          const next = { ...prev };
+          delete next[fieldId];
+          return next;
+        });
+      }
+      return;
+    }
+
+    if (fieldErrors[fieldId]) {
+      const err = validateField(fieldId, val);
+      if (!err) {
+        setFieldErrors((prev) => {
+          const next = { ...prev };
+          delete next[fieldId];
+          return next;
+        });
+      } else {
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: err }));
+      }
+    }
+  };
 
   // Directory state
   const [directorySchools, setDirectorySchools] = useState<DirectorySchool[]>([]);
@@ -71,6 +191,27 @@ export default function HomePage() {
   // Handle Dojo Registration (Persists to Database via API)
   const handleRegisterSchool = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errors: Record<string, string> = {};
+    const eSchool = validateField('schoolName', schoolName);
+    if (eSchool) errors['schoolName'] = eSchool;
+
+    const eCode = validateField('generatedCode', generatedCode);
+    if (eCode) errors['generatedCode'] = eCode;
+
+    const eCountry = validateField('country', country);
+    if (eCountry) errors['country'] = eCountry;
+
+    const eOwner = validateField('ownerName', ownerName);
+    if (eOwner) errors['ownerName'] = eOwner;
+
+    const eEmail = validateField('ownerEmail', ownerEmail);
+    if (eEmail) errors['ownerEmail'] = eEmail;
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors((prev) => ({ ...prev, ...errors }));
+      return;
+    }
+
     const result = schoolRegistrationSchema.safeParse({
       schoolName,
       discipline,
@@ -132,6 +273,31 @@ export default function HomePage() {
   // Handle Student Join with Code (Persists to Database via API)
   const handleJoinSchool = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errors: Record<string, string> = {};
+    const eCode = validateField('inputCode', inputCode);
+    if (eCode) errors['inputCode'] = eCode;
+
+    const eStudent = validateField('studentName', studentName);
+    if (eStudent) errors['studentName'] = eStudent;
+
+    const eEmail = validateField('studentEmail', studentEmail);
+    if (eEmail) errors['studentEmail'] = eEmail;
+
+    if (isMinor) {
+      const eGuardian = validateField('guardianName', guardianName);
+      if (eGuardian) errors['guardianName'] = eGuardian;
+
+      if (guardianEmail.trim()) {
+        const eGuardEmail = validateField('guardianEmail', guardianEmail);
+        if (eGuardEmail) errors['guardianEmail'] = eGuardEmail;
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors((prev) => ({ ...prev, ...errors }));
+      return;
+    }
+
     const normalizedCode = inputCode.trim().toUpperCase();
 
     const result = studentJoinCodeSchema.safeParse({
@@ -283,9 +449,15 @@ export default function HomePage() {
                   type="text"
                   required
                   value={schoolName}
-                  onChange={(e) => setSchoolName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                  onChange={(e) => handleInputChange('schoolName', e.target.value, setSchoolName)}
+                  onBlur={() => handleBlur('schoolName', schoolName)}
+                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['schoolName'] ? 'border-error' : 'border-outline-variant'}`}
                 />
+                {fieldErrors['schoolName'] && (
+                  <span className="font-body text-[11px] text-error mt-1 block">
+                    {fieldErrors['schoolName']}
+                  </span>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -295,8 +467,18 @@ export default function HomePage() {
                   </label>
                   <select
                     value={discipline}
-                    onChange={(e) => setDiscipline(e.target.value as DisciplineType)}
-                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                    onChange={(e) => {
+                      setDiscipline(e.target.value as DisciplineType);
+                      if (fieldErrors['discipline']) {
+                        setFieldErrors((prev) => {
+                          const next = { ...prev };
+                          delete next['discipline'];
+                          return next;
+                        });
+                      }
+                    }}
+                    onBlur={() => handleBlur('discipline', discipline)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['discipline'] ? 'border-error' : 'border-outline-variant'}`}
                   >
                     <option value="brazilian_jiu_jitsu">Brazilian Jiu-Jitsu</option>
                     <option value="judo">Judo</option>
@@ -305,6 +487,11 @@ export default function HomePage() {
                     <option value="muay_thai">Muay Thai</option>
                     <option value="krav_maga">Krav Maga</option>
                   </select>
+                  {fieldErrors['discipline'] && (
+                    <span className="font-body text-[11px] text-error mt-1 block">
+                      {fieldErrors['discipline']}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -315,9 +502,15 @@ export default function HomePage() {
                     type="text"
                     required
                     value={generatedCode}
-                    onChange={(e) => setGeneratedCode(e.target.value.toUpperCase())}
-                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-label text-sm uppercase"
+                    onChange={(e) => handleInputChange('generatedCode', e.target.value.toUpperCase(), setGeneratedCode)}
+                    onBlur={() => handleBlur('generatedCode', generatedCode)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-label text-sm uppercase ${fieldErrors['generatedCode'] ? 'border-error' : 'border-outline-variant'}`}
                   />
+                  {fieldErrors['generatedCode'] && (
+                    <span className="font-body text-[11px] text-error mt-1 block">
+                      {fieldErrors['generatedCode']}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -330,9 +523,15 @@ export default function HomePage() {
                     type="text"
                     required
                     value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                    onChange={(e) => handleInputChange('country', e.target.value, setCountry)}
+                    onBlur={() => handleBlur('country', country)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['country'] ? 'border-error' : 'border-outline-variant'}`}
                   />
+                  {fieldErrors['country'] && (
+                    <span className="font-body text-[11px] text-error mt-1 block">
+                      {fieldErrors['country']}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
@@ -340,8 +539,18 @@ export default function HomePage() {
                   </label>
                   <select
                     value={timezone}
-                    onChange={(e) => setTimezone(e.target.value)}
-                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                    onChange={(e) => {
+                      setTimezone(e.target.value);
+                      if (fieldErrors['timezone']) {
+                        setFieldErrors((prev) => {
+                          const next = { ...prev };
+                          delete next['timezone'];
+                          return next;
+                        });
+                      }
+                    }}
+                    onBlur={() => handleBlur('timezone', timezone)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['timezone'] ? 'border-error' : 'border-outline-variant'}`}
                   >
                     <option value="UTC">UTC (Coordinated Universal Time)</option>
                     <option value="Europe/London">Europe/London (GMT/BST)</option>
@@ -352,6 +561,11 @@ export default function HomePage() {
                     <option value="Asia/Bangkok">Asia/Bangkok (ICT)</option>
                     <option value="Australia/Sydney">Australia/Sydney (AEST)</option>
                   </select>
+                  {fieldErrors['timezone'] && (
+                    <span className="font-body text-[11px] text-error mt-1 block">
+                      {fieldErrors['timezone']}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -364,9 +578,15 @@ export default function HomePage() {
                     type="text"
                     required
                     value={ownerName}
-                    onChange={(e) => setOwnerName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                    onChange={(e) => handleInputChange('ownerName', e.target.value, setOwnerName)}
+                    onBlur={() => handleBlur('ownerName', ownerName)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['ownerName'] ? 'border-error' : 'border-outline-variant'}`}
                   />
+                  {fieldErrors['ownerName'] && (
+                    <span className="font-body text-[11px] text-error mt-1 block">
+                      {fieldErrors['ownerName']}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
@@ -376,9 +596,15 @@ export default function HomePage() {
                     type="email"
                     required
                     value={ownerEmail}
-                    onChange={(e) => setOwnerEmail(e.target.value)}
-                    className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                    onChange={(e) => handleInputChange('ownerEmail', e.target.value, setOwnerEmail)}
+                    onBlur={() => handleBlur('ownerEmail', ownerEmail)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['ownerEmail'] ? 'border-error' : 'border-outline-variant'}`}
                   />
+                  {fieldErrors['ownerEmail'] && (
+                    <span className="font-body text-[11px] text-error mt-1 block">
+                      {fieldErrors['ownerEmail']}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -411,7 +637,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setRegisterModalOpen(false)}
+                  onClick={() => { setRegisterModalOpen(false); setFieldErrors({}); }}
                   className="flex-1 py-2 px-4 rounded-[10px] border border-outline-variant font-label text-xs font-medium hover:bg-surface-container hover:shadow-soft transition-all duration-[600ms]"
                 >
                   Cancel
@@ -463,9 +689,15 @@ export default function HomePage() {
                   required
                   placeholder="e.g. KAIZEN-2026"
                   value={inputCode}
-                  onChange={(e) => setInputCode(e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-label text-sm uppercase"
+                  onChange={(e) => handleInputChange('inputCode', e.target.value.toUpperCase(), setInputCode)}
+                  onBlur={() => handleBlur('inputCode', inputCode)}
+                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-label text-sm uppercase ${fieldErrors['inputCode'] ? 'border-error' : 'border-outline-variant'}`}
                 />
+                {fieldErrors['inputCode'] && (
+                  <span className="font-body text-[11px] text-error mt-1 block">
+                    {fieldErrors['inputCode']}
+                  </span>
+                )}
                 <span className="font-body text-xs text-surface-on-variant mt-1 block">
                   Ask your head coach or academy front desk for this code.
                 </span>
@@ -480,9 +712,15 @@ export default function HomePage() {
                   required
                   placeholder="e.g. Lucas Silva"
                   value={studentName}
-                  onChange={(e) => setStudentName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                  onChange={(e) => handleInputChange('studentName', e.target.value, setStudentName)}
+                  onBlur={() => handleBlur('studentName', studentName)}
+                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['studentName'] ? 'border-error' : 'border-outline-variant'}`}
                 />
+                {fieldErrors['studentName'] && (
+                  <span className="font-body text-[11px] text-error mt-1 block">
+                    {fieldErrors['studentName']}
+                  </span>
+                )}
               </div>
 
               <div>
@@ -494,9 +732,15 @@ export default function HomePage() {
                   required
                   placeholder="e.g. lucas@example.com"
                   value={studentEmail}
-                  onChange={(e) => setStudentEmail(e.target.value)}
-                  className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm"
+                  onChange={(e) => handleInputChange('studentEmail', e.target.value, setStudentEmail)}
+                  onBlur={() => handleBlur('studentEmail', studentEmail)}
+                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${fieldErrors['studentEmail'] ? 'border-error' : 'border-outline-variant'}`}
                 />
+                {fieldErrors['studentEmail'] && (
+                  <span className="font-body text-[11px] text-error mt-1 block">
+                    {fieldErrors['studentEmail']}
+                  </span>
+                )}
               </div>
 
               {/* MINOR STUDENT TOGGLE */}
@@ -506,7 +750,17 @@ export default function HomePage() {
                     type="checkbox"
                     id="checkbox-is-minor"
                     checked={isMinor}
-                    onChange={(e) => setIsMinor(e.target.checked)}
+                    onChange={(e) => {
+                      setIsMinor(e.target.checked);
+                      if (!e.target.checked) {
+                        setFieldErrors((prev) => {
+                          const next = { ...prev };
+                          delete next['guardianName'];
+                          delete next['guardianEmail'];
+                          return next;
+                        });
+                      }
+                    }}
                     className="h-4 w-4 rounded border-outline-variant bg-surface-container-low text-primary accent-primary"
                   />
                   <span className="font-title text-xs font-semibold text-surface-foreground">
@@ -536,9 +790,15 @@ export default function HomePage() {
                       required={isMinor}
                       placeholder="e.g. Roberto Silva"
                       value={guardianName}
-                      onChange={(e) => setGuardianName(e.target.value)}
-                      className="w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border border-outline-variant font-body text-sm"
+                      onChange={(e) => handleInputChange('guardianName', e.target.value, setGuardianName)}
+                      onBlur={() => handleBlur('guardianName', guardianName)}
+                      className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border font-body text-sm ${fieldErrors['guardianName'] ? 'border-error' : 'border-outline-variant'}`}
                     />
+                    {fieldErrors['guardianName'] && (
+                      <span className="font-body text-[11px] text-error mt-1 block">
+                        {fieldErrors['guardianName']}
+                      </span>
+                    )}
                   </div>
 
                   <div>
@@ -549,9 +809,15 @@ export default function HomePage() {
                       type="email"
                       placeholder="e.g. roberto@example.com"
                       value={guardianEmail}
-                      onChange={(e) => setGuardianEmail(e.target.value)}
-                      className="w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border border-outline-variant font-body text-sm"
+                      onChange={(e) => handleInputChange('guardianEmail', e.target.value, setGuardianEmail)}
+                      onBlur={() => handleBlur('guardianEmail', guardianEmail)}
+                      className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border font-body text-sm ${fieldErrors['guardianEmail'] ? 'border-error' : 'border-outline-variant'}`}
                     />
+                    {fieldErrors['guardianEmail'] && (
+                      <span className="font-body text-[11px] text-error mt-1 block">
+                        {fieldErrors['guardianEmail']}
+                      </span>
+                    )}
                   </div>
                 </div>
               )}
@@ -585,7 +851,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setJoinModalOpen(false)}
+                  onClick={() => { setJoinModalOpen(false); setFieldErrors({}); }}
                   className="flex-1 py-2 px-4 rounded-[10px] border border-outline-variant font-label text-xs font-medium hover:bg-surface-container hover:shadow-soft transition-all duration-[600ms]"
                 >
                   Cancel

@@ -1130,6 +1130,28 @@ textarea {
   color: var(--color-on-surface-variant);
 }
 
+.form-input.input-error,
+.form-select.input-error {
+  border-color: var(--color-error);
+}
+
+.form-input.input-error:focus,
+.form-select.input-error:focus {
+  border-color: var(--color-error);
+}
+
+.form-field-error {
+  display: none;
+  font-family: var(--font-family-body);
+  font-size: 11px;
+  color: var(--color-error);
+  margin-top: 2px;
+}
+
+.form-field-error.active {
+  display: block;
+}
+
 .form-feedback {
   display: none;
   padding: 10px 14px;

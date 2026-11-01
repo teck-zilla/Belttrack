@@ -443,6 +443,7 @@
             <label for="input-reg-school-name" class="form-label">School / Academy Name</label>
             <input type="text" id="input-reg-school-name" class="form-input" placeholder="e.g. Vance Gracie Jiu-Jitsu"
               value="Vance Gracie Jiu-Jitsu" required>
+            <span class="form-field-error" id="error-reg-school-name">empty field error</span>
           </div>
 
           <div class="form-row">
@@ -456,15 +457,24 @@
                 <option value="muay_thai">Muay Thai</option>
                 <option value="krav_maga">Krav Maga</option>
               </select>
+              <span class="form-field-error" id="error-reg-discipline">empty field error</span>
             </div>
 
             <div class="form-group half">
               <label for="input-reg-code" class="form-label">School Join Code</label>
               <input type="text" id="input-reg-code" class="form-input code-input" value="VANCE-BJJ-2026" required>
+              <span class="form-field-error" id="error-reg-code">empty field error</span>
             </div>
           </div>
 
           <div class="form-row">
+            <div class="form-group half">
+              <label for="input-reg-country" class="form-label">Country</label>
+              <input type="text" id="input-reg-country" class="form-input" placeholder="e.g. United Kingdom"
+                value="United Kingdom" required>
+              <span class="form-field-error" id="error-reg-country">empty field error</span>
+            </div>
+
             <div class="form-group half">
               <label for="select-reg-timezone" class="form-label">Operating Timezone</label>
               <select id="select-reg-timezone" class="form-select">
@@ -474,17 +484,22 @@
                 <option value="America/Los_Angeles">America/Los Angeles (PST/PDT)</option>
                 <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
               </select>
-            </div>
-
-            <div class="form-group half">
-              <label for="input-reg-owner" class="form-label">Head Coach Full Name</label>
-              <input type="text" id="input-reg-owner" class="form-input" value="Marcus Vance" required>
+              <span class="form-field-error" id="error-reg-timezone">empty field error</span>
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="input-reg-email" class="form-label">Owner Email</label>
-            <input type="email" id="input-reg-email" class="form-input" value="marcus@vancebjj.com" required>
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="input-reg-owner" class="form-label">Head Coach Full Name</label>
+              <input type="text" id="input-reg-owner" class="form-input" value="Marcus Vance" required>
+              <span class="form-field-error" id="error-reg-owner">empty field error</span>
+            </div>
+
+            <div class="form-group half">
+              <label for="input-reg-email" class="form-label">Owner Email</label>
+              <input type="email" id="input-reg-email" class="form-input" value="marcus@vancebjj.com" required>
+              <span class="form-field-error" id="error-reg-email">empty field error</span>
+            </div>
           </div>
 
           <div class="form-group">
@@ -519,20 +534,23 @@
           <div class="form-group">
             <label for="input-join-code" class="form-label">School Join Code</label>
             <input type="text" id="input-join-code" class="form-input code-input" placeholder="e.g. KAIZEN-2026"
-              value="KAIZEN-2026" required>
+              value="" required>
+            <span class="form-field-error" id="error-join-code">empty field error</span>
             <span class="form-sub-hint">Ask your head coach or academy desk for your school's join code.</span>
           </div>
 
           <div class="form-group">
             <label for="input-join-student-name" class="form-label">Student Full Name</label>
             <input type="text" id="input-join-student-name" class="form-input" placeholder="e.g. Lucas Silva"
-              value="Lucas Silva" required>
+              value="" required>
+            <span class="form-field-error" id="error-join-student-name">empty field error</span>
           </div>
 
           <div class="form-group">
             <label for="input-join-email" class="form-label">Email Address</label>
             <input type="email" id="input-join-email" class="form-input" placeholder="e.g. lucas@example.com"
-              value="lucas@example.com" required>
+              value="" required>
+            <span class="form-field-error" id="error-join-email">empty field error</span>
           </div>
 
           <div class="form-group">
@@ -546,11 +564,13 @@
             <div class="form-group">
               <label for="input-join-guardian-name" class="form-label">Guardian Full Name *</label>
               <input type="text" id="input-join-guardian-name" class="form-input" placeholder="e.g. Roberto Silva">
+              <span class="form-field-error" id="error-join-guardian-name">empty field error</span>
             </div>
 
             <div class="form-group">
               <label for="input-join-guardian-email" class="form-label">Guardian Email Address</label>
               <input type="email" id="input-join-guardian-email" class="form-input" placeholder="e.g. roberto@example.com">
+              <span class="form-field-error" id="error-join-guardian-email">empty field error</span>
             </div>
           </div>
 

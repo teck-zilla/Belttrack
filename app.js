@@ -350,6 +350,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modal) {
       modal.classList.remove('active');
       updateDynamicTitle('Dashboard');
+      modal.querySelectorAll('.input-error').forEach((el) => el.classList.remove('input-error'));
+      modal.querySelectorAll('.form-field-error').forEach((el) => el.classList.remove('active'));
     }
   }
 
@@ -396,11 +398,191 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --------------------------------------------------------------------------
+  // FIELD VALIDATION RULES ("empty field error", "structure error", "enter a valid email address")
+  // --------------------------------------------------------------------------
+  function isValidEmail(email) {
+    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test((email || '').trim());
+  }
+
+  function validateField(fieldId, value) {
+    const trimmed = (value || '').trim();
+    if (!trimmed) {
+      return 'empty field error';
+    }
+
+    // Email fields: real-time valid email check
+    if (['input-reg-email', 'input-join-email', 'input-join-guardian-email'].includes(fieldId)) {
+      if (!isValidEmail(trimmed)) {
+        return 'enter a valid email address';
+      }
+    }
+
+    // School / Academy Name field: length should be above 3 characters
+    if (fieldId === 'input-reg-school-name') {
+      if (trimmed.length <= 3) {
+        return 'structure error';
+      }
+    }
+
+    // Country field: length should not fall below 2 characters
+    if (fieldId === 'input-reg-country') {
+      if (trimmed.length < 2) {
+        return 'structure error';
+      }
+    }
+
+    // Name field: length should be at least 3 characters and must have 2 words or names separated by an empty string
+    if (['input-reg-owner', 'input-join-student-name', 'input-join-guardian-name'].includes(fieldId)) {
+      const words = trimmed.split(/\s+/).filter(Boolean);
+      if (trimmed.length < 3 || words.length < 2) {
+        return 'structure error';
+      }
+    }
+
+    return null;
+  }
+
+  // --------------------------------------------------------------------------
+  // INLINE FORM VALIDATION (Real-time email validation & field structure rules)
+  // --------------------------------------------------------------------------
+  const allModalForms = [formRegister, formJoin];
+  allModalForms.forEach((form) => {
+    if (!form) return;
+    const fields = form.querySelectorAll(
+      'input:not([type="checkbox"]):not([type="submit"]):not([type="button"]), select, textarea'
+    );
+
+    fields.forEach((field) => {
+      let errorEl = field.parentElement ? field.parentElement.querySelector('.form-field-error') : null;
+      if (!errorEl && field.parentElement) {
+        errorEl = document.createElement('span');
+        errorEl.className = 'form-field-error';
+        errorEl.textContent = 'empty field error';
+        field.insertAdjacentElement('afterend', errorEl);
+      }
+
+      const isEmailField = ['input-reg-email', 'input-join-email', 'input-join-guardian-email'].includes(field.id) || field.type === 'email';
+
+      field.addEventListener('blur', () => {
+        if (field.closest('#guardian-fields-container') && (!checkboxIsMinor || !checkboxIsMinor.checked)) {
+          return;
+        }
+
+        if (isEmailField) {
+          if (!field.value.trim()) {
+            const msg = (errorEl && errorEl.textContent === 'enter a valid email address' && errorEl.classList.contains('active'))
+              ? 'enter a valid email address'
+              : 'empty field error';
+            field.classList.add('input-error');
+            if (errorEl) {
+              errorEl.textContent = msg;
+              errorEl.classList.add('active');
+            }
+          } else if (!isValidEmail(field.value)) {
+            field.classList.add('input-error');
+            if (errorEl) {
+              errorEl.textContent = 'enter a valid email address';
+              errorEl.classList.add('active');
+            }
+          } else {
+            field.classList.remove('input-error');
+            if (errorEl) errorEl.classList.remove('active');
+          }
+          return;
+        }
+
+        const err = validateField(field.id, field.value);
+        if (err) {
+          field.classList.add('input-error');
+          if (errorEl) {
+            errorEl.textContent = err;
+            errorEl.classList.add('active');
+          }
+        } else {
+          field.classList.remove('input-error');
+          if (errorEl) errorEl.classList.remove('active');
+        }
+      });
+
+      field.addEventListener('input', () => {
+        if (isEmailField) {
+          if (field.id === 'input-join-guardian-email' && (!checkboxIsMinor || !checkboxIsMinor.checked) && !field.value.trim()) {
+            field.classList.remove('input-error');
+            if (errorEl) errorEl.classList.remove('active');
+            return;
+          }
+
+          // Real-time email validation: persists until user enters a valid email address
+          if (!isValidEmail(field.value)) {
+            field.classList.add('input-error');
+            if (errorEl) {
+              errorEl.textContent = 'enter a valid email address';
+              errorEl.classList.add('active');
+            }
+          } else {
+            field.classList.remove('input-error');
+            if (errorEl) errorEl.classList.remove('active');
+          }
+          return;
+        }
+
+        if (errorEl && errorEl.classList.contains('active')) {
+          const err = validateField(field.id, field.value);
+          if (!err) {
+            field.classList.remove('input-error');
+            errorEl.classList.remove('active');
+          } else {
+            errorEl.textContent = err;
+          }
+        }
+      });
+
+      field.addEventListener('change', () => {
+        if (isEmailField) {
+          if (!isValidEmail(field.value)) {
+            field.classList.add('input-error');
+            if (errorEl) {
+              errorEl.textContent = 'enter a valid email address';
+              errorEl.classList.add('active');
+            }
+          } else {
+            field.classList.remove('input-error');
+            if (errorEl) errorEl.classList.remove('active');
+          }
+          return;
+        }
+
+        const err = validateField(field.id, field.value);
+        if (!err) {
+          field.classList.remove('input-error');
+          if (errorEl) errorEl.classList.remove('active');
+        }
+      });
+    });
+  });
+
+  // --------------------------------------------------------------------------
   // FORM SUBMISSIONS
   // --------------------------------------------------------------------------
   if (formRegister) {
     formRegister.addEventListener('submit', (e) => {
       e.preventDefault();
+      let hasError = false;
+      const requiredInputs = formRegister.querySelectorAll('input[required], select[required]');
+      requiredInputs.forEach((input) => {
+        const err = validateField(input.id, input.value);
+        if (err) {
+          input.classList.add('input-error');
+          const errEl = input.parentElement ? input.parentElement.querySelector('.form-field-error') : null;
+          if (errEl) {
+            errEl.textContent = err;
+            errEl.classList.add('active');
+          }
+          hasError = true;
+        }
+      });
+      if (hasError) return;
+
       const schoolNameInput = document.getElementById('input-reg-school-name');
       const codeInput = document.getElementById('input-reg-code');
 
@@ -440,8 +622,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (inputJoinGuardianName) {
           inputJoinGuardianName.required = false;
           inputJoinGuardianName.value = '';
+          inputJoinGuardianName.classList.remove('input-error');
         }
-        if (inputJoinGuardianEmail) inputJoinGuardianEmail.value = '';
+        if (inputJoinGuardianEmail) {
+          inputJoinGuardianEmail.value = '';
+          inputJoinGuardianEmail.classList.remove('input-error');
+        }
+        guardianContainer.querySelectorAll('.form-field-error').forEach((el) => el.classList.remove('active'));
       }
     });
   }
@@ -453,11 +640,33 @@ document.addEventListener('DOMContentLoaded', () => {
       const inputJoinStudent = document.getElementById('input-join-student-name');
       const inputJoinEmail = document.getElementById('input-join-email');
 
+      const isMinor = checkboxIsMinor ? checkboxIsMinor.checked : false;
+      const guardianNameVal = inputJoinGuardianName ? inputJoinGuardianName.value.trim() : '';
+
+      let hasError = false;
+      const joinInputs = [inputJoinCode, inputJoinStudent, inputJoinEmail];
+      if (isMinor) {
+        joinInputs.push(inputJoinGuardianName);
+      }
+      joinInputs.forEach((input) => {
+        if (input) {
+          const err = validateField(input.id, input.value);
+          if (err) {
+            input.classList.add('input-error');
+            const errEl = input.parentElement ? input.parentElement.querySelector('.form-field-error') : null;
+            if (errEl) {
+              errEl.textContent = err;
+              errEl.classList.add('active');
+            }
+            hasError = true;
+          }
+        }
+      });
+      if (hasError) return;
+
       const codeVal = inputJoinCode ? inputJoinCode.value.trim().toUpperCase() : '';
       const studentVal = inputJoinStudent ? inputJoinStudent.value.trim() : '';
       const emailVal = inputJoinEmail ? inputJoinEmail.value.trim() : '';
-      const isMinor = checkboxIsMinor ? checkboxIsMinor.checked : false;
-      const guardianNameVal = inputJoinGuardianName ? inputJoinGuardianName.value.trim() : '';
 
       if (isMinor && !guardianNameVal) {
         if (feedbackJoin) {
