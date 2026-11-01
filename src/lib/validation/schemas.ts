@@ -63,9 +63,7 @@ export const schoolRegistrationSchema = z.object({
     .optional(),
   customCode: z
     .string()
-    .min(4, 'Registration code must be at least 4 characters')
-    .max(16, 'Registration code must be 16 characters or less')
-    .regex(/^[A-Z0-9_-]+$/, 'Code must contain only uppercase alphanumeric characters, dashes, or underscores')
+    .regex(/^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$/, 'wrong details')
     .optional(),
   isPublicInDirectory: z
     .boolean()
@@ -80,9 +78,7 @@ export type SchoolRegistrationInput = z.infer<typeof schoolRegistrationSchema>;
 export const studentJoinCodeSchema = z.object({
   registrationCode: z
     .string()
-    .min(4, 'Registration code must be at least 4 characters')
-    .max(16, 'Registration code must be 16 characters or less')
-    .regex(/^[A-Z0-9_-]+$/i, 'Registration code is alphanumeric'),
+    .regex(/^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$/, 'wrong details'),
   studentFullName: z
     .string()
     .min(3, 'Student full name must be at least 3 characters')
