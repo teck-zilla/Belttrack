@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/auth-context';
+import { useAccessibleModal } from './use-accessible-modal';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -17,73 +18,47 @@ export function LoginModal({
   onSwitchToJoin
 }: LoginModalProps) {
   const { login } = useAuth();
+  const modalRef = useAccessibleModal(isOpen, onClose, '#btn-open-login');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleBlur = (field: 'email' | 'password', val: string) => {
-    if (!val.trim()) {
-      setFieldErrors((prev) => ({ ...prev, [field]: 'empty field error' }));
-    }
-  };
-
-  const handleEmailChange = (val: string) => {
-    setEmail(val);
-    if (fieldErrors['email']) {
-      setFieldErrors((prev) => {
-        const next = { ...prev };
-        delete next['email'];
-        return next;
-      });
-    }
-  };
-
-  const handlePasswordChange = (val: string) => {
-    setPassword(val);
-    if (fieldErrors['password']) {
-      setFieldErrors((prev) => {
-        const next = { ...prev };
-        delete next['password'];
-        return next;
-      });
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormFeedback(null);
 
-    const errors: Record<string, string> = {};
-    if (!email.trim()) {
-      errors['email'] = 'empty field error';
-    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim())) {
-      errors['email'] = 'enter a valid email address';
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password) {
+      setFormFeedback('Please enter both email and password.');
+      if (!trimmedEmail) document.getElementById('login-email')?.focus();
+      else document.getElementById('login-password')?.focus();
+      return;
     }
 
-    if (!password) {
-      errors['password'] = 'empty field error';
-    } else if (password.length < 6) {
-      errors['password'] = 'Password must be at least 6 characters';
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmedEmail)) {
+      setFormFeedback('Please enter a valid email address.');
+      document.getElementById('login-email')?.focus();
+      return;
     }
 
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
+    if (password.length < 6) {
+      setFormFeedback('Password must be at least 6 characters.');
+      document.getElementById('login-password')?.focus();
       return;
     }
 
     try {
       setIsSubmitting(true);
-      const res = await login(email.trim(), password);
+      const res = await login(trimmedEmail, password);
       if (!res.success) {
         setFormFeedback(res.error || 'Invalid email or password');
       } else {
         setEmail('');
         setPassword('');
-        setFieldErrors({});
         setFormFeedback(null);
         onClose();
       }
@@ -102,7 +77,10 @@ export function LoginModal({
       aria-labelledby="title-login-modal"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm"
     >
-      <div className="w-full max-w-md p-4 sm:p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2 max-h-[90vh] overflow-y-auto">
+      <div
+        ref={modalRef}
+        className="w-full max-w-md p-4 sm:p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2 max-h-[90vh] overflow-y-auto"
+      >
         <div className="flex items-center justify-between mb-4">
           <div>
             <span className="font-label text-xs font-bold text-tertiary uppercase">Authentication</span>
@@ -113,7 +91,7 @@ export function LoginModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-surface-on-variant hover:text-surface-foreground"
+            className="text-surface-on-variant hover:text-surface-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary rounded p-1"
             aria-label="Close modal"
           >
             ✕
@@ -121,58 +99,61 @@ export function LoginModal({
         </div>
 
         {formFeedback && (
-          <div className="mb-4 p-3 rounded-lg bg-error-container text-error-on-container font-body text-xs">
+          <div
+            role="status"
+            className="mb-4 p-3 rounded-lg bg-error-container text-error-on-container font-body text-xs"
+          >
             {formFeedback}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
-              Email Address
+            <label
+              htmlFor="login-email"
+              className="font-title text-xs font-semibold text-surface-foreground block mb-1"
+            >
+              Email Address <span aria-hidden="true" className="text-tertiary font-bold">*</span>
+              <span className="sr-only">(required)</span>
             </label>
             <input
+              id="login-email"
+              name="email"
               type="email"
               value={email}
-              onChange={(e) => handleEmailChange(e.target.value)}
-              onBlur={() => handleBlur('email', email)}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="coach@dojo.org"
-              className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${
-                fieldErrors['email'] ? 'border-error' : 'border-outline-variant'
-              }`}
+              required
+              aria-required="true"
+              className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
             />
-            {fieldErrors['email'] && (
-              <span className="font-body text-[11px] text-error mt-1 block">
-                {fieldErrors['email']}
-              </span>
-            )}
           </div>
 
           <div>
-            <label className="font-title text-xs font-semibold text-surface-foreground block mb-1">
-              Password
+            <label
+              htmlFor="login-password"
+              className="font-title text-xs font-semibold text-surface-foreground block mb-1"
+            >
+              Password <span aria-hidden="true" className="text-tertiary font-bold">*</span>
+              <span className="sr-only">(required)</span>
             </label>
             <input
+              id="login-password"
+              name="password"
               type="password"
               value={password}
-              onChange={(e) => handlePasswordChange(e.target.value)}
-              onBlur={() => handleBlur('password', password)}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${
-                fieldErrors['password'] ? 'border-error' : 'border-outline-variant'
-              }`}
+              required
+              aria-required="true"
+              className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
             />
-            {fieldErrors['password'] && (
-              <span className="font-body text-[11px] text-error mt-1 block">
-                {fieldErrors['password']}
-              </span>
-            )}
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-2.5 rounded-[10px] font-label text-xs font-bold uppercase tracking-wider bg-primary text-primary-foreground hover:shadow-soft-2 transition-all disabled:opacity-50 cursor-pointer"
+            className="w-full py-2.5 rounded-[10px] font-label text-xs font-bold uppercase tracking-wider bg-primary text-primary-foreground hover:shadow-soft-2 transition-all disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
           >
             {isSubmitting ? 'Authenticating...' : 'Sign In'}
           </button>
@@ -190,7 +171,7 @@ export function LoginModal({
                   onClose();
                   onSwitchToRegister();
                 }}
-                className="font-title text-xs text-tertiary hover:underline"
+                className="font-title text-xs text-tertiary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary rounded"
               >
                 Register School
               </button>
@@ -205,7 +186,7 @@ export function LoginModal({
                   onClose();
                   onSwitchToJoin();
                 }}
-                className="font-title text-xs text-tertiary hover:underline"
+                className="font-title text-xs text-tertiary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary rounded"
               >
                 Join with Code
               </button>
@@ -216,4 +197,3 @@ export function LoginModal({
     </div>
   );
 }
-

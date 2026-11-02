@@ -48,12 +48,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCancelRegister = document.getElementById('btn-cancel-register');
   const formRegister = document.getElementById('form-register-school');
   const feedbackRegister = document.getElementById('feedback-register');
+  const btnSubmitRegister = document.getElementById('btn-submit-register');
+  const checkboxRegTerms = document.getElementById('checkbox-reg-terms');
 
   const btnOpenJoin = document.getElementById('btn-open-join');
   const btnCloseJoin = document.getElementById('btn-close-join');
   const btnCancelJoin = document.getElementById('btn-cancel-join');
   const formJoin = document.getElementById('form-join-school');
   const feedbackJoin = document.getElementById('feedback-join');
+  const btnSubmitJoin = document.getElementById('btn-submit-join');
+  const checkboxJoinTerms = document.getElementById('checkbox-join-terms');
 
   const btnOpenDirectory = document.getElementById('btn-open-directory');
   const btnCloseDirectory = document.getElementById('btn-close-directory');
@@ -346,11 +350,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+
+  function checkRegisterFormValidity() {
+    if (!btnSubmitRegister || !formRegister) return;
+    const inputName = document.getElementById('input-reg-name');
+    const selectDiscipline = document.getElementById('select-reg-discipline');
+    const inputCode = document.getElementById('input-reg-code');
+    const inputCountry = document.getElementById('input-reg-country');
+    const selectTimezone = document.getElementById('select-reg-timezone');
+    const inputOwner = document.getElementById('input-reg-owner');
+    const inputEmail = document.getElementById('input-reg-email');
+
+    const isTerms = checkboxRegTerms ? checkboxRegTerms.checked : false;
+    const isNameValid = Boolean(inputName && inputName.value.trim().length > 3 && !validateField(inputName.id, inputName.value));
+    const isDisciplineValid = Boolean(selectDiscipline && selectDiscipline.value);
+    const isCodeValid = Boolean(inputCode && isValidSchoolJoinCode(inputCode.value));
+    const isCountryValid = Boolean(inputCountry && inputCountry.value.trim().length >= 2);
+    const isTimezoneValid = Boolean(selectTimezone && selectTimezone.value);
+    const isOwnerValid = Boolean(inputOwner && inputOwner.value.trim().length >= 3 && inputOwner.value.trim().split(/\s+/).filter(Boolean).length >= 2);
+    const isEmailValid = Boolean(inputEmail && isValidEmail(inputEmail.value));
+
+    const hasAnyError = formRegister.querySelectorAll('.input-error').length > 0;
+
+    const isValid = isTerms && isNameValid && isDisciplineValid && isCodeValid && isCountryValid && isTimezoneValid && isOwnerValid && isEmailValid && !hasAnyError;
+    btnSubmitRegister.disabled = !isValid;
+  }
+
+  function checkJoinFormValidity() {
+    if (!btnSubmitJoin || !formJoin) return;
+    const inputCode = document.getElementById('input-join-code');
+    const inputStudent = document.getElementById('input-join-student-name');
+    const inputEmail = document.getElementById('input-join-email');
+    const inputPassword = document.getElementById('input-join-password');
+    const inputGuardianName = document.getElementById('input-join-guardian-name');
+    const inputGuardianEmail = document.getElementById('input-join-guardian-email');
+
+    const isTerms = checkboxJoinTerms ? checkboxJoinTerms.checked : false;
+    const isCodeValid = Boolean(inputCode && isValidSchoolJoinCode(inputCode.value));
+    const isStudentValid = Boolean(inputStudent && inputStudent.value.trim().length >= 3 && inputStudent.value.trim().split(/\s+/).filter(Boolean).length >= 2);
+    const isEmailValid = Boolean(inputEmail && isValidEmail(inputEmail.value));
+    const isPasswordValid = Boolean(inputPassword && isValidPassword(inputPassword.value));
+
+    const isMinor = checkboxIsMinor ? checkboxIsMinor.checked : false;
+    let isGuardianValid = true;
+    if (isMinor) {
+      isGuardianValid = Boolean(inputGuardianName && inputGuardianName.value.trim().length >= 3 && inputGuardianName.value.trim().split(/\s+/).filter(Boolean).length >= 2);
+      if (inputGuardianEmail && inputGuardianEmail.value.trim()) {
+        isGuardianValid = isGuardianValid && isValidEmail(inputGuardianEmail.value);
+      }
+    }
+
+    const hasAnyError = formJoin.querySelectorAll('.input-error').length > 0;
+
+    const isValid = isTerms && isCodeValid && isStudentValid && isEmailValid && isPasswordValid && isGuardianValid && !hasAnyError;
+    btnSubmitJoin.disabled = !isValid;
+  }
+
   function openModal(modal) {
     if (modal) {
       modal.classList.add('active');
-      if (modal === modalRegister) updateDynamicTitle('Register School');
-      else if (modal === modalJoin) updateDynamicTitle('Join Dojo');
+      if (modal === modalRegister) {
+        updateDynamicTitle('Register School');
+        checkRegisterFormValidity();
+      } else if (modal === modalJoin) {
+        updateDynamicTitle('Join Dojo');
+        checkJoinFormValidity();
+      }
       else if (modal === modalDirectory) updateDynamicTitle('Public School Directory');
       else if (modal === modalTerms) updateDynamicTitle('Terms & Conditions');
       else if (modal === modalLogin) updateDynamicTitle('Sign In');
@@ -363,7 +428,60 @@ document.addEventListener('DOMContentLoaded', () => {
       updateDynamicTitle('Dashboard');
       modal.querySelectorAll('.input-error').forEach((el) => el.classList.remove('input-error'));
       modal.querySelectorAll('.form-field-error').forEach((el) => el.classList.remove('active'));
+      if (modal === modalJoin) {
+        resetJoinPassword();
+        if (checkboxJoinTerms) checkboxJoinTerms.checked = false;
+        checkJoinFormValidity();
+      }
+      if (modal === modalRegister) {
+        if (checkboxRegTerms) checkboxRegTerms.checked = false;
+        checkRegisterFormValidity();
+      }
     }
+  }
+
+
+  function resetJoinPassword() {
+    const inputJoinPassword = document.getElementById('input-join-password');
+    const btnToggle = document.getElementById('btn-toggle-join-password');
+    const hintEl = document.getElementById('hint-join-password');
+    if (inputJoinPassword) {
+      inputJoinPassword.setAttribute('type', 'password');
+    }
+    if (hintEl) {
+      hintEl.classList.remove('active');
+    }
+    if (btnToggle) {
+      btnToggle.setAttribute('aria-label', 'Show password');
+      btnToggle.setAttribute('title', 'Show password');
+      btnToggle.innerHTML = `<svg class="password-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="16" height="16">
+        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+      </svg>`;
+    }
+  }
+
+  const btnToggleJoinPassword = document.getElementById('btn-toggle-join-password');
+  if (btnToggleJoinPassword) {
+    btnToggleJoinPassword.addEventListener('click', () => {
+      const inputJoinPassword = document.getElementById('input-join-password');
+      if (!inputJoinPassword) return;
+      const isPassword = inputJoinPassword.getAttribute('type') === 'password';
+      inputJoinPassword.setAttribute('type', isPassword ? 'text' : 'password');
+      btnToggleJoinPassword.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+      btnToggleJoinPassword.setAttribute('title', isPassword ? 'Hide password' : 'Show password');
+      btnToggleJoinPassword.innerHTML = isPassword
+        ? `<svg class="password-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="16" height="16">
+            <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+            <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+            <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+            <line x1="2" y1="2" x2="22" y2="22"></line>
+          </svg>`
+        : `<svg class="password-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="16" height="16">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>`;
+    });
   }
 
   // Register Modal
@@ -509,6 +627,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return /^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$/.test((code || '').trim());
   }
 
+  function isValidPassword(pw) {
+    return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,11}$/.test((pw || '').trim());
+  }
+
   function isValidEmail(email) {
     return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test((email || '').trim());
   }
@@ -547,6 +669,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    // Password field: 6-11 chars, letters, numbers, and at least 1 special character
+    if (fieldId === 'input-join-password') {
+      if (!isValidPassword(trimmed)) {
+        return 'wrong details';
+      }
+    }
+
     // Name field: length should be at least 3 characters and must have 2 words or names separated by an empty string
     if (['input-reg-owner', 'input-join-student-name', 'input-join-guardian-name'].includes(fieldId)) {
       const words = trimmed.split(/\s+/).filter(Boolean);
@@ -579,9 +708,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const isEmailField = ['input-reg-email', 'input-join-email', 'input-join-guardian-email'].includes(field.id) || field.type === 'email';
       const isCodeField = ['input-reg-code', 'input-join-code'].includes(field.id);
+      const isPasswordField = field.id === 'input-join-password';
 
       field.addEventListener('blur', () => {
         if (field.closest('#guardian-fields-container') && (!checkboxIsMinor || !checkboxIsMinor.checked)) {
+          return;
+        }
+
+        if (isPasswordField) {
+          if (!field.value.trim()) {
+            field.classList.add('input-error');
+            if (errorEl) {
+              errorEl.textContent = 'empty field error';
+              errorEl.classList.add('active');
+            }
+          } else if (!isValidPassword(field.value)) {
+            field.classList.add('input-error');
+            if (errorEl) {
+              errorEl.textContent = 'wrong details';
+              errorEl.classList.add('active');
+            }
+          } else {
+            field.classList.remove('input-error');
+            if (errorEl) errorEl.classList.remove('active');
+          }
           return;
         }
 
@@ -642,6 +792,19 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       field.addEventListener('input', () => {
+        if (isPasswordField) {
+          if (field.value.trim() && !isValidPassword(field.value)) {
+            field.classList.add('input-error');
+            if (errorEl) {
+              errorEl.textContent = 'wrong details';
+              errorEl.classList.add('active');
+            }
+          } else {
+            field.classList.remove('input-error');
+            if (errorEl) errorEl.classList.remove('active');
+          }
+          return;
+        }
         if (isCodeField) {
           if (field.value.trim() && !isValidSchoolJoinCode(field.value)) {
             field.classList.add('input-error');
@@ -715,6 +878,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // FORM SUBMISSIONS
   // --------------------------------------------------------------------------
   if (formRegister) {
+    formRegister.addEventListener('input', checkRegisterFormValidity);
+    formRegister.addEventListener('change', checkRegisterFormValidity);
     formRegister.addEventListener('submit', (e) => {
       e.preventDefault();
       let hasError = false;
@@ -723,7 +888,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const err = validateField(input.id, input.value);
         if (err) {
           input.classList.add('input-error');
-          const errEl = input.parentElement ? input.parentElement.querySelector('.form-field-error') : null;
+          const errEl = input.closest('.form-group') ? input.closest('.form-group').querySelector('.form-field-error') : (input.parentElement ? input.parentElement.querySelector('.form-field-error') : null);
           if (errEl) {
             errEl.textContent = err;
             errEl.classList.add('active');
@@ -784,17 +949,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (formJoin) {
+    formJoin.addEventListener('input', checkJoinFormValidity);
+    formJoin.addEventListener('change', checkJoinFormValidity);
     formJoin.addEventListener('submit', (e) => {
       e.preventDefault();
       const inputJoinCode = document.getElementById('input-join-code');
       const inputJoinStudent = document.getElementById('input-join-student-name');
       const inputJoinEmail = document.getElementById('input-join-email');
+      const inputJoinPassword = document.getElementById('input-join-password');
 
       const isMinor = checkboxIsMinor ? checkboxIsMinor.checked : false;
       const guardianNameVal = inputJoinGuardianName ? inputJoinGuardianName.value.trim() : '';
 
       let hasError = false;
-      const joinInputs = [inputJoinCode, inputJoinStudent, inputJoinEmail];
+      const joinInputs = [inputJoinCode, inputJoinStudent, inputJoinEmail, inputJoinPassword];
       if (isMinor) {
         joinInputs.push(inputJoinGuardianName);
       }
