@@ -89,6 +89,14 @@ export const studentJoinCodeSchema = z.object({
   studentEmail: z
     .string()
     .email('enter a valid email address'),
+  password: z
+    .string()
+    .min(6, 'wrong details')
+    .max(11, 'wrong details')
+    .regex(
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,11}$/,
+      'wrong details'
+    ),
   isMinor: z
     .boolean()
     .default(false),

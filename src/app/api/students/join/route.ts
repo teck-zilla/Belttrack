@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { studentJoinCodeSchema } from '@/lib/validation/schemas';
 
 export async function POST(request: Request) {
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
       registrationCode,
       studentFullName,
       studentEmail,
+      password,
       isMinor,
       guardianFullName,
       guardianEmail
@@ -52,6 +54,28 @@ export async function POST(request: Request) {
     const firstName = parts[0] || studentFullName;
     const lastName = parts.slice(1).join(' ') || 'Student';
 
+    // Provision account in Supabase Auth if service role client is available
+    let supabaseUid: string | null = null;
+    try {
+      const admin = getAdminClient();
+      const authEmail = studentEmail.toLowerCase().trim();
+      const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
+        email: authEmail,
+        password,
+        email_confirm: true,
+        user_metadata: {
+          school_id: school.id,
+          role: 'STUDENT',
+          status: 'PENDING_APPROVAL'
+        }
+      });
+      if (!authErr && authUser?.user) {
+        supabaseUid = authUser.user.id;
+      }
+    } catch {
+      // Graceful fallback if admin client is unconfigured or in offline environment
+    }
+
     // Atomic transaction for Student User, StudentProfile, and optional Guardian link
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create or link Student User record
@@ -59,6 +83,7 @@ export async function POST(request: Request) {
         data: {
           schoolId: school.id,
           email: studentEmail.toLowerCase(),
+          supabaseUid,
           hashedPassword: 'managed-auth-preview',
           role: 'STUDENT',
           status: 'PENDING_APPROVAL' // strictly locked until coach verification

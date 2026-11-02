@@ -1,5 +1,7 @@
 'use client';
 
+import { ManualLedgerModal } from './manual-ledger-modal';
+
 import React, { useState } from 'react';
 import { useAuth } from '@/context/auth-context';
 
@@ -9,6 +11,13 @@ export function PreviewDashboard() {
   const totalRequired = 50;
   const isEligible = attendedClasses >= totalRequired;
   const isOwnerGroup = activeRole === 'owner' || activeRole === 'coach';
+  const [isManualLedgerOpen, setIsManualLedgerOpen] = useState(false);
+  const [manualEntries, setManualEntries] = useState<Array<{
+    title: string;
+    amount: string;
+    subtext: string;
+    slug: string;
+  }>>([]);
 
   return (
     <section className="max-w-5xl mx-auto px-4 mb-16">
@@ -157,6 +166,18 @@ export function PreviewDashboard() {
             <div className="space-y-2 font-body text-xs">
               {isOwnerGroup ? (
                 <>
+                  {manualEntries.map((entry, idx) => (
+                    <div key={idx} className="p-2.5 rounded-[10px] bg-surface-container-low border border-tertiary shadow-soft">
+                      <div className="flex flex-wrap justify-between items-center gap-1 mb-1">
+                        <span className="font-title font-semibold text-primary break-words">{entry.title}</span>
+                        <span className="font-label font-bold text-tertiary flex-shrink-0">{entry.amount}</span>
+                      </div>
+                      <div className="flex flex-wrap justify-between gap-1 text-surface-on-variant text-xs font-label">
+                        <span className="break-words">{entry.subtext}</span>
+                        <span className="text-tertiary font-bold break-all">{entry.slug}</span>
+                      </div>
+                    </div>
+                  ))}
                   <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-[10px] bg-surface-container-low border border-outline-variant">
                     <div className="min-w-0">
                       <span className="font-title font-semibold text-primary block break-words">BJJ Fundamentals (Gi)</span>
@@ -236,6 +257,20 @@ export function PreviewDashboard() {
                 : 'Private dojo receipts for adult student and linked minor dependent.'}
             </p>
 
+            {isOwnerGroup && (
+              <button
+                type="button"
+                id="btn-open-manual-ledger"
+                onClick={() => setIsManualLedgerOpen(true)}
+                className="w-full mb-3 py-2 px-3 rounded-[10px] bg-tertiary text-tertiary-foreground font-label text-xs font-semibold hover:shadow-soft transition-all duration-[600ms] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                <span>Record Manual Settlement</span>
+              </button>
+            )}
+
             {/* Dynamic Items */}
             <div className="space-y-2 font-body text-xs mb-4">
               {isOwnerGroup ? (
@@ -308,6 +343,11 @@ export function PreviewDashboard() {
           </div>
         </div>
       </div>
+          <ManualLedgerModal
+        isOpen={isManualLedgerOpen}
+        onClose={() => setIsManualLedgerOpen(false)}
+        onRecordCreated={(rec) => setManualEntries((prev) => [rec, ...prev])}
+      />
     </section>
   );
 }
