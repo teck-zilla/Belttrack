@@ -759,13 +759,49 @@ export default function HomePage() {
                     className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${fieldErrors['timezone'] ? 'border-error' : 'border-outline-variant'}`}
                   >
                     <option value="UTC">UTC (Coordinated Universal Time)</option>
-                    <option value="Europe/London">Europe/London (GMT/BST)</option>
-                    <option value="America/New_York">America/New York (EST/EDT)</option>
-                    <option value="America/Los_Angeles">America/Los Angeles (PST/PDT)</option>
-                    <option value="America/Sao_Paulo">America/Sao Paulo (BRT)</option>
-                    <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
-                    <option value="Asia/Bangkok">Asia/Bangkok (ICT)</option>
-                    <option value="Australia/Sydney">Australia/Sydney (AEST)</option>
+                    <optgroup label="North America" className="bg-surface-container-low text-surface-foreground font-semibold">
+                      <option value="America/New_York">America/New York (EST/EDT)</option>
+                      <option value="America/Chicago">America/Chicago (CST/CDT)</option>
+                      <option value="America/Denver">America/Denver (MST/MDT)</option>
+                      <option value="America/Phoenix">America/Phoenix (MST)</option>
+                      <option value="America/Los_Angeles">America/Los Angeles (PST/PDT)</option>
+                      <option value="America/Anchorage">America/Anchorage (AKST/AKDT)</option>
+                      <option value="Pacific/Honolulu">Pacific/Honolulu (HST)</option>
+                    </optgroup>
+                    <optgroup label="Latin America & South America" className="bg-surface-container-low text-surface-foreground font-semibold">
+                      <option value="America/Sao_Paulo">America/Sao Paulo (BRT)</option>
+                      <option value="America/Buenos_Aires">America/Buenos Aires (ART)</option>
+                      <option value="America/Santiago">America/Santiago (CLT/CLST)</option>
+                      <option value="America/Bogota">America/Bogota (COT)</option>
+                      <option value="America/Mexico_City">America/Mexico City (CST)</option>
+                    </optgroup>
+                    <optgroup label="Europe" className="bg-surface-container-low text-surface-foreground font-semibold">
+                      <option value="Europe/London">Europe/London (GMT/BST)</option>
+                      <option value="Europe/Paris">Europe/Paris (CET/CEST)</option>
+                      <option value="Europe/Athens">Europe/Athens (EET/EEST)</option>
+                      <option value="Europe/Istanbul">Europe/Istanbul (TRT)</option>
+                    </optgroup>
+                    <optgroup label="Middle East & Africa" className="bg-surface-container-low text-surface-foreground font-semibold">
+                      <option value="Asia/Dubai">Asia/Dubai (GST)</option>
+                      <option value="Asia/Jerusalem">Asia/Jerusalem (IST/IDT)</option>
+                      <option value="Africa/Cairo">Africa/Cairo (EEST)</option>
+                      <option value="Africa/Johannesburg">Africa/Johannesburg (SAST)</option>
+                      <option value="Africa/Lagos">Africa/Lagos (WAT)</option>
+                    </optgroup>
+                    <optgroup label="Asia" className="bg-surface-container-low text-surface-foreground font-semibold">
+                      <option value="Asia/Bangkok">Asia/Bangkok (ICT)</option>
+                      <option value="Asia/Singapore">Asia/Singapore (SGT)</option>
+                      <option value="Asia/Hong_Kong">Asia/Hong Kong (HKT)</option>
+                      <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
+                      <option value="Asia/Seoul">Asia/Seoul (KST)</option>
+                      <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+                    </optgroup>
+                    <optgroup label="Oceania & Pacific" className="bg-surface-container-low text-surface-foreground font-semibold">
+                      <option value="Australia/Perth">Australia/Perth (AWST)</option>
+                      <option value="Australia/Adelaide">Australia/Adelaide (ACST/ACDT)</option>
+                      <option value="Australia/Sydney">Australia/Sydney (AEST/AEDT)</option>
+                      <option value="Pacific/Auckland">Pacific/Auckland (NZST/NZDT)</option>
+                    </optgroup>
                   </select>
                   <InlineFieldError id="err-reg-timezone" message={fieldErrors['timezone']} />
                 </div>
