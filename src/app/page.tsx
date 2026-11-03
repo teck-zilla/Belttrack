@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { TopNav } from '@/components/layout/top-nav';
 import { HeroSection } from '@/components/home/hero-section';
 import { RoleEntryCards } from '@/components/home/role-entry-cards';
@@ -55,10 +55,17 @@ export default function HomePage() {
   const [isDirectoryModalOpen, setDirectoryModalOpen] = useState(false);
   const [isTermsModalOpen, setTermsModalOpen] = useState(false);
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
-  const registerModalRef = useAccessibleModal(isRegisterModalOpen, () => setRegisterModalOpen(false));
-  const joinModalRef = useAccessibleModal(isJoinModalOpen, () => setJoinModalOpen(false));
-  const directoryModalRef = useAccessibleModal(isDirectoryModalOpen, () => setDirectoryModalOpen(false));
-  const termsModalRef = useAccessibleModal(isTermsModalOpen, () => setTermsModalOpen(false));
+
+  const handleCloseRegister = useCallback(() => setRegisterModalOpen(false), []);
+  const handleCloseJoin = useCallback(() => setJoinModalOpen(false), []);
+  const handleCloseDirectory = useCallback(() => setDirectoryModalOpen(false), []);
+  const handleCloseTerms = useCallback(() => setTermsModalOpen(false), []);
+  const handleCloseLogin = useCallback(() => setLoginModalOpen(false), []);
+
+  const registerModalRef = useAccessibleModal(isRegisterModalOpen, handleCloseRegister, '#btn-open-register');
+  const joinModalRef = useAccessibleModal(isJoinModalOpen, handleCloseJoin, '#btn-open-join');
+  const directoryModalRef = useAccessibleModal(isDirectoryModalOpen, handleCloseDirectory, '#btn-open-directory');
+  const termsModalRef = useAccessibleModal(isTermsModalOpen, handleCloseTerms, '#btn-open-terms');
 
   // Form states
   const [schoolName, setSchoolName] = useState('Vance Gracie Jiu-Jitsu');
@@ -256,70 +263,51 @@ export default function HomePage() {
   const handleInputChange = (fieldId: string, val: string, setter: (v: string) => void) => {
     setter(val);
 
-    // Real-time password validation: 6-11 characters, combination of letters, numbers, and at least 1 special char
-    if (fieldId === 'studentPassword') {
-      if (val.trim() && !isValidPassword(val)) {
-        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'wrong details' }));
-      } else {
-        setFieldErrors((prev) => {
-          if (!prev[fieldId]) return prev;
-          const next = { ...prev };
-          delete next[fieldId];
-          return next;
-        });
-      }
-      return;
-    }
-
-    // Real-time School Join Code validation: string-string-number (max lengths 6-4-4)
-    if (['generatedCode', 'inputCode'].includes(fieldId)) {
-      if (val.trim() && !isValidSchoolJoinCode(val)) {
-        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'wrong details' }));
-      } else {
-        setFieldErrors((prev) => {
-          if (!prev[fieldId]) return prev;
-          const next = { ...prev };
-          delete next[fieldId];
-          return next;
-        });
-      }
-      return;
-    }
-
-    // Real-time email validation: persists until user enters a valid email address
-    if (emailFields.includes(fieldId)) {
-      if (fieldId === 'guardianEmail' && !isMinor && !val.trim()) {
-        setFieldErrors((prev) => {
-          const next = { ...prev };
-          delete next[fieldId];
-          return next;
-        });
-        return;
-      }
-
-      if (!isValidEmail(val)) {
-        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'enter a valid email address' }));
-      } else {
-        setFieldErrors((prev) => {
-          const next = { ...prev };
-          delete next[fieldId];
-          return next;
-        });
-      }
-      return;
-    }
-
+    // If an error is currently active for this field, clear it as soon as the input satisfies validation
     if (fieldErrors[fieldId]) {
-      const err = validateField(fieldId, val);
-      if (!err) {
+      let isFixed = false;
+      if (fieldId === 'studentPassword') {
+        isFixed = isValidPassword(val);
+      } else if (['generatedCode', 'inputCode'].includes(fieldId)) {
+        isFixed = isValidSchoolJoinCode(val);
+      } else if (emailFields.includes(fieldId)) {
+        if (fieldId === 'guardianEmail' && !isMinor && !val.trim()) {
+          isFixed = true;
+        } else {
+          isFixed = isValidEmail(val);
+        }
+      } else {
+        isFixed = !validateField(fieldId, val);
+      }
+
+      if (isFixed) {
         setFieldErrors((prev) => {
+          if (!prev[fieldId]) return prev;
           const next = { ...prev };
           delete next[fieldId];
           return next;
         });
-      } else {
-        setFieldErrors((prev) => ({ ...prev, [fieldId]: err }));
       }
+    }
+  };
+
+  const handleCodeInputChange = (
+    fieldId: 'generatedCode' | 'inputCode',
+    e: React.ChangeEvent<HTMLInputElement>,
+    setter: (v: string) => void
+  ) => {
+    const input = e.target;
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const val = input.value.toUpperCase();
+    setter(val);
+    handleInputChange(fieldId, val, () => {});
+    if (start !== null && end !== null) {
+      requestAnimationFrame(() => {
+        if (document.activeElement === input) {
+          input.setSelectionRange(start, end);
+        }
+      });
     }
   };
 
@@ -618,9 +606,19 @@ export default function HomePage() {
         >
           <div ref={registerModalRef} className="w-full max-w-lg p-4 sm:p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <div>
-                <span className="font-label text-xs font-bold text-tertiary uppercase">Tenant Creation</span>
-                <h3 id="title-register-modal" className="font-headline text-xl font-bold text-primary">Register Martial Arts School</h3>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-[10px] bg-primary text-primary-foreground flex-shrink-0 flex items-center justify-center shadow-soft" aria-hidden="true">
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="2" y="6" width="20" height="12" rx="4" />
+                    <line x1="8" y1="6" x2="8" y2="18" />
+                    <line x1="12" y1="6" x2="12" y2="18" strokeDasharray="2 2" />
+                    <path d="M16 10l2 2-2 2" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="font-label text-xs font-bold text-tertiary uppercase">Tenant Creation</span>
+                  <h3 id="title-register-modal" className="font-headline text-xl font-bold text-primary">Register Martial Arts School</h3>
+                </div>
               </div>
               <button
                 type="button"
@@ -705,7 +703,7 @@ export default function HomePage() {
                     aria-invalid={Boolean(fieldErrors['generatedCode'])}
                     aria-describedby={fieldErrors['generatedCode'] ? 'err-reg-code' : undefined}
                     value={generatedCode}
-                    onChange={(e) => handleInputChange('generatedCode', e.target.value.toUpperCase(), setGeneratedCode)}
+                    onChange={(e) => handleCodeInputChange('generatedCode', e, setGeneratedCode)}
                     onBlur={() => handleBlur('generatedCode', generatedCode)}
                     className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-label text-sm uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${fieldErrors['generatedCode'] ? 'border-error' : 'border-outline-variant'}`}
                   />
@@ -874,9 +872,19 @@ export default function HomePage() {
         >
           <div ref={joinModalRef} className="w-full max-w-md p-4 sm:p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <div>
-                <span className="font-label text-xs font-bold text-tertiary uppercase">Member Onboarding</span>
-                <h3 id="title-join-modal" className="font-headline text-xl font-bold text-primary">Join Dojo with School Join Code</h3>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-[10px] bg-primary text-primary-foreground flex-shrink-0 flex items-center justify-center shadow-soft" aria-hidden="true">
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="2" y="6" width="20" height="12" rx="4" />
+                    <line x1="8" y1="6" x2="8" y2="18" />
+                    <line x1="12" y1="6" x2="12" y2="18" strokeDasharray="2 2" />
+                    <path d="M16 10l2 2-2 2" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="font-label text-xs font-bold text-tertiary uppercase">Member Onboarding</span>
+                  <h3 id="title-join-modal" className="font-headline text-xl font-bold text-primary">Join Dojo with School Join Code</h3>
+                </div>
               </div>
               <button
                 type="button"
@@ -904,7 +912,7 @@ export default function HomePage() {
                   aria-describedby={fieldErrors['inputCode'] ? 'err-join-code desc-join-code' : 'desc-join-code'}
                   placeholder="e.g. KAIZEN-BJJ-2026"
                   value={inputCode}
-                  onChange={(e) => handleInputChange('inputCode', e.target.value.toUpperCase(), setInputCode)}
+                  onChange={(e) => handleCodeInputChange('inputCode', e, setInputCode)}
                   onBlur={() => handleBlur('inputCode', inputCode)}
                   className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-label text-sm uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${fieldErrors['inputCode'] ? 'border-error' : 'border-outline-variant'}`}
                 />
@@ -1252,7 +1260,7 @@ export default function HomePage() {
       {/* MODAL 5: LOGIN */}
       <LoginModal
         isOpen={isLoginModalOpen}
-        onClose={() => setLoginModalOpen(false)}
+        onClose={handleCloseLogin}
         onSwitchToRegister={() => setRegisterModalOpen(true)}
         onSwitchToJoin={() => setJoinModalOpen(true)}
       />

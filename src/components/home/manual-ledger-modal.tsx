@@ -154,11 +154,21 @@ export function ManualLedgerModal({
         className="w-full max-w-md p-4 sm:p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2 max-h-[90vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-4">
-          <div>
-            <span className="font-label text-xs font-bold text-tertiary uppercase">Bookkeeping</span>
-            <h3 id="title-manual-ledger-modal" className="font-headline text-xl font-bold text-primary">
-              Manual Payment Entry
-            </h3>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-[10px] bg-primary text-primary-foreground flex-shrink-0 flex items-center justify-center shadow-soft" aria-hidden="true">
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="2" y="6" width="20" height="12" rx="4" />
+                <line x1="8" y1="6" x2="8" y2="18" />
+                <line x1="12" y1="6" x2="12" y2="18" strokeDasharray="2 2" />
+                <path d="M16 10l2 2-2 2" />
+              </svg>
+            </div>
+            <div>
+              <span className="font-label text-xs font-bold text-tertiary uppercase">Bookkeeping</span>
+              <h3 id="title-manual-ledger-modal" className="font-headline text-xl font-bold text-primary">
+                Manual Payment Entry
+              </h3>
+            </div>
           </div>
           <button
             type="button"

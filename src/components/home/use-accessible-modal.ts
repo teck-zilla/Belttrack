@@ -8,6 +8,11 @@ export function useAccessibleModal(
   triggerSelector?: string
 ) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  const triggerSelectorRef = useRef(triggerSelector);
+  triggerSelectorRef.current = triggerSelector;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -23,20 +28,32 @@ export function useAccessibleModal(
       return Array.from(nodes).filter((el) => el.offsetParent !== null || el.getAttribute('aria-hidden') !== 'true');
     };
 
-    // Auto-focus first focusable element inside the modal
+    // Auto-focus first visible form control, or fallback to first focusable element
     const timer = setTimeout(() => {
-      const focusables = getFocusables();
-      if (focusables.length > 0) {
-        focusables[0].focus();
+      if (!modalNode) return;
+      const formControls = modalNode.querySelectorAll<HTMLElement>(
+        'input:not([disabled]), select:not([disabled]), textarea:not([disabled])'
+      );
+      const visibleFormControl = Array.from(formControls).find(
+        (el) => el.offsetParent !== null && el.getAttribute('aria-hidden') !== 'true'
+      );
+
+      if (visibleFormControl) {
+        visibleFormControl.focus();
       } else {
-        modalNode?.focus();
+        const focusables = getFocusables();
+        if (focusables.length > 0) {
+          focusables[0].focus();
+        } else {
+          modalNode.focus();
+        }
       }
     }, 50);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -63,14 +80,15 @@ export function useAccessibleModal(
       clearTimeout(timer);
       window.removeEventListener('keydown', handleKeyDown);
 
-      if (triggerSelector) {
-        const trigger = document.querySelector<HTMLElement>(triggerSelector);
+      const selector = triggerSelectorRef.current;
+      if (selector) {
+        const trigger = document.querySelector<HTMLElement>(selector);
         trigger?.focus();
       } else if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
         previousActiveElement.focus();
       }
     };
-  }, [isOpen, onClose, triggerSelector]);
+  }, [isOpen]);
 
   return modalRef;
 }
