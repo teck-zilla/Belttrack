@@ -484,6 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+
   // Register Modal
   if (btnOpenRegister) btnOpenRegister.addEventListener('click', () => openModal(modalRegister));
   if (btnCloseRegister) btnCloseRegister.addEventListener('click', () => closeModal(modalRegister));
@@ -503,37 +504,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnCloseLogin) btnCloseLogin.addEventListener('click', () => closeModal(modalLogin));
   if (btnCancelLogin) btnCancelLogin.addEventListener('click', () => closeModal(modalLogin));
 
-  if (inputLoginEmail) {
-    inputLoginEmail.addEventListener('blur', () => {
-      if (!inputLoginEmail.value.trim() && errorLoginEmail) {
-        errorLoginEmail.textContent = 'empty field error';
-        errorLoginEmail.classList.add('visible');
-        inputLoginEmail.classList.add('input-error');
-      }
-    });
-    inputLoginEmail.addEventListener('input', () => {
-      if (errorLoginEmail) {
-        errorLoginEmail.classList.remove('visible');
-        inputLoginEmail.classList.remove('input-error');
-      }
-    });
-  }
-
-  if (inputLoginPassword) {
-    inputLoginPassword.addEventListener('blur', () => {
-      if (!inputLoginPassword.value.trim() && errorLoginPassword) {
-        errorLoginPassword.textContent = 'empty field error';
-        errorLoginPassword.classList.add('visible');
-        inputLoginPassword.classList.add('input-error');
-      }
-    });
-    inputLoginPassword.addEventListener('input', () => {
-      if (errorLoginPassword) {
-        errorLoginPassword.classList.remove('visible');
-        inputLoginPassword.classList.remove('input-error');
-      }
-    });
-  }
 
   if (formLogin) {
     formLogin.addEventListener('submit', async (e) => {
@@ -543,19 +513,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const email = inputLoginEmail.value.trim();
       const password = inputLoginPassword.value;
 
-      if (!email) {
-        if (errorLoginEmail) {
-          errorLoginEmail.textContent = 'empty field error';
-          errorLoginEmail.classList.add('visible');
+      if (!email || !password) {
+        if (feedbackLogin) {
+          feedbackLogin.textContent = "Complete the form and accept the terms before you can sign up";
+          feedbackLogin.classList.add("active");
         }
-        return;
-      }
-
-      if (!password) {
-        if (errorLoginPassword) {
-          errorLoginPassword.textContent = 'empty field error';
-          errorLoginPassword.classList.add('visible');
-        }
+        if (!email && inputLoginEmail) inputLoginEmail.focus();
+        else if (!password && inputLoginPassword) inputLoginPassword.focus();
         return;
       }
 
@@ -792,60 +756,25 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       field.addEventListener('input', () => {
-        if (isPasswordField) {
-          if (field.value.trim() && !isValidPassword(field.value)) {
-            field.classList.add('input-error');
-            if (errorEl) {
-              errorEl.textContent = 'wrong details';
-              errorEl.classList.add('active');
-            }
-          } else {
-            field.classList.remove('input-error');
-            if (errorEl) errorEl.classList.remove('active');
-          }
-          return;
-        }
-        if (isCodeField) {
-          if (field.value.trim() && !isValidSchoolJoinCode(field.value)) {
-            field.classList.add('input-error');
-            if (errorEl) {
-              errorEl.textContent = 'wrong details';
-              errorEl.classList.add('active');
-            }
-          } else {
-            field.classList.remove('input-error');
-            if (errorEl) errorEl.classList.remove('active');
-          }
-          return;
-        }
-        if (isEmailField) {
-          if (field.id === 'input-join-guardian-email' && (!checkboxIsMinor || !checkboxIsMinor.checked) && !field.value.trim()) {
-            field.classList.remove('input-error');
-            if (errorEl) errorEl.classList.remove('active');
-            return;
-          }
-
-          // Real-time email validation: persists until user enters a valid email address
-          if (!isValidEmail(field.value)) {
-            field.classList.add('input-error');
-            if (errorEl) {
-              errorEl.textContent = 'enter a valid email address';
-              errorEl.classList.add('active');
-            }
-          } else {
-            field.classList.remove('input-error');
-            if (errorEl) errorEl.classList.remove('active');
-          }
-          return;
-        }
-
         if (errorEl && errorEl.classList.contains('active')) {
-          const err = validateField(field.id, field.value);
-          if (!err) {
+          let isFixed = false;
+          if (isPasswordField) {
+            isFixed = isValidPassword(field.value);
+          } else if (isCodeField) {
+            isFixed = isValidSchoolJoinCode(field.value);
+          } else if (isEmailField) {
+            if (field.id === 'input-join-guardian-email' && (!checkboxIsMinor || !checkboxIsMinor.checked) && !field.value.trim()) {
+              isFixed = true;
+            } else {
+              isFixed = isValidEmail(field.value);
+            }
+          } else {
+            isFixed = !validateField(field.id, field.value);
+          }
+
+          if (isFixed) {
             field.classList.remove('input-error');
             errorEl.classList.remove('active');
-          } else {
-            errorEl.textContent = err;
           }
         }
       });

@@ -1055,6 +1055,12 @@ textarea {
   justify-content: space-between;
 }
 
+.modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .modal-tag {
   font-family: var(--font-family-label);
   font-size: 11px;

@@ -23,15 +23,7 @@ export function TopNav({
     <header className="sticky top-0 z-50 bg-surface-container-lowest border-b border-outline-variant shadow-soft-2">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 no-underline cursor-pointer group transition-all duration-[600ms] min-w-0">
-          <div className="w-10 h-10 rounded-[10px] bg-primary text-primary-foreground flex-shrink-0 flex items-center justify-center shadow-soft group-hover:shadow-soft transition-all duration-[600ms]">
-            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="6" width="20" height="12" rx="4" />
-              <line x1="8" y1="6" x2="8" y2="18" />
-              <line x1="12" y1="6" x2="12" y2="18" strokeDasharray="2 2" />
-              <path d="M16 10l2 2-2 2" />
-            </svg>
-          </div>
+        <Link href="/" className="flex items-center no-underline cursor-pointer group transition-all duration-[600ms] min-w-0">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="font-display text-xl sm:text-2xl font-extrabold uppercase tracking-tight text-primary">
