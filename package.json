@@ -11,7 +11,8 @@
     "build:tokens": "node build-tokens.js",
     "audit": "node audit.js",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",

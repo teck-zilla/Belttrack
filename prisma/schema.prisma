@@ -53,11 +53,17 @@ model School {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
-  users        User[]
-  rankTracks   RankTrack[]
-  classes      ClassSchedule[]
-  ledger       LedgerEntry[]
-  alerts       InactivityAlert[]
+  users             User[]
+  studentProfiles   StudentProfile[]
+  guardianLinks     GuardianStudent[]
+  rankTracks        RankTrack[]
+  ranks             Rank[]
+  techniques        Technique[]
+  techniqueProgress TechniqueProgress[]
+  classes           ClassSchedule[]
+  attendances       Attendance[]
+  ledger            LedgerEntry[]
+  alerts            InactivityAlert[]
 
   @@index([joinCode])
   @@index([slug, city])
@@ -85,6 +91,7 @@ model User {
 
 model StudentProfile {
   id                 String              @id @default(uuid())
+  schoolId           String              @map("school_id")
   userId             String              @unique
   firstName          String
   lastName           String
@@ -95,23 +102,29 @@ model StudentProfile {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
+  school             School              @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   currentRank        Rank?               @relation(fields: [currentRankId], references: [id])
   attendances        Attendance[]
   techniqueProgress  TechniqueProgress[]
+
+  @@index([schoolId])
 }
 
 model GuardianStudent {
   id          String   @id @default(uuid())
+  schoolId    String   @map("school_id")
   guardianId  String
   studentId   String
   isApproved  Boolean  @default(false)
   createdAt   DateTime @default(now())
 
+  school      School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   guardian    User     @relation("GuardianRelation", fields: [guardianId], references: [id], onDelete: Cascade)
   student     User     @relation("StudentRelation", fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([guardianId, studentId])
+  @@index([schoolId])
 }
 
 model RankTrack {
@@ -126,6 +139,7 @@ model RankTrack {
 
 model Rank {
   id                 String           @id @default(uuid())
+  schoolId           String           @map("school_id")
   rankTrackId        String
   orderIndex         Int
   title              String
@@ -133,35 +147,44 @@ model Rank {
   requiredClasses    Int
   requiredActiveDays Int
   
+  school             School           @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   rankTrack          RankTrack        @relation(fields: [rankTrackId], references: [id], onDelete: Cascade)
   techniques         Technique[]
   profilesAtRank     StudentProfile[]
 
   @@unique([rankTrackId, orderIndex])
+  @@index([schoolId])
 }
 
 model Technique {
   id          String              @id @default(uuid())
+  schoolId    String              @map("school_id")
   rankId      String
   name        String
   description String?
 
+  school      School              @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   rank        Rank                @relation(fields: [rankId], references: [id], onDelete: Cascade)
   progress    TechniqueProgress[]
+
+  @@index([schoolId])
 }
 
 model TechniqueProgress {
   id          String          @id @default(uuid())
+  schoolId    String          @map("school_id")
   profileId   String
   techniqueId String
   status      TechniqueStatus @default(NOT_STARTED)
   verifiedAt  DateTime?
   verifiedBy  String?
 
+  school      School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   profile     StudentProfile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
   technique   Technique       @relation(fields: [techniqueId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, techniqueId])
+  @@index([schoolId])
 }
 
 model ClassSchedule {
@@ -180,14 +203,17 @@ model ClassSchedule {
 
 model Attendance {
   id             String         @id @default(uuid())
+  schoolId       String         @map("school_id")
   idempotencyKey String         @unique
   profileId      String
   classId        String?
   attendedAt     DateTime       @default(now())
 
+  school         School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   profile        StudentProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   classSchedule  ClassSchedule? @relation(fields: [classId], references: [id], onDelete: SetNull)
 
+  @@index([schoolId])
   @@index([profileId, attendedAt])
 }
 

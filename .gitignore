@@ -6,6 +6,20 @@ next-env.d.ts
 Thumbs.db
 *.log
 .env
+.env*.local
+.env.development
+.env.test
+.env.production
+
+# Database dumps & local storage
+*.dump
+*.bak
+*.tar
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.db
+
 .idea/
 .vscode/
 tsconfig.tsbuildinfo
