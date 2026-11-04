@@ -93,6 +93,7 @@ export async function POST(request: Request) {
       // 2. Create StudentProfile
       const profile = await tx.studentProfile.create({
         data: {
+          schoolId: school.id,
           userId: studentUser.id,
           firstName,
           lastName,
@@ -135,6 +136,7 @@ export async function POST(request: Request) {
         if (!existingLink) {
           await tx.guardianStudent.create({
             data: {
+              schoolId: school.id,
               guardianId: guardianUser.id,
               studentId: studentUser.id,
               isApproved: false

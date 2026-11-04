@@ -64,15 +64,23 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOi..."
 SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOi..."
 ```
 
-### 5. Generate Prisma Client & Sync Schema
+### 5. Initialize Database & Apply Row-Level Security (RLS)
 Generate the Prisma Client TypeScript typings:
 ```bash
 npm run db:generate
 ```
 
-To push the multi-tenant PostgreSQL schema (12 tenant-isolated tables and 5 domain enums) to your database:
+Deploy the version-controlled multi-tenant schema migrations (12 tenant-isolated tables with `school_id` foreign keys and 5 domain enums):
 ```bash
-npm run db:push
+npm run db:migrate
+```
+*(Or for rapid prototyping: `npm run db:push`)*
+
+Apply the PostgreSQL Row-Level Security policies to enforce tenant isolation and ledger privacy:
+```bash
+# Execute prisma/rls_policies.sql against your PostgreSQL / Supabase database
+# via the Supabase Dashboard SQL Editor or psql:
+psql "$DIRECT_URL" -f prisma/rls_policies.sql
 ```
 
 ### 6. Verify Design Token Compliance
