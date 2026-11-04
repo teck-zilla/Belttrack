@@ -353,9 +353,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function checkRegisterFormValidity() {
     if (!btnSubmitRegister || !formRegister) return;
-    const inputName = document.getElementById('input-reg-name');
+    const inputName = document.getElementById('input-reg-school-name') || document.getElementById('input-reg-name');
     const selectDiscipline = document.getElementById('select-reg-discipline');
     const inputCode = document.getElementById('input-reg-code');
+    const inputCity = document.getElementById('input-reg-city');
     const inputCountry = document.getElementById('input-reg-country');
     const selectTimezone = document.getElementById('select-reg-timezone');
     const inputOwner = document.getElementById('input-reg-owner');
@@ -365,6 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isNameValid = Boolean(inputName && inputName.value.trim().length > 3 && !validateField(inputName.id, inputName.value));
     const isDisciplineValid = Boolean(selectDiscipline && selectDiscipline.value);
     const isCodeValid = Boolean(inputCode && isValidSchoolJoinCode(inputCode.value));
+    const isCityValid = !inputCity || Boolean(inputCity.value.trim().length >= 2);
     const isCountryValid = Boolean(inputCountry && inputCountry.value.trim().length >= 2);
     const isTimezoneValid = Boolean(selectTimezone && selectTimezone.value);
     const isOwnerValid = Boolean(inputOwner && inputOwner.value.trim().length >= 3 && inputOwner.value.trim().split(/\s+/).filter(Boolean).length >= 2);
@@ -372,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const hasAnyError = formRegister.querySelectorAll('.input-error').length > 0;
 
-    const isValid = isTerms && isNameValid && isDisciplineValid && isCodeValid && isCountryValid && isTimezoneValid && isOwnerValid && isEmailValid && !hasAnyError;
+    const isValid = isTerms && isNameValid && isDisciplineValid && isCodeValid && isCityValid && isCountryValid && isTimezoneValid && isOwnerValid && isEmailValid && !hasAnyError;
     btnSubmitRegister.disabled = !isValid;
   }
 
@@ -619,8 +621,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Country field: length should not fall below 2 characters
-    if (fieldId === 'input-reg-country') {
+    // City & Country fields: length should not fall below 2 characters
+    if (['input-reg-city', 'input-reg-country'].includes(fieldId)) {
       if (trimmed.length < 2) {
         return 'structure error';
       }
@@ -829,12 +831,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const schoolNameInput = document.getElementById('input-reg-school-name');
       const codeInput = document.getElementById('input-reg-code');
+      const cityInput = document.getElementById('input-reg-city');
 
       const newName = schoolNameInput.value.trim() || 'Vance BJJ';
       const newCode = codeInput.value.trim().toUpperCase() || 'VANCE-BJJ-2026';
+      const newCity = cityInput ? cityInput.value.trim() || 'London' : 'London';
 
       state.school.name = newName;
       state.school.code = newCode;
+      state.school.city = newCity;
 
       if (displayTenantName) displayTenantName.textContent = newName;
       if (displayTenantCode) displayTenantCode.textContent = newCode;

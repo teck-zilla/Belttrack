@@ -11,8 +11,8 @@
   <meta name="keywords" content="martial arts management, dojo software, bjj belt tracker, roll call attendance, private dojo tenant">
 
   <!-- Favicon: Square "BT" emblem in App Primary Navy & Tertiary Blue -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="alternate icon" href="/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="alternate icon" href="./favicon.ico">
 
   <!-- Open Graph & Rich Social Link Previews -->
   <meta property="og:type" content="website">
@@ -477,14 +477,22 @@
 
           <div class="form-row">
             <div class="form-group half">
+              <label for="input-reg-city" class="form-label">City</label>
+              <input type="text" id="input-reg-city" class="form-input" placeholder="e.g. London"
+                value="London" required>
+              <span class="form-field-error" id="error-reg-city">empty field error</span>
+            </div>
+
+            <div class="form-group half">
               <label for="input-reg-country" class="form-label">Country</label>
               <input type="text" id="input-reg-country" class="form-input" placeholder="e.g. United Kingdom"
                 value="United Kingdom" required>
               <span class="form-field-error" id="error-reg-country">empty field error</span>
             </div>
+          </div>
 
-            <div class="form-group half">
-              <label for="select-reg-timezone" class="form-label">Operating Timezone</label>
+          <div class="form-group">
+            <label for="select-reg-timezone" class="form-label">Operating Timezone</label>
               <select id="select-reg-timezone" class="form-select">
                 <option value="UTC" selected>UTC (Coordinated Universal Time)</option>
                 <optgroup label="North America">
@@ -749,6 +757,52 @@
         <div class="modal-btn-row">
           <button type="button" class="btn-modal-full" id="btn-acknowledge-terms">I Understand &amp; Close</button>
         </div>
+      </div>
+    </div>
+
+    <!-- MODAL 5: SIGN IN (AUTHENTICATION) -->
+    <div class="modal-backdrop" id="modal-login" role="dialog" aria-modal="true"
+      aria-labelledby="title-login-modal">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div class="modal-title-group">
+            <div class="brand-symbol" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="6" width="20" height="12" rx="4" />
+                <line x1="8" y1="6" x2="8" y2="18" />
+                <line x1="12" y1="6" x2="12" y2="18" stroke-dasharray="2 2" />
+                <path d="M16 10l2 2-2 2" />
+              </svg>
+            </div>
+            <div>
+              <span class="modal-tag">Authentication</span>
+              <h3 class="modal-title" id="title-login-modal">Sign In to BeltTrack</h3>
+            </div>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-login" aria-label="Close modal">✕</button>
+        </div>
+
+        <form id="form-login" class="modal-form">
+          <div class="form-group">
+            <label for="input-login-email" class="form-label">Email Address</label>
+            <input type="email" id="input-login-email" class="form-input" placeholder="coach@dojo.org" required>
+            <span class="form-field-error" id="error-login-email">empty field error</span>
+          </div>
+
+          <div class="form-group">
+            <label for="input-login-password" class="form-label">Password</label>
+            <input type="password" id="input-login-password" class="form-input" placeholder="••••••••" required>
+            <span class="form-field-error" id="error-login-password">empty field error</span>
+          </div>
+
+          <div class="form-feedback" id="feedback-login"></div>
+
+          <div class="modal-btn-row">
+            <button type="button" class="btn-modal-cancel" id="btn-cancel-login">Cancel</button>
+            <button type="submit" class="btn-modal-submit" id="btn-submit-login">Sign In</button>
+          </div>
+        </form>
       </div>
     </div>
 
