@@ -6,6 +6,7 @@ import { HeroSection } from '@/components/home/hero-section';
 import { RoleEntryCards } from '@/components/home/role-entry-cards';
 import { PreviewDashboard } from '@/components/home/preview-dashboard';
 import { LoginModal } from '@/components/home/login-modal';
+import { StudentJoinModal } from '@/components/home/student-join-modal';
 import { useAccessibleModal } from '@/components/home/use-accessible-modal';
 import { useTenant } from '@/context/tenant-context';
 import { schoolRegistrationSchema, studentJoinCodeSchema } from '@/lib/validation/schemas';
@@ -63,7 +64,6 @@ export default function HomePage() {
   const handleCloseLogin = useCallback(() => setLoginModalOpen(false), []);
 
   const registerModalRef = useAccessibleModal(isRegisterModalOpen, handleCloseRegister, '#btn-open-register');
-  const joinModalRef = useAccessibleModal(isJoinModalOpen, handleCloseJoin, '#btn-open-join');
   const directoryModalRef = useAccessibleModal(isDirectoryModalOpen, handleCloseDirectory, '#btn-open-directory');
   const termsModalRef = useAccessibleModal(isTermsModalOpen, handleCloseTerms, '#btn-open-terms');
 
@@ -899,311 +899,24 @@ export default function HomePage() {
       )}
 
       {/* MODAL 2: JOIN WITH REGISTRATION CODE */}
-      {isJoinModalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="title-join-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm"
-        >
-          <div ref={joinModalRef} className="w-full max-w-md p-4 sm:p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[10px] bg-primary text-primary-foreground flex-shrink-0 flex items-center justify-center shadow-soft" aria-hidden="true">
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <rect x="2" y="6" width="20" height="12" rx="4" />
-                    <line x1="8" y1="6" x2="8" y2="18" />
-                    <line x1="12" y1="6" x2="12" y2="18" strokeDasharray="2 2" />
-                    <path d="M16 10l2 2-2 2" />
-                  </svg>
-                </div>
-                <div>
-                  <span className="font-label text-xs font-bold text-tertiary uppercase">Member Onboarding</span>
-                  <h3 id="title-join-modal" className="font-headline text-xl font-bold text-primary">Join Dojo with School Join Code</h3>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => { setJoinModalOpen(false); setShowJoinPassword(false); setJoinTermsAccepted(false); }}
-                className="text-surface-on-variant hover:text-surface-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary rounded p-1"
-                aria-label="Close modal"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleJoinSchool} className="space-y-4">
-              <div>
-                <label htmlFor="join-code" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
-                  School Join Code <span aria-hidden="true" className="text-error ml-0.5">*</span>
-                  <span className="sr-only"> (required)</span>
-                </label>
-                <input
-                  type="text"
-                  id="join-code"
-                  name="inputCode"
-                  required
-                  aria-required="true"
-                  aria-invalid={Boolean(fieldErrors['inputCode'])}
-                  aria-describedby={fieldErrors['inputCode'] ? 'err-join-code desc-join-code' : 'desc-join-code'}
-                  placeholder="e.g. KAIZEN-BJJ-2026"
-                  value={inputCode}
-                  onChange={(e) => handleCodeInputChange('inputCode', e, setInputCode)}
-                  onBlur={() => handleBlur('inputCode', inputCode)}
-                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-label text-sm uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${fieldErrors['inputCode'] ? 'border-error' : 'border-outline-variant'}`}
-                />
-                <InlineFieldError id="err-join-code" message={fieldErrors['inputCode']} />
-                <span id="desc-join-code" className="font-body text-xs text-surface-on-variant mt-1 block">
-                  Ask your head coach or academy front desk for this code.
-                </span>
-              </div>
-
-              <div>
-                <label htmlFor="join-student-name" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
-                  Student Full Name <span aria-hidden="true" className="text-error ml-0.5">*</span>
-                  <span className="sr-only"> (required)</span>
-                </label>
-                <input
-                  type="text"
-                  id="join-student-name"
-                  name="studentName"
-                  required
-                  aria-required="true"
-                  aria-invalid={Boolean(fieldErrors['studentName'])}
-                  aria-describedby={fieldErrors['studentName'] ? 'err-join-student-name' : undefined}
-                  placeholder="e.g. Lucas Silva"
-                  value={studentName}
-                  onChange={(e) => handleInputChange('studentName', e.target.value, setStudentName)}
-                  onBlur={() => handleBlur('studentName', studentName)}
-                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${fieldErrors['studentName'] ? 'border-error' : 'border-outline-variant'}`}
-                />
-                <InlineFieldError id="err-join-student-name" message={fieldErrors['studentName']} />
-              </div>
-
-              <div>
-                <label htmlFor="join-student-email" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
-                  Email Address <span aria-hidden="true" className="text-error ml-0.5">*</span>
-                  <span className="sr-only"> (required)</span>
-                </label>
-                <input
-                  type="email"
-                  id="join-student-email"
-                  name="studentEmail"
-                  required
-                  aria-required="true"
-                  aria-invalid={Boolean(fieldErrors['studentEmail'])}
-                  aria-describedby={fieldErrors['studentEmail'] ? 'err-join-student-email' : undefined}
-                  placeholder="e.g. lucas@example.com"
-                  value={studentEmail}
-                  onChange={(e) => handleInputChange('studentEmail', e.target.value, setStudentEmail)}
-                  onBlur={() => handleBlur('studentEmail', studentEmail)}
-                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${fieldErrors['studentEmail'] ? 'border-error' : 'border-outline-variant'}`}
-                />
-                <InlineFieldError id="err-join-student-email" message={fieldErrors['studentEmail']} />
-              </div>
-
-              <div>
-                <label htmlFor="join-password" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
-                  Password <span aria-hidden="true" className="text-error ml-0.5">*</span>
-                  <span className="sr-only"> (required)</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showJoinPassword ? 'text' : 'password'}
-                    id="join-password"
-                    name="studentPassword"
-                    required
-                    aria-required="true"
-                    aria-invalid={Boolean(fieldErrors['studentPassword'])}
-                    aria-describedby={
-                      [
-                        fieldErrors['studentPassword'] ? 'err-join-password' : null,
-                        studentPassword.length > 0 ? 'desc-join-password' : null
-                      ].filter(Boolean).join(' ') || undefined
-                    }
-                    placeholder="e.g. Pass123!"
-                    value={studentPassword}
-                    onChange={(e) => handleInputChange('studentPassword', e.target.value, setStudentPassword)}
-                    onBlur={() => handleBlur('studentPassword', studentPassword)}
-                    className={`w-full pl-3 pr-10 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${fieldErrors['studentPassword'] ? 'border-error' : 'border-outline-variant'}`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowJoinPassword((prev) => !prev)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-surface-on-variant hover:text-surface-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary rounded p-1 transition-colors"
-                    aria-label={showJoinPassword ? 'Hide password' : 'Show password'}
-                    title={showJoinPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showJoinPassword ? (
-                      <svg
-                        className="w-4 h-4 flex-shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-                        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-                        <line x1="2" y1="2" x2="22" y2="22" />
-                      </svg>
-                    ) : (
-                      <svg
-                        className="w-4 h-4 flex-shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-                <InlineFieldError id="err-join-password" message={fieldErrors['studentPassword']} />
-                {studentPassword.length > 0 && (
-                  <span id="desc-join-password" className="font-body text-xs text-surface-on-variant mt-1 block">
-                    6-11 characters, combination of letters, numbers, and at least 1 special character.
-                  </span>
-                )}
-              </div>
-
-              {/* MINOR STUDENT TOGGLE */}
-              <div className="pt-1">
-                <div className="flex items-center gap-2 select-none">
-                  <input
-                    type="checkbox"
-                    id="checkbox-is-minor"
-                    name="isMinor"
-                    checked={isMinor}
-                    onChange={(e) => {
-                      setIsMinor(e.target.checked);
-                      if (!e.target.checked) {
-                        setFieldErrors((prev) => {
-                          const next = { ...prev };
-                          delete next['guardianName'];
-                          delete next['guardianEmail'];
-                          return next;
-                        });
-                      }
-                    }}
-                    className="h-4 w-4 rounded border-outline-variant bg-surface-container-low text-primary accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary"
-                  />
-                  <label htmlFor="checkbox-is-minor" className="font-title text-xs font-semibold text-surface-foreground cursor-pointer">
-                    Student is under 18 years old (Minor enrollment)
-                  </label>
-                </div>
-              </div>
-
-              {/* GUARDIAN FIELDS (CONDITIONALLY SHOWN FOR MINORS) */}
-              {isMinor && (
-                <div className="space-y-3 p-3 rounded-[10px] bg-surface-container-low border border-outline-variant">
-                  <div>
-                    <span className="font-label text-xs font-bold text-tertiary uppercase block">
-                      Parent / Guardian Information
-                    </span>
-                    <span className="font-body text-xs text-surface-on-variant block">
-                      Required for linking guardian read-only progress views.
-                    </span>
-                  </div>
-
-                  <div>
-                    <label htmlFor="join-guardian-name" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
-                      Guardian Full Name <span aria-hidden="true" className="text-error ml-0.5">*</span>
-                      <span className="sr-only"> (required)</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="join-guardian-name"
-                      name="guardianName"
-                      required={isMinor}
-                      aria-required={isMinor ? 'true' : undefined}
-                      aria-invalid={Boolean(fieldErrors['guardianName'])}
-                      aria-describedby={fieldErrors['guardianName'] ? 'err-join-guardian-name' : undefined}
-                      placeholder="e.g. Roberto Silva"
-                      value={guardianName}
-                      onChange={(e) => handleInputChange('guardianName', e.target.value, setGuardianName)}
-                      onBlur={() => handleBlur('guardianName', guardianName)}
-                      className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest ${fieldErrors['guardianName'] ? 'border-error' : 'border-outline-variant'}`}
-                    />
-                    <InlineFieldError id="err-join-guardian-name" message={fieldErrors['guardianName']} />
-                  </div>
-
-                  <div>
-                    <label htmlFor="join-guardian-email" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
-                      Guardian Email Address
-                    </label>
-                    <input
-                      type="email"
-                      id="join-guardian-email"
-                      name="guardianEmail"
-                      aria-invalid={Boolean(fieldErrors['guardianEmail'])}
-                      aria-describedby={fieldErrors['guardianEmail'] ? 'err-join-guardian-email' : undefined}
-                      placeholder="e.g. roberto@example.com"
-                      value={guardianEmail}
-                      onChange={(e) => handleInputChange('guardianEmail', e.target.value, setGuardianEmail)}
-                      onBlur={() => handleBlur('guardianEmail', guardianEmail)}
-                      className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest ${fieldErrors['guardianEmail'] ? 'border-error' : 'border-outline-variant'}`}
-                    />
-                    <InlineFieldError id="err-join-guardian-email" message={fieldErrors['guardianEmail']} />
-                  </div>
-                </div>
-              )}
-
-              <div className="flex items-start gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="join-terms-check"
-                  name="terms"
-                  checked={joinTermsAccepted}
-                  onChange={(e) => setJoinTermsAccepted(e.target.checked)}
-                  required
-                  aria-required="true"
-                  className="mt-1 rounded border-outline-variant text-primary focus:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary cursor-pointer"
-                />
-                <label htmlFor="join-terms-check" className="font-body text-xs text-surface-on-variant cursor-pointer">
-                  I agree to the{' '}
-                  <button
-                    type="button"
-                    onClick={() => setTermsModalOpen(true)}
-                    className="text-tertiary underline underline-offset-2 hover:text-primary transition-colors cursor-pointer"
-                  >
-                    Terms &amp; Conditions
-                  </button>{' '}
-                  and acknowledge that physical martial arts carries inherent risks and membership requires coach sign-off.
-                </label>
-              </div>
-
-              {formFeedback && (
-                <div
-                  role="status"
-                  aria-live="polite"
-                  className="p-2 rounded-[10px] bg-tertiary-container text-tertiary-on-container font-body text-xs font-medium"
-                >
-                  {formFeedback}
-                </div>
-              )}
-
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !isJoinFormValid}
-                  className="w-full py-2 px-4 rounded-[10px] bg-primary text-primary-foreground font-label text-xs font-medium hover:bg-tertiary hover:shadow-soft transition-all duration-[600ms] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
-                >
-                  {isSubmitting ? 'Verifying...' : 'Verify & Join'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <StudentJoinModal
+        isOpen={isJoinModalOpen}
+        onClose={handleCloseJoin}
+        onSwitchToLogin={() => {
+          setJoinModalOpen(false);
+          setLoginModalOpen(true);
+        }}
+        onOpenTerms={() => setTermsModalOpen(true)}
+        onSuccess={(data) => {
+          registerPendingStudent({
+            studentFullName: data.studentName,
+            studentEmail: data.email,
+            isMinor: Boolean(data.isMinor),
+            guardianFullName: data.guardianName,
+            guardianEmail: data.guardianEmail
+          });
+        }}
+      />
 
       {/* MODAL 3: PUBLIC SCHOOL DIRECTORY (CROSS-TENANT ISOLATION DEMO) */}
       {isDirectoryModalOpen && (
