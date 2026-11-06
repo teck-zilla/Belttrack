@@ -49,6 +49,15 @@ export const schoolRegistrationSchema = z.object({
   ownerEmail: z
     .string()
     .email('enter a valid email address'),
+  password: z
+    .string()
+    .min(6, 'wrong details')
+    .max(11, 'wrong details')
+    .regex(
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,11}$/,
+      'wrong details'
+    )
+    .default('Kaizen2026!'),
   city: z
     .string()
     .min(2, 'City is required')

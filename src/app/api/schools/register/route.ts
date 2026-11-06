@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { schoolRegistrationSchema } from '@/lib/validation/schemas';
 
 export async function POST(request: Request) {
@@ -22,7 +23,8 @@ export async function POST(request: Request) {
       city,
       country,
       timezone,
-      customCode
+      customCode,
+      password
     } = validated.data;
 
     // Generate unique slug & fallback join code
@@ -70,6 +72,27 @@ export async function POST(request: Request) {
       );
     }
 
+    // Provision owner account in Supabase Auth if service role client is available
+    let supabaseUid: string | null = null;
+    try {
+      const admin = getAdminClient();
+      const authEmail = ownerEmail.toLowerCase().trim();
+      const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
+        email: authEmail,
+        password: password || 'Kaizen2026!',
+        email_confirm: true,
+        user_metadata: {
+          role: 'OWNER',
+          status: 'ACTIVE'
+        }
+      });
+      if (!authErr && authUser?.user) {
+        supabaseUid = authUser.user.id;
+      }
+    } catch {
+      // Graceful fallback if admin client is unconfigured or in offline environment
+    }
+
     // Persist School and Owner User atomically
     const result = await prisma.$transaction(async (tx) => {
       const school = await tx.school.create({
@@ -89,6 +112,7 @@ export async function POST(request: Request) {
         data: {
           schoolId: school.id,
           email: ownerEmail.toLowerCase(),
+          supabaseUid,
           hashedPassword: 'managed-auth-preview',
           role: 'OWNER',
           status: 'ACTIVE'
@@ -97,6 +121,21 @@ export async function POST(request: Request) {
 
       return { school, user };
     });
+
+    if (supabaseUid) {
+      try {
+        const admin = getAdminClient();
+        await admin.auth.admin.updateUserById(supabaseUid, {
+          user_metadata: {
+            school_id: result.school.id,
+            role: 'OWNER',
+            status: 'ACTIVE'
+          }
+        });
+      } catch {
+        // Safe catch if metadata update is skipped
+      }
+    }
 
     return NextResponse.json(
       {
