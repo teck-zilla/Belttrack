@@ -9,6 +9,7 @@ import { LoginModal } from '@/components/home/login-modal';
 import { StudentJoinModal } from '@/components/home/student-join-modal';
 import { useAccessibleModal } from '@/components/home/use-accessible-modal';
 import { useTenant } from '@/context/tenant-context';
+import { useAuth } from '@/context/auth-context';
 import { schoolRegistrationSchema, studentJoinCodeSchema } from '@/lib/validation/schemas';
 import type { DisciplineType } from '@/types/domain';
 
@@ -51,6 +52,7 @@ function InlineFieldError({ id, message }: { id: string; message?: string }) {
 
 export default function HomePage() {
   const { activeSchool, setActiveSchool, registerPendingStudent } = useTenant();
+  const { login } = useAuth();
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [isJoinModalOpen, setJoinModalOpen] = useState(false);
   const [isDirectoryModalOpen, setDirectoryModalOpen] = useState(false);
@@ -75,18 +77,11 @@ export default function HomePage() {
   const [timezone, setTimezone] = useState('UTC');
   const [ownerName, setOwnerName] = useState('Marcus Vance');
   const [ownerEmail, setOwnerEmail] = useState('marcus@vancebjj.com');
+  const [ownerPassword, setOwnerPassword] = useState('Kaizen2026!');
+  const [showOwnerPassword, setShowOwnerPassword] = useState(false);
   const [generatedCode, setGeneratedCode] = useState('VANCE-BJJ-2026');
 
-  const [inputCode, setInputCode] = useState('');
-  const [studentName, setStudentName] = useState('');
-  const [studentEmail, setStudentEmail] = useState('');
-  const [studentPassword, setStudentPassword] = useState('');
-  const [showJoinPassword, setShowJoinPassword] = useState(false);
-  const [isMinor, setIsMinor] = useState(false);
-  const [guardianName, setGuardianName] = useState('');
-  const [guardianEmail, setGuardianEmail] = useState('');
   const [regTermsAccepted, setRegTermsAccepted] = useState(false);
-  const [joinTermsAccepted, setJoinTermsAccepted] = useState(false);
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -100,7 +95,7 @@ export default function HomePage() {
   const isValidPassword = (pw: string) =>
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,11}$/.test((pw || '').trim());
 
-  const emailFields = ['ownerEmail', 'studentEmail', 'guardianEmail'];
+  const emailFields = ['ownerEmail'];
 
   const isRegisterFormValid = Boolean(
     regTermsAccepted &&
@@ -112,32 +107,15 @@ export default function HomePage() {
     ownerName.trim().length >= 3 &&
     ownerName.trim().split(/\s+/).filter(Boolean).length >= 2 &&
     isValidEmail(ownerEmail) &&
+    isValidPassword(ownerPassword) &&
     !fieldErrors['schoolName'] &&
     !fieldErrors['discipline'] &&
     !fieldErrors['generatedCode'] &&
     !fieldErrors['country'] &&
     !fieldErrors['timezone'] &&
     !fieldErrors['ownerName'] &&
-    !fieldErrors['ownerEmail']
-  );
-
-  const isJoinFormValid = Boolean(
-    joinTermsAccepted &&
-    isValidSchoolJoinCode(inputCode) &&
-    studentName.trim().length >= 3 &&
-    studentName.trim().split(/\s+/).filter(Boolean).length >= 2 &&
-    isValidEmail(studentEmail) &&
-    isValidPassword(studentPassword) &&
-    (!isMinor || (
-      guardianName.trim().length >= 3 &&
-      guardianName.trim().split(/\s+/).filter(Boolean).length >= 2 &&
-      (!guardianEmail.trim() || isValidEmail(guardianEmail))
-    )) &&
-    !fieldErrors['inputCode'] &&
-    !fieldErrors['studentName'] &&
-    !fieldErrors['studentEmail'] &&
-    !fieldErrors['studentPassword'] &&
-    (!isMinor || (!fieldErrors['guardianName'] && !fieldErrors['guardianEmail']))
+    !fieldErrors['ownerEmail'] &&
+    !fieldErrors['ownerPassword']
   );
 
   const validateField = (fieldId: string, val: string): string | null => {
@@ -154,7 +132,7 @@ export default function HomePage() {
     }
 
     // Password field: 6-11 characters, combination of letters, numbers, and at least 1 special character
-    if (fieldId === 'studentPassword') {
+    if (['ownerPassword', 'studentPassword'].includes(fieldId)) {
       if (!isValidPassword(trimmed)) {
         return 'wrong details';
       }
@@ -193,7 +171,7 @@ export default function HomePage() {
   };
 
   const handleBlur = (fieldId: string, val: string) => {
-    if (fieldId === 'studentPassword') {
+    if (['ownerPassword', 'studentPassword'].includes(fieldId)) {
       if (!val || !val.trim()) {
         setFieldErrors((prev) => ({ ...prev, [fieldId]: 'empty field error' }));
       } else if (!isValidPassword(val)) {
@@ -222,10 +200,6 @@ export default function HomePage() {
           return next;
         });
       }
-      return;
-    }
-
-    if (fieldId === 'guardianEmail' && (!isMinor || !val.trim()) && !fieldErrors['guardianEmail']) {
       return;
     }
 
@@ -266,16 +240,12 @@ export default function HomePage() {
     // If an error is currently active for this field, clear it as soon as the input satisfies validation
     if (fieldErrors[fieldId]) {
       let isFixed = false;
-      if (fieldId === 'studentPassword') {
+      if (['ownerPassword', 'studentPassword'].includes(fieldId)) {
         isFixed = isValidPassword(val);
       } else if (['generatedCode', 'inputCode'].includes(fieldId)) {
         isFixed = isValidSchoolJoinCode(val);
       } else if (emailFields.includes(fieldId)) {
-        if (fieldId === 'guardianEmail' && !isMinor && !val.trim()) {
-          isFixed = true;
-        } else {
-          isFixed = isValidEmail(val);
-        }
+        isFixed = isValidEmail(val);
       } else {
         isFixed = !validateField(fieldId, val);
       }
@@ -354,6 +324,9 @@ export default function HomePage() {
     const eEmail = validateField('ownerEmail', ownerEmail);
     if (eEmail) errors['ownerEmail'] = eEmail;
 
+    const ePassword = validateField('ownerPassword', ownerPassword);
+    if (ePassword) errors['ownerPassword'] = ePassword;
+
     if (Object.keys(errors).length > 0) {
       setFieldErrors((prev) => ({ ...prev, ...errors }));
       const fieldIdMap: Record<string, string> = {
@@ -363,7 +336,8 @@ export default function HomePage() {
         country: 'reg-country',
         timezone: 'reg-timezone',
         ownerName: 'reg-owner-name',
-        ownerEmail: 'reg-owner-email'
+        ownerEmail: 'reg-owner-email',
+        ownerPassword: 'reg-owner-password'
       };
       const firstError = Object.keys(errors)[0];
       const targetId = fieldIdMap[firstError];
@@ -376,6 +350,7 @@ export default function HomePage() {
       discipline,
       ownerFullName: ownerName,
       ownerEmail,
+      password: ownerPassword,
       city,
       country,
       timezone,
@@ -400,6 +375,7 @@ export default function HomePage() {
           discipline,
           ownerFullName: ownerName,
           ownerEmail,
+          password: ownerPassword,
           city,
           country,
           timezone,
@@ -415,7 +391,14 @@ export default function HomePage() {
 
       // Update active tenant state with verified DB record
       setActiveSchool(data.school);
-      setFormFeedback(`Dojo tenant "${data.school.name}" successfully registered in database! Code: ${data.school.registration_code}`);
+      setFormFeedback(`Dojo tenant "${data.school.name}" successfully registered in database! Code: ${data.school.registration_code}. Authenticating session...`);
+
+      // Attempt automatic sign-in for owner
+      try {
+        await login(ownerEmail.trim(), ownerPassword.trim());
+      } catch {
+        // Fallback: user can sign in via Login modal
+      }
 
       setTimeout(() => {
         setRegisterModalOpen(false);
@@ -424,123 +407,6 @@ export default function HomePage() {
       }, 1500);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Database error registering school tenant';
-      setFormFeedback(message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Handle Student Join with Code (Persists to Database via API)
-  const handleJoinSchool = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const errors: Record<string, string> = {};
-    const eCode = validateField('inputCode', inputCode);
-    if (eCode) errors['inputCode'] = eCode;
-
-    const eStudent = validateField('studentName', studentName);
-    if (eStudent) errors['studentName'] = eStudent;
-
-    const eEmail = validateField('studentEmail', studentEmail);
-    if (eEmail) errors['studentEmail'] = eEmail;
-
-    const ePassword = validateField('studentPassword', studentPassword);
-    if (ePassword) errors['studentPassword'] = ePassword;
-
-    if (isMinor) {
-      const eGuardian = validateField('guardianName', guardianName);
-      if (eGuardian) errors['guardianName'] = eGuardian;
-
-      if (guardianEmail.trim()) {
-        const eGuardEmail = validateField('guardianEmail', guardianEmail);
-        if (eGuardEmail) errors['guardianEmail'] = eGuardEmail;
-      }
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors((prev) => ({ ...prev, ...errors }));
-      const fieldIdMap: Record<string, string> = {
-        inputCode: 'join-code',
-        studentName: 'join-student-name',
-        studentEmail: 'join-student-email',
-        studentPassword: 'join-password',
-        guardianName: 'join-guardian-name',
-        guardianEmail: 'join-guardian-email'
-      };
-      const firstError = Object.keys(errors)[0];
-      const targetId = fieldIdMap[firstError];
-      if (targetId) setTimeout(() => document.getElementById(targetId)?.focus(), 50);
-      return;
-    }
-
-    const normalizedCode = inputCode.trim().toUpperCase();
-
-    const result = studentJoinCodeSchema.safeParse({
-      registrationCode: normalizedCode,
-      studentFullName: studentName.trim(),
-      studentEmail: studentEmail.trim(),
-      password: studentPassword.trim(),
-      isMinor,
-      guardianFullName: isMinor ? guardianName.trim() : undefined,
-      guardianEmail: isMinor && guardianEmail.trim() ? guardianEmail.trim() : undefined
-    });
-
-    if (!result.success) {
-      setFormFeedback(result.error.issues[0]?.message || 'Invalid join parameters');
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      setFormFeedback('Verifying registration code in database...');
-
-      const response = await fetch('/api/students/join', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          registrationCode: normalizedCode,
-          studentFullName: studentName.trim(),
-          studentEmail: studentEmail.trim(),
-          password: studentPassword.trim(),
-          isMinor,
-          guardianFullName: isMinor ? guardianName.trim() : undefined,
-          guardianEmail: isMinor && guardianEmail.trim() ? guardianEmail.trim() : undefined
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit join request');
-      }
-
-      // Sync with tenant context
-      registerPendingStudent({
-        studentFullName: studentName.trim(),
-        studentEmail: studentEmail.trim(),
-        isMinor,
-        guardianFullName: isMinor ? guardianName.trim() : undefined,
-        guardianEmail: isMinor && guardianEmail.trim() ? guardianEmail.trim() : undefined
-      });
-
-      setFormFeedback(
-        `Registration code verified! Enrolled in "${data.schoolName}". Status: PENDING_APPROVAL. Roster and technique reads are locked until coach sign-off.`
-      );
-
-      setTimeout(() => {
-        setJoinModalOpen(false);
-        setFormFeedback(null);
-        setInputCode('');
-        setStudentName('');
-        setStudentEmail('');
-        setStudentPassword('');
-        setShowJoinPassword(false);
-        setIsMinor(false);
-        setGuardianName('');
-        setGuardianEmail('');
-        setJoinTermsAccepted(false);
-      }, 2000);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Database error processing join request';
       setFormFeedback(message);
     } finally {
       setIsSubmitting(false);
@@ -848,6 +714,50 @@ export default function HomePage() {
                   />
                   <InlineFieldError id="err-reg-owner-email" message={fieldErrors['ownerEmail']} />
                 </div>
+              </div>
+
+              <div>
+                <label htmlFor="reg-owner-password" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
+                  Owner Password <span aria-hidden="true" className="text-error ml-0.5">*</span>
+                  <span className="sr-only"> (required)</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showOwnerPassword ? 'text' : 'password'}
+                    id="reg-owner-password"
+                    name="ownerPassword"
+                    required
+                    aria-required="true"
+                    aria-invalid={Boolean(fieldErrors['ownerPassword'])}
+                    aria-describedby={`desc-reg-owner-password${fieldErrors['ownerPassword'] ? ' err-reg-owner-password' : ''}`}
+                    value={ownerPassword}
+                    onChange={(e) => handleInputChange('ownerPassword', e.target.value, setOwnerPassword)}
+                    onBlur={() => handleBlur('ownerPassword', ownerPassword)}
+                    className={`w-full px-3 py-2 pr-10 rounded-[10px] bg-surface-container-low border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${fieldErrors['ownerPassword'] ? 'border-error' : 'border-outline-variant'}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowOwnerPassword(!showOwnerPassword)}
+                    aria-label={showOwnerPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showOwnerPassword}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-surface-on-variant hover:text-surface-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary rounded"
+                  >
+                    {showOwnerPassword ? (
+                      <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                      </svg>
+                    ) : (
+                      <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                <InlineFieldError id="err-reg-owner-password" message={fieldErrors['ownerPassword']} />
+                <p id="desc-reg-owner-password" className="font-body text-[10px] text-surface-on-variant mt-1">
+                  6-11 characters, combination of letters, numbers, and at least 1 special character.
+                </p>
               </div>
 
               <div className="flex items-start gap-2 pt-1">
