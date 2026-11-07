@@ -54,8 +54,8 @@ export function TopNav({
 
         {/* Persona Switcher, Actions & Auth */}
         <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-center sm:justify-end">
-          {/* Public School Directory Trigger: hidden when owner has signed in or signed up */}
-          {!(isRealSession && (activeRole === 'owner' || activeRole === 'coach')) && (
+          {/* Public School Directory Trigger: hidden when owner or student has signed in or signed up */}
+          {!isRealSession && (
             <button
               type="button"
               onClick={onOpenDirectory}
