@@ -440,10 +440,12 @@ export default function HomePage() {
 
       <main className="flex-1">
         <HeroSection />
-        <RoleEntryCards
-          onOpenRegister={() => setRegisterModalOpen(true)}
-          onOpenJoin={() => setJoinModalOpen(true)}
-        />
+        {!isRealSession && (
+          <RoleEntryCards
+            onOpenRegister={() => setRegisterModalOpen(true)}
+            onOpenJoin={() => setJoinModalOpen(true)}
+          />
+        )}
         {isRealSession && <PreviewDashboard />}
       </main>
 
