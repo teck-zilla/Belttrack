@@ -20,6 +20,12 @@ export interface AuthUser {
   supabase_uid?: string;
 }
 
+export interface LoginCredentials {
+  email?: string;
+  schoolCode?: string;
+  password?: string;
+}
+
 export interface AuthContextType {
   user: AuthUser | null;
   currentMember: SchoolMember | null;
@@ -28,7 +34,10 @@ export interface AuthContextType {
   isLoading: boolean;
   activeRole: UserRole;
   switchRole: (newRole: UserRole) => void;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    emailOrCredentials: string | LoginCredentials,
+    maybePassword?: string
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
   setSessionUser: (authUser: AuthUser, role?: UserRole) => void;
@@ -169,13 +178,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (
+    emailOrCredentials: string | LoginCredentials,
+    maybePassword?: string
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       setIsLoading(true);
+      const payload = typeof emailOrCredentials === 'string'
+        ? { email: emailOrCredentials, password: maybePassword }
+        : emailOrCredentials;
+
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
@@ -183,6 +199,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!res.ok || data.error) {
         setIsLoading(false);
         return { success: false, error: data.error || 'Authentication failed' };
+      }
+
+      if (data.user) {
+        const authUser: AuthUser = {
+          id: data.user.id,
+          supabase_uid: data.user.supabase_uid,
+          email: data.user.email,
+          fullName: data.user.first_name && data.user.last_name
+            ? `${data.user.first_name} ${data.user.last_name}`
+            : data.user.email,
+          school_id: data.user.school_id
+        };
+
+        const role = (data.user.role as UserRole) || 'student';
+        setUser(authUser);
+        setIsRealSession(true);
+        setActiveRole(role);
+
+        if (data.user.school_id) {
+          setCurrentMember({
+            id: `mem_${data.user.id.slice(0, 8)}`,
+            school_id: data.user.school_id,
+            user_id: data.user.id,
+            supabase_uid: data.user.supabase_uid,
+            role,
+            status: data.user.status || 'active',
+            full_name: authUser.fullName,
+            email: data.user.email,
+            stripes_count: 0,
+            total_classes_attended: 0,
+            is_flagged_inactive: false,
+            enrolled_at: new Date().toISOString()
+          });
+        }
       }
 
       await refreshSession();
