@@ -1,17 +1,21 @@
 'use client';
 
 import { ManualLedgerModal } from './manual-ledger-modal';
+import { MemberApprovalModal } from './member-approval-modal';
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/auth-context';
+import { useTenant } from '@/context/tenant-context';
 
 export function PreviewDashboard() {
   const { activeRole } = useAuth();
+  const { pendingMembers } = useTenant();
   const [attendedClasses, setAttendedClasses] = useState(42);
   const totalRequired = 50;
   const isEligible = attendedClasses >= totalRequired;
   const isOwnerGroup = activeRole === 'owner' || activeRole === 'coach';
   const [isManualLedgerOpen, setIsManualLedgerOpen] = useState(false);
+  const [isApprovalsModalOpen, setIsApprovalsModalOpen] = useState(false);
   const [manualEntries, setManualEntries] = useState<Array<{
     title: string;
     amount: string;
@@ -30,8 +34,32 @@ export function PreviewDashboard() {
             Dojo Operating Dashboard
           </h2>
         </div>
-        <div className="font-label text-xs font-medium text-surface-on-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant self-start sm:self-auto">
-          Viewing as: <strong className="text-primary capitalize">{isOwnerGroup ? 'Owner / Head Coach' : 'Student / Guardian'}</strong>
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          {isOwnerGroup && (
+            <button
+              type="button"
+              id="btn-open-approvals"
+              onClick={() => setIsApprovalsModalOpen(true)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-primary text-primary-foreground font-label text-xs font-semibold hover:bg-tertiary hover:shadow-soft transition-all duration-[600ms] cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Member Approvals</span>
+              <span
+                className={`px-1.5 py-0.2 rounded-full font-bold text-[10px] ${
+                  pendingMembers.length > 0
+                    ? 'bg-warning text-surface-foreground'
+                    : 'bg-primary-container text-primary-on-container'
+                }`}
+              >
+                {pendingMembers.length} Pending
+              </span>
+            </button>
+          )}
+          <div className="font-label text-xs font-medium text-surface-on-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant">
+            Viewing as: <strong className="text-primary capitalize">{isOwnerGroup ? 'Owner / Head Coach' : 'Student / Guardian'}</strong>
+          </div>
         </div>
       </div>
 
@@ -343,10 +371,15 @@ export function PreviewDashboard() {
           </div>
         </div>
       </div>
-          <ManualLedgerModal
+
+      <ManualLedgerModal
         isOpen={isManualLedgerOpen}
         onClose={() => setIsManualLedgerOpen(false)}
         onRecordCreated={(rec) => setManualEntries((prev) => [rec, ...prev])}
+      />
+      <MemberApprovalModal
+        isOpen={isApprovalsModalOpen}
+        onClose={() => setIsApprovalsModalOpen(false)}
       />
     </section>
   );
