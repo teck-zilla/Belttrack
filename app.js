@@ -552,6 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           if (roleSelector) roleSelector.style.display = 'none';
           if (entryPointsSection) entryPointsSection.style.display = 'none';
+          if (btnOpenDirectory) btnOpenDirectory.style.display = 'none';
           setTimeout(() => {
             closeModal(modalLogin);
             if (feedbackLogin) feedbackLogin.classList.remove('active');
@@ -861,6 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (roleSelector) roleSelector.style.display = 'none';
       if (entryPointsSection) entryPointsSection.style.display = 'none';
+      if (btnOpenDirectory) btnOpenDirectory.style.display = 'none';
 
       setTimeout(() => {
         closeModal(modalRegister);
@@ -957,6 +959,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (roleSelector) roleSelector.style.display = 'none';
       if (entryPointsSection) entryPointsSection.style.display = 'none';
+      if (btnOpenDirectory) btnOpenDirectory.style.display = 'none';
 
       setTimeout(() => {
         closeModal(modalJoin);
