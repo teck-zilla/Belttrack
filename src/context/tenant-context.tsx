@@ -18,6 +18,9 @@ interface TenantContextType {
   setActiveSchool: (school: School) => void;
   clearTenant: () => void;
   pendingMembers: SchoolMember[];
+  approvedMembers: SchoolMember[];
+  approveMember: (memberId: string) => Promise<void>;
+  rejectMember: (memberId: string) => Promise<void>;
   registerPendingStudent: (params: {
     studentFullName: string;
     studentEmail: string;
@@ -41,11 +44,72 @@ const DEFAULT_DEMO_SCHOOL: School = {
   updated_at: '2026-10-24T12:00:00Z'
 };
 
+const INITIAL_PENDING_MEMBERS: SchoolMember[] = [
+  {
+    id: 'stud-pend-001',
+    school_id: DEFAULT_DEMO_SCHOOL.id,
+    user_id: 'usr_pend_001',
+    role: 'student',
+    status: 'pending_approval',
+    full_name: 'Gabriel Santos',
+    email: 'gabriel.santos@bjjmail.org',
+    stripes_count: 0,
+    total_classes_attended: 0,
+    is_flagged_inactive: false,
+    enrolled_at: '2026-11-06T14:30:00Z'
+  },
+  {
+    id: 'stud-pend-002',
+    school_id: DEFAULT_DEMO_SCHOOL.id,
+    user_id: 'usr_pend_002',
+    role: 'student',
+    status: 'pending_approval',
+    full_name: 'Maya Lin',
+    email: 'maya.lin@martialarts.net',
+    guardian_name: 'David Lin',
+    guardian_email: 'david.lin@parentmail.com',
+    stripes_count: 0,
+    total_classes_attended: 0,
+    is_flagged_inactive: false,
+    enrolled_at: '2026-11-07T08:15:00Z'
+  }
+];
+
+const INITIAL_APPROVED_MEMBERS: SchoolMember[] = [
+  {
+    id: 'stud-app-001',
+    school_id: DEFAULT_DEMO_SCHOOL.id,
+    user_id: 'usr_app_001',
+    role: 'student',
+    status: 'active',
+    full_name: 'Lucas Silva',
+    email: 'lucas.silva@bjjdemo.com',
+    stripes_count: 3,
+    total_classes_attended: 42,
+    is_flagged_inactive: false,
+    enrolled_at: '2025-08-14T09:00:00Z'
+  },
+  {
+    id: 'stud-app-002',
+    school_id: DEFAULT_DEMO_SCHOOL.id,
+    user_id: 'usr_app_002',
+    role: 'student',
+    status: 'active',
+    full_name: 'Elena Rostova',
+    email: 'elena.rostova@judo-intl.org',
+    stripes_count: 2,
+    total_classes_attended: 28,
+    is_flagged_inactive: true,
+    enrolled_at: '2025-11-02T10:30:00Z'
+  }
+];
+
 const TenantContext = createContext<TenantContextType | undefined>(undefined);
 
 export function TenantProvider({ children }: { children: React.ReactNode }) {
   const [activeSchool, setActiveSchoolState] = useState<School | null>(DEFAULT_DEMO_SCHOOL);
-  const [pendingMembers, setPendingMembers] = useState<SchoolMember[]>([]);
+  const [pendingMembers, setPendingMembers] = useState<SchoolMember[]>(INITIAL_PENDING_MEMBERS);
+  const [approvedMembers, setApprovedMembers] = useState<SchoolMember[]>(INITIAL_APPROVED_MEMBERS);
 
   const setActiveSchool = (school: School) => {
     setActiveSchoolState(school);
@@ -53,6 +117,59 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
 
   const clearTenant = () => {
     setActiveSchoolState(null);
+  };
+
+  const approveMember = async (memberId: string) => {
+    const target = pendingMembers.find((m) => m.id === memberId);
+    if (!target) return;
+
+    const activated: SchoolMember = {
+      ...target,
+      status: 'active'
+    };
+
+    setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
+    setApprovedMembers((prev) => [activated, ...prev]);
+
+    // Async sync with database if user_id is a real DB record
+    try {
+      if (activeSchool?.id) {
+        await fetch('/api/schools/approvals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            schoolId: activeSchool.id,
+            userId: target.user_id,
+            action: 'APPROVE'
+          })
+        });
+      }
+    } catch {
+      // Graceful fallback for offline / preview demo mode
+    }
+  };
+
+  const rejectMember = async (memberId: string) => {
+    const target = pendingMembers.find((m) => m.id === memberId);
+    if (!target) return;
+
+    setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
+
+    try {
+      if (activeSchool?.id) {
+        await fetch('/api/schools/approvals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            schoolId: activeSchool.id,
+            userId: target.user_id,
+            action: 'REJECT'
+          })
+        });
+      }
+    } catch {
+      // Graceful fallback for offline / preview demo mode
+    }
   };
 
   const registerPendingStudent = ({
@@ -104,6 +221,9 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         setActiveSchool,
         clearTenant,
         pendingMembers,
+        approvedMembers,
+        approveMember,
+        rejectMember,
         registerPendingStudent
       }}
     >
