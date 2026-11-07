@@ -28,10 +28,10 @@ export function PreviewDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <span className="font-label text-xs font-bold uppercase tracking-wider text-tertiary">
-            Isolated Tenant Live Preview
+            {isOwnerGroup ? 'Dojo Head Coach Console' : 'Student & Guardian Portal'}
           </span>
           <h2 className="font-headline text-2xl font-bold text-primary">
-            Dojo Operating Dashboard
+            {isOwnerGroup ? 'Dojo Operating Dashboard' : 'Student Progression & Attendance'}
           </h2>
         </div>
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">

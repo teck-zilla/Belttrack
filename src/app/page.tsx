@@ -52,7 +52,7 @@ function InlineFieldError({ id, message }: { id: string; message?: string }) {
 
 export default function HomePage() {
   const { activeSchool, setActiveSchool, registerPendingStudent } = useTenant();
-  const { login, setSessionUser } = useAuth();
+  const { login, setSessionUser, isRealSession } = useAuth();
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [isJoinModalOpen, setJoinModalOpen] = useState(false);
   const [isDirectoryModalOpen, setDirectoryModalOpen] = useState(false);
@@ -444,7 +444,7 @@ export default function HomePage() {
           onOpenRegister={() => setRegisterModalOpen(true)}
           onOpenJoin={() => setJoinModalOpen(true)}
         />
-        <PreviewDashboard />
+        {isRealSession && <PreviewDashboard />}
       </main>
 
       {/* FOOTER */}
@@ -834,6 +834,12 @@ export default function HomePage() {
             guardianFullName: data.guardianName,
             guardianEmail: data.guardianEmail
           });
+          setSessionUser({
+            id: 'stud_' + Date.now(),
+            email: data.email,
+            fullName: data.studentName,
+            school_id: activeSchool?.id || null
+          }, 'student');
         }}
       />
 
