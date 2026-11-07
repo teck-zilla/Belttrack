@@ -179,8 +179,12 @@ export const ledgerEntrySchema = z.object({
  * 6. LOGIN AUTHENTICATION SCHEMA
  */
 export const loginSchema = z.object({
-  email: z.string().email('enter a valid email address'),
+  email: z.string().email('enter a valid email address').optional(),
+  schoolCode: z.string().regex(/^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$/, 'wrong details').optional(),
   password: z.string().min(6, 'Password must be at least 6 characters')
+}).refine(data => Boolean(data.email || data.schoolCode), {
+  message: 'Either email or school code is required',
+  path: ['email']
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

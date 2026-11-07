@@ -20,8 +20,11 @@ export function LoginModal({
   const { login } = useAuth();
   const modalRef = useAccessibleModal(isOpen, onClose, '#btn-open-login');
 
+  const [loginRole, setLoginRole] = useState<'owner' | 'student'>('owner');
+  const [schoolCode, setSchoolCode] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,42 +34,74 @@ export function LoginModal({
     e.preventDefault();
     setFormFeedback(null);
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail || !password) {
-      setFormFeedback('Complete the form and accept the terms before you can sign up');
-      if (!trimmedEmail) document.getElementById('login-email')?.focus();
-      else document.getElementById('login-password')?.focus();
-      return;
-    }
-
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmedEmail)) {
-      setFormFeedback('Please enter a valid email address.');
-      document.getElementById('login-email')?.focus();
-      return;
-    }
-
     if (password.length < 6) {
       setFormFeedback('Password must be at least 6 characters.');
       document.getElementById('login-password')?.focus();
       return;
     }
 
-    try {
-      setIsSubmitting(true);
-      const res = await login(trimmedEmail, password);
-      if (!res.success) {
-        setFormFeedback(res.error || 'Invalid email or password');
-      } else {
-        setEmail('');
-        setPassword('');
-        setFormFeedback(null);
-        onClose();
+    if (loginRole === 'owner') {
+      const trimmedCode = schoolCode.trim().toUpperCase();
+      if (!trimmedCode) {
+        setFormFeedback('Please enter your school join code.');
+        document.getElementById('login-school-code')?.focus();
+        return;
       }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Network error during sign in';
-      setFormFeedback(message);
-    } finally {
-      setIsSubmitting(false);
+
+      if (!/^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$/.test(trimmedCode)) {
+        setFormFeedback('School code must follow the 6-4-4 format (e.g. KAIZEN-2026).');
+        document.getElementById('login-school-code')?.focus();
+        return;
+      }
+
+      try {
+        setIsSubmitting(true);
+        const res = await login({ schoolCode: trimmedCode, password });
+        if (!res.success) {
+          setFormFeedback(res.error || 'Invalid school code or password');
+        } else {
+          setSchoolCode('');
+          setPassword('');
+          setFormFeedback(null);
+          onClose();
+        }
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Network error during sign in';
+        setFormFeedback(message);
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      const trimmedEmail = email.trim();
+      if (!trimmedEmail) {
+        setFormFeedback('Please enter your email address.');
+        document.getElementById('login-email')?.focus();
+        return;
+      }
+
+      if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmedEmail)) {
+        setFormFeedback('Please enter a valid email address.');
+        document.getElementById('login-email')?.focus();
+        return;
+      }
+
+      try {
+        setIsSubmitting(true);
+        const res = await login({ email: trimmedEmail, password });
+        if (!res.success) {
+          setFormFeedback(res.error || 'Invalid email or password');
+        } else {
+          setEmail('');
+          setPassword('');
+          setFormFeedback(null);
+          onClose();
+        }
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Network error during sign in';
+        setFormFeedback(message);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -108,6 +143,46 @@ export function LoginModal({
           </button>
         </div>
 
+        {/* Role Toggle Selector */}
+        <div
+          role="tablist"
+          aria-label="Login Role Selection"
+          className="mb-4 flex items-center gap-1 rounded-[10px] bg-surface-container border border-outline-variant p-1"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={loginRole === 'owner'}
+            onClick={() => {
+              setLoginRole('owner');
+              setFormFeedback(null);
+            }}
+            className={`flex-1 py-1.5 px-3 rounded-[8px] text-xs font-label font-semibold transition-all text-center cursor-pointer ${
+              loginRole === 'owner'
+                ? 'bg-primary text-primary-foreground shadow-soft'
+                : 'text-surface-on-variant hover:text-surface-foreground'
+            }`}
+          >
+            School Owner
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={loginRole === 'student'}
+            onClick={() => {
+              setLoginRole('student');
+              setFormFeedback(null);
+            }}
+            className={`flex-1 py-1.5 px-3 rounded-[8px] text-xs font-label font-semibold transition-all text-center cursor-pointer ${
+              loginRole === 'student'
+                ? 'bg-primary text-primary-foreground shadow-soft'
+                : 'text-surface-on-variant hover:text-surface-foreground'
+            }`}
+          >
+            Student / Member
+          </button>
+        </div>
+
         {formFeedback && (
           <div
             role="status"
@@ -118,54 +193,104 @@ export function LoginModal({
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="login-email"
-              className="font-title text-xs font-semibold text-surface-foreground block mb-1"
-            >
-              Email Address <span aria-hidden="true" className="text-tertiary font-bold">*</span>
-              <span className="sr-only">(required)</span>
-            </label>
-            <input
-              id="login-email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="coach@dojo.org"
-              required
-              aria-required="true"
-              className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
-            />
-          </div>
+          {loginRole === 'owner' ? (
+            <div>
+              <label
+                htmlFor="login-school-code"
+                className="font-title text-xs font-semibold text-surface-foreground block mb-1"
+              >
+                School Join Code <span aria-hidden="true" className="text-tertiary font-bold">*</span>
+                <span className="sr-only">(required)</span>
+              </label>
+              <input
+                id="login-school-code"
+                name="schoolCode"
+                type="text"
+                value={schoolCode}
+                onChange={(e) => setSchoolCode(e.target.value.toUpperCase())}
+                placeholder="e.g. KAIZEN-2026"
+                required
+                aria-required="true"
+                autoComplete="organization"
+                className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
+              />
+              <p className="font-body text-[11px] text-surface-on-variant mt-1">
+                Enter your school&apos;s unique join code to authenticate as head coach / owner.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <label
+                htmlFor="login-email"
+                className="font-title text-xs font-semibold text-surface-foreground block mb-1"
+              >
+                Email Address <span aria-hidden="true" className="text-tertiary font-bold">*</span>
+                <span className="sr-only">(required)</span>
+              </label>
+              <input
+                id="login-email"
+                name="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="student@dojo.org"
+                required
+                aria-required="true"
+                autoComplete="email"
+                className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
+              />
+            </div>
+          )}
 
           <div>
             <label
               htmlFor="login-password"
               className="font-title text-xs font-semibold text-surface-foreground block mb-1"
             >
-              Password <span aria-hidden="true" className="text-tertiary font-bold">*</span>
+              {loginRole === 'owner' ? 'Owner Password' : 'Password'}{' '}
+              <span aria-hidden="true" className="text-tertiary font-bold">*</span>
               <span className="sr-only">(required)</span>
             </label>
-            <input
-              id="login-password"
-              name="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              aria-required="true"
-              className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
-            />
+            <div className="relative">
+              <input
+                id="login-password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                aria-required="true"
+                autoComplete="current-password"
+                className="w-full px-3 py-2 pr-10 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-surface-on-variant hover:text-surface-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary rounded"
+              >
+                {showPassword ? (
+                  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                  </svg>
+                ) : (
+                  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-2.5 rounded-[10px] font-label text-xs font-bold uppercase tracking-wider bg-primary text-primary-foreground hover:shadow-soft-2 transition-all disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
+            className="w-full py-2.5 rounded-[10px] font-label text-xs font-bold uppercase tracking-wider bg-primary text-primary-foreground hover:bg-tertiary hover:shadow-soft-2 transition-all disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
           >
-            {isSubmitting ? 'Authenticating...' : 'Sign In'}
+            {isSubmitting ? 'Authenticating...' : loginRole === 'owner' ? 'Sign In as Owner' : 'Sign In as Member'}
           </button>
         </form>
 
