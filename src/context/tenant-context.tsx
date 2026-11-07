@@ -8,14 +8,14 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { School, SchoolMember } from '@/types/domain';
 import { assertTenantMatch } from '@/lib/prisma-extension';
 
 interface TenantContextType {
   activeSchool: School | null;
   isIsolated: boolean;
-  setActiveSchool: (school: School) => void;
+  setActiveSchool: (school: School | null) => void;
   clearTenant: () => void;
   pendingMembers: SchoolMember[];
   approvedMembers: SchoolMember[];
@@ -30,7 +30,7 @@ interface TenantContextType {
   }) => SchoolMember;
 }
 
-const DEFAULT_DEMO_SCHOOL: School = {
+export const DEFAULT_DEMO_SCHOOL: School = {
   id: 'd9b2e041-381a-4e2b-bb8c-2f9a1c1d09e1',
   name: 'Kaizen BJJ & Martial Academy',
   slug: 'kaizen-bjj',
@@ -111,9 +111,9 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
   const [pendingMembers, setPendingMembers] = useState<SchoolMember[]>(INITIAL_PENDING_MEMBERS);
   const [approvedMembers, setApprovedMembers] = useState<SchoolMember[]>(INITIAL_APPROVED_MEMBERS);
 
-  const setActiveSchool = (school: School) => {
+  const setActiveSchool = useCallback((school: School | null) => {
     setActiveSchoolState(school);
-  };
+  }, []);
 
   const clearTenant = () => {
     setActiveSchoolState(null);

@@ -544,6 +544,12 @@ document.addEventListener('DOMContentLoaded', () => {
             feedbackLogin.textContent = 'Successfully authenticated!';
             feedbackLogin.classList.add('active');
           }
+          if (data.school) {
+            state.school.name = data.school.name;
+            state.school.code = data.school.registration_code || data.school.join_code;
+            if (displayTenantName) displayTenantName.textContent = data.school.name;
+            if (displayTenantCode) displayTenantCode.textContent = data.school.registration_code || data.school.join_code;
+          }
           if (roleSelector) roleSelector.style.display = 'none';
           if (entryPointsSection) entryPointsSection.style.display = 'none';
           setTimeout(() => {
