@@ -39,8 +39,8 @@ export function TopNav({
           </div>
         </Link>
 
-        {/* Active Tenant Dojo Indicator */}
-        {activeSchool && (
+        {/* Active Tenant Dojo Indicator: only visible after owner has signed in or signed up */}
+        {isRealSession && (activeRole === 'owner' || activeRole === 'coach') && activeSchool && (
           <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant">
             <span className="w-2.5 h-2.5 rounded-full bg-tertiary animate-pulse" />
             <span className="font-title text-xs font-semibold text-surface-foreground">
@@ -54,52 +54,56 @@ export function TopNav({
 
         {/* Persona Switcher, Actions & Auth */}
         <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-center sm:justify-end">
-          {/* Public School Directory Trigger */}
-          <button
-            type="button"
-            onClick={onOpenDirectory}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-label font-medium bg-surface-container text-surface-foreground border border-outline-variant hover:bg-surface-container-high hover:shadow-soft transition-all duration-[600ms]"
-          >
-            <svg className="w-3.5 h-3.5 text-outline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            Public Directory
-          </button>
+          {/* Public School Directory Trigger: hidden when owner has signed in or signed up */}
+          {!(isRealSession && (activeRole === 'owner' || activeRole === 'coach')) && (
+            <button
+              type="button"
+              onClick={onOpenDirectory}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-label font-medium bg-surface-container text-surface-foreground border border-outline-variant hover:bg-surface-container-high hover:shadow-soft transition-all duration-[600ms]"
+            >
+              <svg className="w-3.5 h-3.5 text-outline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              Public Directory
+            </button>
+          )}
 
           {/* Role Preview Segment Selector */}
-          <div
-            role="group"
-            aria-label="Simulate Persona Role"
-            className="flex items-center gap-0.5 rounded-[0.625rem] bg-surface-container border border-outline-variant p-0.5 w-full sm:w-auto justify-center"
-          >
-            {[
-              {
-                role: 'owner' as const,
-                label: 'Owner / Head Coach',
-                isActive: activeRole === 'owner' || activeRole === 'coach',
-              },
-              {
-                role: 'student' as const,
-                label: 'Student / Guardian',
-                isActive: activeRole === 'student' || activeRole === 'guardian',
-              },
-            ].map(({ role: r, label, isActive }) => (
-              <button
-                key={r}
-                type="button"
-                aria-pressed={isActive}
-                onClick={() => switchRole(r)}
-                className={`flex-1 sm:flex-initial px-2.5 sm:px-3 py-1 rounded-[10px] text-[11px] sm:text-xs font-label font-medium transition-all text-center ${
-                  isActive
-                    ? 'bg-primary text-primary-foreground shadow-soft-2'
-                    : 'text-surface-on-variant hover:text-surface-foreground hover:shadow-soft'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          {isRealSession && (
+            <div
+              role="group"
+              aria-label="Simulate Persona Role"
+              className="flex items-center gap-0.5 rounded-[0.625rem] bg-surface-container border border-outline-variant p-0.5 w-full sm:w-auto justify-center"
+            >
+              {[
+                {
+                  role: 'owner' as const,
+                  label: 'Owner / Head Coach',
+                  isActive: activeRole === 'owner' || activeRole === 'coach',
+                },
+                {
+                  role: 'student' as const,
+                  label: 'Student / Guardian',
+                  isActive: activeRole === 'student' || activeRole === 'guardian',
+                },
+              ].map(({ role: r, label, isActive }) => (
+                <button
+                  key={r}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => switchRole(r)}
+                  className={`flex-1 sm:flex-initial px-2.5 sm:px-3 py-1 rounded-[10px] text-[11px] sm:text-xs font-label font-medium transition-all text-center ${
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-soft-2'
+                      : 'text-surface-on-variant hover:text-surface-foreground hover:shadow-soft'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Real Auth Actions */}
           {isRealSession ? (
