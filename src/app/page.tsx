@@ -367,6 +367,8 @@ export default function HomePage() {
       setIsSubmitting(true);
       setFormFeedback('Persisting school tenant to database...');
 
+      const normalizedOwnerEmail = ownerEmail.trim().toLowerCase();
+
       const response = await fetch('/api/schools/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -374,7 +376,7 @@ export default function HomePage() {
           schoolName,
           discipline,
           ownerFullName: ownerName,
-          ownerEmail,
+          ownerEmail: normalizedOwnerEmail,
           password: ownerPassword,
           city,
           country,
@@ -396,7 +398,7 @@ export default function HomePage() {
       // Automatically sign in the registered school owner
       setSessionUser({
         id: data.user?.id || 'usr_' + Date.now(),
-        email: ownerEmail.trim().toLowerCase(),
+        email: normalizedOwnerEmail,
         fullName: ownerName.trim(),
         school_id: data.school.id,
         supabase_uid: data.user?.supabaseUid || undefined
@@ -404,7 +406,7 @@ export default function HomePage() {
 
       // Attempt automatic sign-in for owner
       try {
-        await login(ownerEmail.trim(), ownerPassword.trim());
+        await login(normalizedOwnerEmail, ownerPassword.trim());
       } catch {
         // Fallback: user can sign in via Login modal
       }
@@ -718,6 +720,9 @@ export default function HomePage() {
                     aria-required="true"
                     aria-invalid={Boolean(fieldErrors['ownerEmail'])}
                     aria-describedby={fieldErrors['ownerEmail'] ? 'err-reg-owner-email' : undefined}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
                     value={ownerEmail}
                     onChange={(e) => handleInputChange('ownerEmail', e.target.value, setOwnerEmail)}
                     onBlur={() => handleBlur('ownerEmail', ownerEmail)}

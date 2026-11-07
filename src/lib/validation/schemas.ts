@@ -31,6 +31,23 @@ export const membershipStatusEnum = z.enum([
 ]);
 
 /**
+ * Normalized Email Schemas
+ * Automatically trims whitespace, converts to lowercase, and enforces valid email format.
+ */
+export const emailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .email('enter a valid email address');
+
+export const optionalEmailSchema = z
+  .union([
+    z.string().trim().toLowerCase().email('enter a valid email address'),
+    z.literal('').transform(() => undefined)
+  ])
+  .optional();
+
+/**
  * 1. DOJO OWNER REGISTRATION SCHEMA
  */
 export const schoolRegistrationSchema = z.object({
@@ -46,9 +63,7 @@ export const schoolRegistrationSchema = z.object({
     .refine((val) => val.trim().split(/\s+/).filter(Boolean).length >= 2, {
       message: 'Owner name must have at least 2 words or names'
     }),
-  ownerEmail: z
-    .string()
-    .email('enter a valid email address'),
+  ownerEmail: emailSchema,
   password: z
     .string()
     .min(6, 'wrong details')
@@ -95,9 +110,7 @@ export const studentJoinCodeSchema = z.object({
     .refine((val) => val.trim().split(/\s+/).filter(Boolean).length >= 2, {
       message: 'Student name must have at least 2 words or names'
     }),
-  studentEmail: z
-    .string()
-    .email('enter a valid email address'),
+  studentEmail: emailSchema,
   password: z
     .string()
     .min(6, 'wrong details')
@@ -116,10 +129,7 @@ export const studentJoinCodeSchema = z.object({
     .refine((val) => !val || (val.trim().length >= 3 && val.trim().split(/\s+/).filter(Boolean).length >= 2), {
       message: 'Guardian name must be at least 3 characters and have at least 2 words or names'
     }),
-  guardianEmail: z
-    .string()
-    .email('enter a valid email address')
-    .optional()
+  guardianEmail: optionalEmailSchema
 }).refine(data => {
   if (data.isMinor && !data.guardianFullName) {
     return false;
@@ -179,7 +189,7 @@ export const ledgerEntrySchema = z.object({
  * 6. LOGIN AUTHENTICATION SCHEMA
  */
 export const loginSchema = z.object({
-  email: z.string().email('enter a valid email address').optional(),
+  email: optionalEmailSchema,
   schoolCode: z.string().regex(/^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$/, 'wrong details').optional(),
   password: z.string().min(6, 'Password must be at least 6 characters')
 }).refine(data => Boolean(data.email || data.schoolCode), {

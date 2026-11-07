@@ -162,14 +162,17 @@ export function StudentJoinModal({
     e.preventDefault();
     setFormFeedback(null);
 
+    const normalizedStudentEmail = studentEmail.trim().toLowerCase();
+    const normalizedGuardianEmail = isMinor && guardianEmail.trim() ? guardianEmail.trim().toLowerCase() : undefined;
+
     const parseResult = studentJoinCodeSchema.safeParse({
       registrationCode: inputCode.trim(),
       studentFullName: studentName.trim(),
-      studentEmail: studentEmail.trim(),
+      studentEmail: normalizedStudentEmail,
       password: studentPassword,
       isMinor,
       guardianFullName: isMinor ? guardianName.trim() : undefined,
-      guardianEmail: isMinor && guardianEmail.trim() ? guardianEmail.trim() : undefined
+      guardianEmail: normalizedGuardianEmail
     });
 
     if (!parseResult.success) {
@@ -203,16 +206,16 @@ export function StudentJoinModal({
         onSuccess({
           schoolName: data.school?.name || 'Academy',
           studentName: studentName.trim(),
-          email: studentEmail.trim(),
+          email: normalizedStudentEmail,
           isMinor,
           guardianName: isMinor ? guardianName.trim() : undefined,
-          guardianEmail: isMinor && guardianEmail.trim() ? guardianEmail.trim() : undefined
+          guardianEmail: normalizedGuardianEmail
         });
       }
 
       // Automatically sign in the student to establish their session
       try {
-        await login(studentEmail.trim(), studentPassword);
+        await login(normalizedStudentEmail, studentPassword);
       } catch {
         // Fallback if direct login fails
       }
@@ -402,6 +405,9 @@ export function StudentJoinModal({
                   aria-required="true"
                   aria-invalid={Boolean(fieldErrors['studentEmail'])}
                   placeholder="e.g. lucas@example.com"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   value={studentEmail}
                   onChange={(e) => {
                     setStudentEmail(e.target.value);
@@ -574,6 +580,9 @@ export function StudentJoinModal({
                       id="join-guardian-email"
                       name="guardianEmail"
                       placeholder="e.g. roberto@example.com"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                       value={guardianEmail}
                       onChange={(e) => setGuardianEmail(e.target.value)}
                       className="w-full px-3 py-2 rounded-[10px] bg-surface-container-lowest border border-outline-variant font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"

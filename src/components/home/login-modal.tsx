@@ -72,7 +72,7 @@ export function LoginModal({
         setIsSubmitting(false);
       }
     } else {
-      const trimmedEmail = email.trim();
+      const trimmedEmail = email.trim().toLowerCase();
       if (!trimmedEmail) {
         setFormFeedback('Please enter your email address.');
         document.getElementById('login-email')?.focus();
@@ -237,6 +237,9 @@ export function LoginModal({
                 required
                 aria-required="true"
                 autoComplete="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
               />
             </div>
