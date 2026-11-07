@@ -10,6 +10,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { UserRole, SchoolMember } from '@/types/domain';
 import { createClient } from '@/lib/supabase/client';
+import { useTenant, DEFAULT_DEMO_SCHOOL } from '@/context/tenant-context';
 
 export interface AuthUser {
   id: string;
@@ -67,6 +68,7 @@ const DEMO_MEMBER: SchoolMember = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const { setActiveSchool } = useTenant();
   const [user, setUser] = useState<AuthUser | null>(DEMO_USER);
   const [currentMember, setCurrentMember] = useState<SchoolMember | null>(DEMO_MEMBER);
   const [activeRole, setActiveRole] = useState<UserRole>('owner');
@@ -95,6 +97,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setIsRealSession(true);
           setActiveRole(role);
 
+          if (data.school) {
+            setActiveSchool(data.school);
+          }
+
           if (data.user.school_id) {
             setCurrentMember({
               id: `mem_${data.user.id.slice(0, 8)}`,
@@ -119,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setActiveSchool]);
 
   useEffect(() => {
     refreshSession();
@@ -232,6 +238,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             is_flagged_inactive: false,
             enrolled_at: new Date().toISOString()
           });
+          if (data.school) {
+            setActiveSchool(data.school);
+          }
         }
       }
 
@@ -256,6 +265,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setActiveRole('owner');
       setIsRealSession(false);
       setIsLoading(false);
+      setActiveSchool(DEFAULT_DEMO_SCHOOL);
     }
   };
 

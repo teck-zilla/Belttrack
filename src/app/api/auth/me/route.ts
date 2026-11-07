@@ -1,6 +1,34 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import type { DisciplineType } from '@/types/domain';
+
+function formatSchool(school: {
+  id: string;
+  name: string;
+  slug: string;
+  discipline: string;
+  city: string;
+  timezone?: string | null;
+  joinCode: string;
+  createdAt: Date;
+  updatedAt: Date;
+}) {
+  return {
+    id: school.id,
+    name: school.name,
+    slug: school.slug,
+    registration_code: school.joinCode,
+    join_code: school.joinCode,
+    discipline: school.discipline as DisciplineType,
+    city: school.city,
+    country: 'United Kingdom',
+    timezone: school.timezone || 'UTC',
+    is_public: true,
+    created_at: school.createdAt.toISOString(),
+    updated_at: school.updatedAt.toISOString(),
+  };
+}
 
 export async function GET() {
   try {
@@ -68,7 +96,8 @@ export async function GET() {
         school_slug: dbUser.school.slug,
         first_name: dbUser.profile?.firstName || null,
         last_name: dbUser.profile?.lastName || null
-      }
+      },
+      school: dbUser.school ? formatSchool(dbUser.school) : null
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to retrieve active session';

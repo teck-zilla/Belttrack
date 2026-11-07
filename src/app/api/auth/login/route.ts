@@ -3,6 +3,33 @@ import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { loginSchema } from '@/lib/validation/schemas';
 
+function formatSchool(school: {
+  id: string;
+  name: string;
+  slug: string;
+  discipline: string;
+  city: string;
+  timezone?: string | null;
+  joinCode: string;
+  createdAt: Date;
+  updatedAt: Date;
+}) {
+  return {
+    id: school.id,
+    name: school.name,
+    slug: school.slug,
+    registration_code: school.joinCode,
+    join_code: school.joinCode,
+    discipline: school.discipline,
+    city: school.city,
+    country: 'United Kingdom',
+    timezone: school.timezone || 'UTC',
+    is_public: true,
+    created_at: school.createdAt.toISOString(),
+    updated_at: school.updatedAt.toISOString(),
+  };
+}
+
 export async function POST(request: Request) {
   try {
     const json = await request.json();
@@ -87,7 +114,8 @@ export async function POST(request: Request) {
             school_slug: fallbackUser.school.slug,
             first_name: fallbackUser.profile?.firstName || null,
             last_name: fallbackUser.profile?.lastName || null
-          }
+          },
+          school: fallbackUser.school ? formatSchool(fallbackUser.school) : null
         });
       }
 
@@ -152,7 +180,8 @@ export async function POST(request: Request) {
         school_slug: dbUser.school.slug,
         first_name: dbUser.profile?.firstName || null,
         last_name: dbUser.profile?.lastName || null
-      }
+      },
+      school: dbUser.school ? formatSchool(dbUser.school) : null
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal authentication error';
