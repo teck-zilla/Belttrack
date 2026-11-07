@@ -8,7 +8,7 @@ import { useAuth } from '@/context/auth-context';
 import { useTenant } from '@/context/tenant-context';
 
 export function PreviewDashboard() {
-  const { activeRole } = useAuth();
+  const { activeRole, isRealSession, logout } = useAuth();
   const { pendingMembers } = useTenant();
   const [attendedClasses, setAttendedClasses] = useState(42);
   const totalRequired = 50;
@@ -60,6 +60,22 @@ export function PreviewDashboard() {
           <div className="font-label text-xs font-medium text-surface-on-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant">
             Viewing as: <strong className="text-primary capitalize">{isOwnerGroup ? 'Owner / Head Coach' : 'Student / Guardian'}</strong>
           </div>
+
+          {/* Sign Out button: only appears after either role has signed in */}
+          {isRealSession && (
+            <button
+              type="button"
+              id="btn-dashboard-sign-out"
+              onClick={() => logout()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-label font-medium bg-error-container text-error-on-container hover:shadow-soft transition-all duration-[600ms] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary"
+              aria-label="Sign out of dojo session"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Sign Out</span>
+            </button>
+          )}
         </div>
       </div>
 

@@ -52,7 +52,7 @@ function InlineFieldError({ id, message }: { id: string; message?: string }) {
 
 export default function HomePage() {
   const { activeSchool, setActiveSchool, registerPendingStudent } = useTenant();
-  const { login } = useAuth();
+  const { login, setSessionUser } = useAuth();
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [isJoinModalOpen, setJoinModalOpen] = useState(false);
   const [isDirectoryModalOpen, setDirectoryModalOpen] = useState(false);
@@ -392,6 +392,15 @@ export default function HomePage() {
       // Update active tenant state with verified DB record
       setActiveSchool(data.school);
       setFormFeedback(`Dojo tenant "${data.school.name}" successfully registered in database! Code: ${data.school.registration_code}. Authenticating session...`);
+
+      // Automatically sign in the registered school owner
+      setSessionUser({
+        id: data.user?.id || 'usr_' + Date.now(),
+        email: ownerEmail.trim().toLowerCase(),
+        fullName: ownerName.trim(),
+        school_id: data.school.id,
+        supabase_uid: data.user?.supabaseUid || undefined
+      }, 'owner');
 
       // Attempt automatic sign-in for owner
       try {

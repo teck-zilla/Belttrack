@@ -31,6 +31,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
+  setSessionUser: (authUser: AuthUser, role?: UserRole) => void;
 }
 
 const DEMO_USER: AuthUser = {
@@ -146,6 +147,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const setSessionUser = (authUser: AuthUser, role: UserRole = 'owner') => {
+    setUser(authUser);
+    setIsRealSession(true);
+    setActiveRole(role);
+    if (authUser.school_id) {
+      setCurrentMember({
+        id: `mem_${authUser.id.slice(0, 8)}`,
+        school_id: authUser.school_id,
+        user_id: authUser.id,
+        supabase_uid: authUser.supabase_uid,
+        role,
+        status: 'active',
+        full_name: authUser.fullName,
+        email: authUser.email,
+        stripes_count: 0,
+        total_classes_attended: 0,
+        is_flagged_inactive: false,
+        enrolled_at: new Date().toISOString()
+      });
+    }
+  };
+
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       setIsLoading(true);
@@ -198,7 +221,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         switchRole,
         login,
         logout,
-        refreshSession
+        refreshSession,
+        setSessionUser
       }}
     >
       {children}
