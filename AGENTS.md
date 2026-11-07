@@ -59,6 +59,12 @@ Enforce strict multi-tenant isolation and verify zero hardcoded styling values b
 - Apply only one change at a time.
 - Ask for user approval before installing or adding new packages.
 - Never run database migrations, pushes, or modifications through any tool or script unless explicitly ordered.
+- Never commit, push to remote, or create/merge pull requests automatically. Keep all changes local until explicitly instructed by the user with an explicit command (e.g. "commit these changes" or "push to GitHub").
+- Follow the 4-step controlled release workflow:
+  1. Local development and validation only (verify with `npm run audit` and `npx tsc --noEmit` locally).
+  2. Present change summary, diff, and assumptions to user for review and local browser testing.
+  3. Push only to the active working branch (e.g. `second-branch`) upon explicit user request; never push directly to `main`.
+  4. User-controlled Pull Request and merge: Create an open PR link when requested, but never auto-merge. The user manually reviews and merges on GitHub.
 - Every private record must bind strictly to the school_id column.
 - Ledger entries are immutable and append-only; corrections must be offsetting reversal entries.
 - List all assumptions at the end of every response.
