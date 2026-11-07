@@ -69,8 +69,8 @@ export function TopNav({
             </button>
           )}
 
-          {/* Role Preview Segment Selector */}
-          {isRealSession && (
+          {/* Role Preview Segment Selector: hidden after owner or student signs in or signs up */}
+          {!isRealSession && (
             <div
               role="group"
               aria-label="Simulate Persona Role"

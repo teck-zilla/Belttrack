@@ -37,6 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const displayTenantCode = document.getElementById('display-tenant-code');
   const personaLabel = document.getElementById('persona-label');
   const rolePills = document.querySelectorAll('.role-pill');
+  const roleSelector = document.querySelector('.role-selector');
+  const entryPointsSection = document.querySelector('.entry-points-section');
 
   // Modals
   const modalRegister = document.getElementById('modal-register');
@@ -542,6 +544,8 @@ document.addEventListener('DOMContentLoaded', () => {
             feedbackLogin.textContent = 'Successfully authenticated!';
             feedbackLogin.classList.add('active');
           }
+          if (roleSelector) roleSelector.style.display = 'none';
+          if (entryPointsSection) entryPointsSection.style.display = 'none';
           setTimeout(() => {
             closeModal(modalLogin);
             if (feedbackLogin) feedbackLogin.classList.remove('active');
@@ -849,6 +853,9 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackRegister.classList.add('active');
       }
 
+      if (roleSelector) roleSelector.style.display = 'none';
+      if (entryPointsSection) entryPointsSection.style.display = 'none';
+
       setTimeout(() => {
         closeModal(modalRegister);
         if (feedbackRegister) feedbackRegister.classList.remove('active');
@@ -941,6 +948,9 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackJoin.textContent = `Access code ${codeVal} verified! Enrolled under tenant "${state.school.name}". Status: PENDING_APPROVAL. Roster and techniques unlock upon coach verification.`;
         feedbackJoin.classList.add('active');
       }
+
+      if (roleSelector) roleSelector.style.display = 'none';
+      if (entryPointsSection) entryPointsSection.style.display = 'none';
 
       setTimeout(() => {
         closeModal(modalJoin);
