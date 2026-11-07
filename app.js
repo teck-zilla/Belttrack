@@ -514,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       if (!inputLoginEmail || !inputLoginPassword) return;
 
-      const email = inputLoginEmail.value.trim();
+      const email = inputLoginEmail.value.trim().toLowerCase();
       const password = inputLoginPassword.value;
 
       if (!email || !password) {
@@ -933,7 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const codeVal = inputJoinCode ? inputJoinCode.value.trim().toUpperCase() : '';
       const studentVal = inputJoinStudent ? inputJoinStudent.value.trim() : '';
-      const emailVal = inputJoinEmail ? inputJoinEmail.value.trim() : '';
+      const emailVal = inputJoinEmail ? inputJoinEmail.value.trim().toLowerCase() : '';
 
       if (isMinor && !guardianNameVal) {
         if (feedbackJoin) {
