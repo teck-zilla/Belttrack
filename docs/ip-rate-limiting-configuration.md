@@ -96,26 +96,48 @@ X-RateLimit-Reset: 1794220723
 
 ## Verifying Rate Limiting via Terminal
 
-To test the login rate limiter using Windows PowerShell and native `curl.exe`:
+### 1. Automated Multi-IP Test Suite
+To automatically verify counter sharing, counter isolation across multiple IPs, HTTP 429 lock-out, and production environment safety:
 
 ```powershell
-for ($i = 1; $i -le 6; $i++) {
-  $res = curl.exe -s -i -X POST http://localhost:3000/api/auth/login `
-    -H "Content-Type: application/json" `
-    -d '{"email":"test@example.com","password":"Password123!"}'
-  $status = ($res | Select-String "HTTP/1.1 (\d+)").Matches.Groups[1].Value
-  $remaining = ($res | Select-String "x-ratelimit-remaining: (\d+)").Matches.Groups[1].Value
-  $body = ($res -split "`r?`n`r?`n")[-1]
-  Write-Host "Attempt $i -> HTTP $status | Remaining: $remaining | Body: $body"
-}
+npm run test:rate-limit
 ```
 
-**Expected Sequence**:
-* Attempts 1 to 5: Return `HTTP 401` with remaining counts decreasing from `4` down to `0`.
-* Attempt 6: Returns `HTTP 429` with `Retry-After` header and the blocked JSON message.
+This runs `scripts/test-rate-limit.mjs` against `http://localhost:3000` executing 6 automated checks:
+1. **Counter Sharing**: Verifies repeated requests from the same IP decrement the remaining counter sequentially.
+2. **Counter Isolation**: Verifies a distinct IP maintains its own fresh counter untouched by other IPs.
+3. **HTTP 429 Lock-Out**: Verifies exceeding the 5-request limit returns `HTTP 429` with `Retry-After`.
+4. **Targeted Blocking**: Verifies other unexhausted IPs remain completely unblocked.
+5. **Endpoint Isolation**: Verifies other endpoints (e.g., `/api/schools/directory`) remain accessible.
+6. **Production Safety**: Verifies that when `NODE_ENV === 'production'`, all `x-simulated-ip` headers are strictly ignored and only trusted proxy headers are evaluated.
+
+### 2. Manual Multi-IP Simulation (PowerShell & curl.exe)
+In development (`NODE_ENV=development` or `test`), pass `x-simulated-ip` to simulate different clients:
+
+```powershell
+# Client Alpha (Attempt 1: Remaining = 4)
+curl.exe -s -i -X POST http://localhost:3000/api/auth/login `
+  -H "Content-Type: application/json" `
+  -H "x-simulated-ip: 10.0.0.1" `
+  -d '{"email":"test@example.com","password":"Password123!"}'
+
+# Client Beta (Attempt 1: Remaining = 4, independent counter)
+curl.exe -s -i -X POST http://localhost:3000/api/auth/login `
+  -H "Content-Type: application/json" `
+  -H "x-simulated-ip: 10.0.0.2" `
+  -d '{"email":"test@example.com","password":"Password123!"}'
+```
+
+---
+
+## Production Security Guarantees
+1. **Strict Environment Gate**: In `src/lib/rate-limit.ts`, `x-simulated-ip` is evaluated **only** when `NODE_ENV !== 'production'` and either `development`, `test`, or `ENABLE_SIMULATED_IP === 'true'` is active.
+2. **Untrusted Header Drop**: In production, `x-simulated-ip` is completely ignored. The application resolves only trusted reverse proxy headers (`x-forwarded-for`, `x-real-ip`, `cf-connecting-ip`).
+3. **No Rate Limit Bypasses**: The simulation mechanism only allows testing different IP addresses; it never weakens, raises, or bypasses any rate limits.
 
 ---
 
 ## Production Upgrade Path (Distributed Multi-Region Edge)
 
 For multi-region serverless deployments (such as Vercel Edge with multiple independent lambda workers), the storage provider in [`src/lib/rate-limit.ts`](../src/lib/rate-limit.ts) can be swapped from in-memory `Map` to `@upstash/ratelimit` backed by Redis over REST. The middleware signature and route configuration matrix remain unchanged.
+

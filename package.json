@@ -11,6 +11,7 @@
     "serve": "node server.js",
     "build:tokens": "node build-tokens.js",
     "audit": "node audit.js",
+    "test:rate-limit": "node scripts/test-rate-limit.mjs",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy"
