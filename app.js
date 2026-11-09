@@ -605,7 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function isValidPassword(pw) {
-    return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,11}$/.test((pw || '').trim());
+    return (pw || '').length >= 15 && (pw || '').length <= 128;
   }
 
   function isValidEmail(email) {
@@ -646,7 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Password field: 6-11 chars, letters, numbers, and at least 1 special character
+    // Password field: 15-128 chars, letters, numbers, symbols, spaces, and passphrases allowed
     if (fieldId === 'input-join-password') {
       if (!isValidPassword(trimmed)) {
         return 'wrong details';

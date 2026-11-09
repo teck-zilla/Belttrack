@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { useAccessibleModal } from './use-accessible-modal';
 import { studentJoinCodeSchema } from '@/lib/validation/schemas';
+import { calculatePasswordStrength } from '@/lib/validation/password';
 
 interface StudentJoinModalProps {
   isOpen: boolean;
@@ -34,7 +35,9 @@ export function StudentJoinModal({
   const [studentName, setStudentName] = useState('');
   const [studentEmail, setStudentEmail] = useState('');
   const [studentPassword, setStudentPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isMinor, setIsMinor] = useState(false);
   const [guardianName, setGuardianName] = useState('');
   const [guardianEmail, setGuardianEmail] = useState('');
@@ -50,6 +53,8 @@ export function StudentJoinModal({
   } | null>(null);
 
   if (!isOpen) return null;
+
+  const studentStrength = calculatePasswordStrength(studentPassword);
 
   // Strict 6-4-4 Join Code Validation Pattern
   const isValidSchoolJoinCode = (code: string) =>
@@ -115,14 +120,26 @@ export function StudentJoinModal({
     }
 
     if (field === 'studentPassword') {
-      if (
-        trimmed.length < 6 ||
-        trimmed.length > 11 ||
-        !/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,11}$/.test(trimmed)
-      ) {
+      if (trimmed.length < 15 || trimmed.length > 128) {
         setFieldErrors((prev) => ({
           ...prev,
-          studentPassword: '6-11 characters, combination of letters, numbers, and at least 1 special character.'
+          studentPassword: 'Password must be between 15 and 128 characters'
+        }));
+        return;
+      }
+      if (confirmPassword && trimmed !== confirmPassword) {
+        setFieldErrors((prev) => ({
+          ...prev,
+          confirmPassword: 'Passwords do not match'
+        }));
+      }
+    }
+
+    if (field === 'confirmPassword') {
+      if (value !== studentPassword) {
+        setFieldErrors((prev) => ({
+          ...prev,
+          confirmPassword: 'Passwords do not match'
         }));
         return;
       }
@@ -151,9 +168,10 @@ export function StudentJoinModal({
     studentName.trim().length >= 3 &&
     studentName.trim().split(/\s+/).filter(Boolean).length >= 2 &&
     /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(studentEmail.trim()) &&
-    studentPassword.length >= 6 &&
-    studentPassword.length <= 11 &&
-    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,11}$/.test(studentPassword) &&
+    studentPassword.length >= 15 &&
+    studentPassword.length <= 128 &&
+    confirmPassword &&
+    studentPassword === confirmPassword &&
     (!isMinor || (guardianName.trim().length >= 3 && guardianName.trim().split(/\s+/).filter(Boolean).length >= 2)) &&
     termsAccepted
   );
@@ -170,6 +188,7 @@ export function StudentJoinModal({
       studentFullName: studentName.trim(),
       studentEmail: normalizedStudentEmail,
       password: studentPassword,
+      confirmPassword,
       isMinor,
       guardianFullName: isMinor ? guardianName.trim() : undefined,
       guardianEmail: normalizedGuardianEmail
@@ -443,9 +462,10 @@ export function StudentJoinModal({
                     id="join-password"
                     name="studentPassword"
                     required
+                    maxLength={128}
                     aria-required="true"
                     aria-invalid={Boolean(fieldErrors['studentPassword'])}
-                    placeholder="e.g. Pass123!"
+                    placeholder="Enter at least 15 characters"
                     value={studentPassword}
                     onChange={(e) => {
                       setStudentPassword(e.target.value);
@@ -489,10 +509,94 @@ export function StudentJoinModal({
                     {fieldErrors['studentPassword']}
                   </p>
                 )}
-                {studentPassword.length > 0 && !fieldErrors['studentPassword'] && (
-                  <span className="font-body text-xs text-surface-on-variant mt-1 block">
-                    6-11 characters, letters, numbers, and at least 1 special character.
-                  </span>
+
+                {/* Password Strength Indicator */}
+                {studentPassword.length > 0 && (
+                  <div className="mt-2 space-y-1" aria-live="polite">
+                    <div className="flex items-center justify-between">
+                      <span className="font-label text-[11px] text-surface-on-variant">Strength:</span>
+                      <span className={`font-label text-xs font-bold ${
+                        studentStrength.score === 1 ? 'text-error' : studentStrength.score === 2 ? 'text-tertiary' : 'text-primary'
+                      }`}>
+                        {studentStrength.label}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-1.5 h-1.5 w-full">
+                      {[1, 2, 3, 4].map((step) => (
+                        <div
+                          key={step}
+                          className={`rounded-full transition-colors duration-200 ${
+                            step <= studentStrength.score ? studentStrength.colorClass : 'bg-surface-container-high'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <span className="font-body text-xs text-surface-on-variant mt-1 block">
+                  15-128 characters. Uppercase, lowercase, numbers, symbols, spaces, and passphrases allowed.
+                </span>
+              </div>
+
+              {/* CONFIRM PASSWORD */}
+              <div>
+                <label htmlFor="join-confirm-password" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
+                  Confirm Password <span aria-hidden="true" className="text-error ml-0.5">*</span>
+                  <span className="sr-only"> (required)</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    id="join-confirm-password"
+                    name="confirmPassword"
+                    required
+                    maxLength={128}
+                    aria-required="true"
+                    aria-invalid={Boolean(fieldErrors['confirmPassword'])}
+                    placeholder="Re-enter your password"
+                    value={confirmPassword}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                      if (fieldErrors['confirmPassword']) {
+                        setFieldErrors((prev) => {
+                          const n = { ...prev };
+                          delete n['confirmPassword'];
+                          return n;
+                        });
+                      }
+                    }}
+                    onBlur={() => handleBlur('confirmPassword', confirmPassword)}
+                    className={`w-full pl-3 pr-10 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${
+                      fieldErrors['confirmPassword'] ? 'border-error' : 'border-outline-variant'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-surface-on-variant hover:text-surface-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary rounded p-1 transition-colors"
+                    aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                    title={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                  >
+                    {showConfirmPassword ? (
+                      <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                        <line x1="2" y1="2" x2="22" y2="22" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                {fieldErrors['confirmPassword'] && (
+                  <p role="alert" className="font-body text-xs text-error mt-1">
+                    {fieldErrors['confirmPassword']}
+                  </p>
                 )}
               </div>
 
