@@ -11,6 +11,7 @@ import { useAccessibleModal } from '@/components/home/use-accessible-modal';
 import { useTenant } from '@/context/tenant-context';
 import { useAuth } from '@/context/auth-context';
 import { schoolRegistrationSchema, studentJoinCodeSchema } from '@/lib/validation/schemas';
+import { calculatePasswordStrength } from '@/lib/validation/password';
 import type { DisciplineType } from '@/types/domain';
 
 interface DirectorySchool {
@@ -77,14 +78,18 @@ export default function HomePage() {
   const [timezone, setTimezone] = useState('UTC');
   const [ownerName, setOwnerName] = useState('Marcus Vance');
   const [ownerEmail, setOwnerEmail] = useState('marcus@vancebjj.com');
-  const [ownerPassword, setOwnerPassword] = useState('Kaizen2026!');
+  const [ownerPassword, setOwnerPassword] = useState('Kaizen#Belt9824$BJJ');
+  const [ownerConfirmPassword, setOwnerConfirmPassword] = useState('Kaizen#Belt9824$BJJ');
   const [showOwnerPassword, setShowOwnerPassword] = useState(false);
+  const [showOwnerConfirmPassword, setShowOwnerConfirmPassword] = useState(false);
   const [generatedCode, setGeneratedCode] = useState('VANCE-BJJ-2026');
 
   const [regTermsAccepted, setRegTermsAccepted] = useState(false);
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const ownerStrength = calculatePasswordStrength(ownerPassword);
 
   const isValidEmail = (email: string) =>
     /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test((email || '').trim());
@@ -93,7 +98,7 @@ export default function HomePage() {
     /^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$/.test((code || '').trim());
 
   const isValidPassword = (pw: string) =>
-    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,11}$/.test((pw || '').trim());
+    (pw || '').length >= 15 && (pw || '').length <= 128;
 
   const emailFields = ['ownerEmail'];
 
@@ -108,6 +113,8 @@ export default function HomePage() {
     ownerName.trim().split(/\s+/).filter(Boolean).length >= 2 &&
     isValidEmail(ownerEmail) &&
     isValidPassword(ownerPassword) &&
+    ownerConfirmPassword &&
+    ownerPassword === ownerConfirmPassword &&
     !fieldErrors['schoolName'] &&
     !fieldErrors['discipline'] &&
     !fieldErrors['generatedCode'] &&
@@ -115,7 +122,8 @@ export default function HomePage() {
     !fieldErrors['timezone'] &&
     !fieldErrors['ownerName'] &&
     !fieldErrors['ownerEmail'] &&
-    !fieldErrors['ownerPassword']
+    !fieldErrors['ownerPassword'] &&
+    !fieldErrors['ownerConfirmPassword']
   );
 
   const validateField = (fieldId: string, val: string): string | null => {
@@ -131,10 +139,16 @@ export default function HomePage() {
       }
     }
 
-    // Password field: 6-11 characters, combination of letters, numbers, and at least 1 special character
-    if (['ownerPassword', 'studentPassword'].includes(fieldId)) {
-      if (!isValidPassword(trimmed)) {
-        return 'wrong details';
+    // Password field: 15-128 characters, spaces and passphrases allowed
+    if (fieldId === 'ownerPassword') {
+      if (val.length < 15 || val.length > 128) {
+        return 'Password must be between 15 and 128 characters';
+      }
+    }
+
+    if (fieldId === 'ownerConfirmPassword') {
+      if (val !== ownerPassword) {
+        return 'Passwords do not match';
       }
     }
 
@@ -171,11 +185,30 @@ export default function HomePage() {
   };
 
   const handleBlur = (fieldId: string, val: string) => {
-    if (['ownerPassword', 'studentPassword'].includes(fieldId)) {
-      if (!val || !val.trim()) {
+    if (fieldId === 'ownerPassword') {
+      if (!val) {
         setFieldErrors((prev) => ({ ...prev, [fieldId]: 'empty field error' }));
       } else if (!isValidPassword(val)) {
-        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'wrong details' }));
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'Password must be between 15 and 128 characters' }));
+      } else {
+        setFieldErrors((prev) => {
+          if (!prev[fieldId]) return prev;
+          const next = { ...prev };
+          delete next[fieldId];
+          return next;
+        });
+      }
+      if (ownerConfirmPassword && val !== ownerConfirmPassword) {
+        setFieldErrors((prev) => ({ ...prev, ownerConfirmPassword: 'Passwords do not match' }));
+      }
+      return;
+    }
+
+    if (fieldId === 'ownerConfirmPassword') {
+      if (!val) {
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'empty field error' }));
+      } else if (val !== ownerPassword) {
+        setFieldErrors((prev) => ({ ...prev, [fieldId]: 'Passwords do not match' }));
       } else {
         setFieldErrors((prev) => {
           if (!prev[fieldId]) return prev;
@@ -240,8 +273,17 @@ export default function HomePage() {
     // If an error is currently active for this field, clear it as soon as the input satisfies validation
     if (fieldErrors[fieldId]) {
       let isFixed = false;
-      if (['ownerPassword', 'studentPassword'].includes(fieldId)) {
+      if (fieldId === 'ownerPassword') {
         isFixed = isValidPassword(val);
+        if (ownerConfirmPassword && fieldErrors['ownerConfirmPassword'] && val === ownerConfirmPassword) {
+          setFieldErrors((prev) => {
+            const next = { ...prev };
+            delete next['ownerConfirmPassword'];
+            return next;
+          });
+        }
+      } else if (fieldId === 'ownerConfirmPassword') {
+        isFixed = val === ownerPassword;
       } else if (['generatedCode', 'inputCode'].includes(fieldId)) {
         isFixed = isValidSchoolJoinCode(val);
       } else if (emailFields.includes(fieldId)) {
@@ -327,6 +369,9 @@ export default function HomePage() {
     const ePassword = validateField('ownerPassword', ownerPassword);
     if (ePassword) errors['ownerPassword'] = ePassword;
 
+    const eConfirm = validateField('ownerConfirmPassword', ownerConfirmPassword);
+    if (eConfirm) errors['ownerConfirmPassword'] = eConfirm;
+
     if (Object.keys(errors).length > 0) {
       setFieldErrors((prev) => ({ ...prev, ...errors }));
       const fieldIdMap: Record<string, string> = {
@@ -337,7 +382,8 @@ export default function HomePage() {
         timezone: 'reg-timezone',
         ownerName: 'reg-owner-name',
         ownerEmail: 'reg-owner-email',
-        ownerPassword: 'reg-owner-password'
+        ownerPassword: 'reg-owner-password',
+        ownerConfirmPassword: 'reg-owner-confirm-password'
       };
       const firstError = Object.keys(errors)[0];
       const targetId = fieldIdMap[firstError];
@@ -351,6 +397,7 @@ export default function HomePage() {
       ownerFullName: ownerName,
       ownerEmail,
       password: ownerPassword,
+      confirmPassword: ownerConfirmPassword,
       city,
       country,
       timezone,
@@ -378,6 +425,7 @@ export default function HomePage() {
           ownerFullName: ownerName,
           ownerEmail: normalizedOwnerEmail,
           password: ownerPassword,
+          confirmPassword: ownerConfirmPassword,
           city,
           country,
           timezone,
@@ -743,6 +791,7 @@ export default function HomePage() {
                     id="reg-owner-password"
                     name="ownerPassword"
                     required
+                    maxLength={128}
                     aria-required="true"
                     aria-invalid={Boolean(fieldErrors['ownerPassword'])}
                     aria-describedby={`desc-reg-owner-password${fieldErrors['ownerPassword'] ? ' err-reg-owner-password' : ''}`}
@@ -771,9 +820,76 @@ export default function HomePage() {
                   </button>
                 </div>
                 <InlineFieldError id="err-reg-owner-password" message={fieldErrors['ownerPassword']} />
+                
+                {/* Password Strength Meter */}
+                {ownerPassword.length > 0 && (
+                  <div className="mt-2 space-y-1" aria-live="polite">
+                    <div className="flex items-center justify-between">
+                      <span className="font-label text-[11px] text-surface-on-variant">Strength:</span>
+                      <span className={`font-label text-xs font-bold ${
+                        ownerStrength.score === 1 ? 'text-error' : ownerStrength.score === 2 ? 'text-tertiary' : 'text-primary'
+                      }`}>
+                        {ownerStrength.label}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-1.5 h-1.5 w-full">
+                      {[1, 2, 3, 4].map((step) => (
+                        <div
+                          key={step}
+                          className={`rounded-full transition-colors duration-200 ${
+                            step <= ownerStrength.score ? ownerStrength.colorClass : 'bg-surface-container-high'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <p id="desc-reg-owner-password" className="font-body text-[10px] text-surface-on-variant mt-1">
-                  6-11 characters, combination of letters, numbers, and at least 1 special character.
+                  15-128 characters. Uppercase, lowercase, numbers, symbols, spaces, and passphrases allowed.
                 </p>
+              </div>
+
+              <div>
+                <label htmlFor="reg-owner-confirm-password" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
+                  Confirm Password <span aria-hidden="true" className="text-error ml-0.5">*</span>
+                  <span className="sr-only"> (required)</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showOwnerConfirmPassword ? 'text' : 'password'}
+                    id="reg-owner-confirm-password"
+                    name="ownerConfirmPassword"
+                    required
+                    maxLength={128}
+                    aria-required="true"
+                    aria-invalid={Boolean(fieldErrors['ownerConfirmPassword'])}
+                    aria-describedby={`desc-reg-owner-confirm${fieldErrors['ownerConfirmPassword'] ? ' err-reg-owner-confirm' : ''}`}
+                    value={ownerConfirmPassword}
+                    onChange={(e) => handleInputChange('ownerConfirmPassword', e.target.value, setOwnerConfirmPassword)}
+                    onBlur={() => handleBlur('ownerConfirmPassword', ownerConfirmPassword)}
+                    className={`w-full px-3 py-2 pr-10 rounded-[10px] bg-surface-container-low border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${fieldErrors['ownerConfirmPassword'] ? 'border-error' : 'border-outline-variant'}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowOwnerConfirmPassword(!showOwnerConfirmPassword)}
+                    aria-label={showOwnerConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                    aria-pressed={showOwnerConfirmPassword}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-surface-on-variant hover:text-surface-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary rounded"
+                  >
+                    {showOwnerConfirmPassword ? (
+                      <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                      </svg>
+                    ) : (
+                      <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                <InlineFieldError id="err-reg-owner-confirm" message={fieldErrors['ownerConfirmPassword']} />
               </div>
 
               <div className="flex items-start gap-2 pt-1">

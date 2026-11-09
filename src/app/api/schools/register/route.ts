@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { schoolRegistrationSchema } from '@/lib/validation/schemas';
+import { checkPredictablePassword } from '@/lib/validation/password';
+import { checkPwnedPassword } from '@/lib/validation/pwned-check';
 
 export async function POST(request: Request) {
   try {
@@ -26,6 +28,27 @@ export async function POST(request: Request) {
       customCode,
       password
     } = validated.data;
+
+    // Check for predictable or personal info patterns
+    const predictability = checkPredictablePassword(password, {
+      email: ownerEmail,
+      name: ownerFullName
+    });
+    if (predictability.isPredictable) {
+      return NextResponse.json(
+        { error: predictability.reason || 'Password is too predictable. Please choose a more complex passphrase.' },
+        { status: 400 }
+      );
+    }
+
+    // Check Have I Been Pwned breach database (Registration only)
+    const pwned = await checkPwnedPassword(password);
+    if (pwned.isPwned) {
+      return NextResponse.json(
+        { error: 'This password has appeared in a known data breach. Please choose a different, unique passphrase.' },
+        { status: 400 }
+      );
+    }
 
     // Generate unique slug & fallback join code
     const baseSlug = schoolName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -79,7 +102,7 @@ export async function POST(request: Request) {
       const authEmail = ownerEmail.toLowerCase().trim();
       const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
         email: authEmail,
-        password: password || 'Kaizen2026!',
+        password: password,
         email_confirm: true,
         user_metadata: {
           role: 'OWNER',
@@ -168,4 +191,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

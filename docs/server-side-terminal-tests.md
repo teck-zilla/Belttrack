@@ -20,6 +20,7 @@ These tests hit the authoritative Next.js API route handlers running on your loc
    * On Windows PowerShell, use `curl.exe` rather than `curl` to ensure you execute native cURL instead of PowerShell's `Invoke-WebRequest` alias.
    * Single quotes around the JSON payload `-d '{...}'` prevent PowerShell from stripping internal double quotes.
    * The flag `-s` runs cURL in silent mode (hiding progress meters), while `-w "\nHTTP Status: %{http_code}\n"` prints the exact HTTP status code returned by the server.
+   * If you trigger the rate limiter while testing, pass `-H "x-simulated-ip: 10.0.0.X"` to test from an isolated simulated IP.
 
 ---
 
@@ -36,7 +37,7 @@ Active Schema: `schoolRegistrationSchema` in [`src/lib/validation/schemas.ts`](.
   ```powershell
   curl.exe -s -X POST http://localhost:3000/api/schools/register `
     -H "Content-Type: application/json" `
-    -d '{"schoolName":"Abc","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"marcus@kaizen.com","city":"London","country":"UK"}' `
+    -d '{"schoolName":"Abc","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"marcus@kaizen.com","city":"London","country":"UK","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ"}' `
     -w "`nHTTP Status: %{http_code}`n"
   ```
 * **Expected Response**:
@@ -53,7 +54,7 @@ Active Schema: `schoolRegistrationSchema` in [`src/lib/validation/schemas.ts`](.
   ```powershell
   curl.exe -s -X POST http://localhost:3000/api/schools/register `
     -H "Content-Type: application/json" `
-    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"brazilian_jiu_jitsu","ownerFullName":"Sensei","ownerEmail":"sensei@kaizen.com","city":"London","country":"UK"}' `
+    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"brazilian_jiu_jitsu","ownerFullName":"Sensei","ownerEmail":"sensei@kaizen.com","city":"London","country":"UK","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ"}' `
     -w "`nHTTP Status: %{http_code}`n"
   ```
 * **Expected Response**:
@@ -64,30 +65,81 @@ Active Schema: `schoolRegistrationSchema` in [`src/lib/validation/schemas.ts`](.
 
 ---
 
-### Test 1.3: Password Violates Complexity Policy
-* **Rule**: Password must be 6 to 11 characters and contain at least 1 letter, 1 number, and 1 special symbol.
+### Test 1.3: Password Below 15 Characters
+* **Rule**: Password must be between 15 and 128 characters (`min(15).max(128)`).
 * **Terminal Command**:
   ```powershell
   curl.exe -s -X POST http://localhost:3000/api/schools/register `
     -H "Content-Type: application/json" `
-    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"marcus@kaizen.com","city":"London","country":"UK","password":"weak"}' `
+    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"marcus@kaizen.com","city":"London","country":"UK","password":"short-password","confirmPassword":"short-password"}' `
     -w "`nHTTP Status: %{http_code}`n"
   ```
 * **Expected Response**:
   ```json
-  {"error":"wrong details"}
+  {"error":"Password must be at least 15 characters"}
   HTTP Status: 400
   ```
 
 ---
 
-### Test 1.4: Invalid Owner Email Format
+### Test 1.4: Password Confirmation Mismatch
+* **Rule**: `confirmPassword` must match `password` identically.
+* **Terminal Command**:
+  ```powershell
+  curl.exe -s -X POST http://localhost:3000/api/schools/register `
+    -H "Content-Type: application/json" `
+    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"marcus@kaizen.com","city":"London","country":"UK","password":"Kaizen#Belt9824$BJJ","confirmPassword":"DifferentPassword2026!"}' `
+    -w "`nHTTP Status: %{http_code}`n"
+  ```
+* **Expected Response**:
+  ```json
+  {"error":"Passwords do not match"}
+  HTTP Status: 400
+  ```
+
+---
+
+### Test 1.5: Predictable Character Sequence
+* **Rule**: Passwords with $\ge 8$ sequential alphanumeric characters (e.g. `123456789012345`) are rejected.
+* **Terminal Command**:
+  ```powershell
+  curl.exe -s -X POST http://localhost:3000/api/schools/register `
+    -H "Content-Type: application/json" `
+    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"marcus@kaizen.com","city":"London","country":"UK","password":"123456789012345","confirmPassword":"123456789012345"}' `
+    -w "`nHTTP Status: %{http_code}`n"
+  ```
+* **Expected Response**:
+  ```json
+  {"error":"Password contains a predictable sequence of characters."}
+  HTTP Status: 400
+  ```
+
+---
+
+### Test 1.6: Breached Password Rejection (HaveIBeenPwned)
+* **Rule**: Passwords exposed in public data breaches are rejected via $k$-anonymity lookup.
+* **Terminal Command**:
+  ```powershell
+  curl.exe -s -X POST http://localhost:3000/api/schools/register `
+    -H "Content-Type: application/json" `
+    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"marcus@kaizen.com","city":"London","country":"UK","password":"Password123!Password123!","confirmPassword":"Password123!Password123!"}' `
+    -w "`nHTTP Status: %{http_code}`n"
+  ```
+* **Expected Response**:
+  ```json
+  {"error":"This password has appeared in a known data breach. Please choose a different, unique passphrase."}
+  HTTP Status: 400
+  ```
+
+---
+
+### Test 1.7: Invalid Owner Email Format
 * **Rule**: Must be a valid email structure with trimmed whitespace and lowercase normalization.
 * **Terminal Command**:
   ```powershell
   curl.exe -s -X POST http://localhost:3000/api/schools/register `
     -H "Content-Type: application/json" `
-    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"notanemail","city":"London","country":"UK"}' `
+    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"notanemail","city":"London","country":"UK","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ"}' `
     -w "`nHTTP Status: %{http_code}`n"
   ```
 * **Expected Response**:
@@ -98,13 +150,13 @@ Active Schema: `schoolRegistrationSchema` in [`src/lib/validation/schemas.ts`](.
 
 ---
 
-### Test 1.5: Invalid Martial Arts Discipline
+### Test 1.8: Invalid Martial Arts Discipline
 * **Rule**: Discipline must be one of the allowed taxonomy values (`brazilian_jiu_jitsu`, `judo`, `karate`, `taekwondo`, `muay_thai`, `krav_maga`).
 * **Terminal Command**:
   ```powershell
   curl.exe -s -X POST http://localhost:3000/api/schools/register `
     -H "Content-Type: application/json" `
-    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"boxing","ownerFullName":"Marcus Aurelius","ownerEmail":"marcus@kaizen.com","city":"London","country":"UK"}' `
+    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"boxing","ownerFullName":"Marcus Aurelius","ownerEmail":"marcus@kaizen.com","city":"London","country":"UK","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ"}' `
     -w "`nHTTP Status: %{http_code}`n"
   ```
 * **Expected Response**:
@@ -115,13 +167,13 @@ Active Schema: `schoolRegistrationSchema` in [`src/lib/validation/schemas.ts`](.
 
 ---
 
-### Test 1.6: Malformed Custom Join Code
+### Test 1.9: Malformed Custom Join Code
 * **Rule**: Custom join codes must follow the 6-4-4 regex pattern `^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$`.
 * **Terminal Command**:
   ```powershell
   curl.exe -s -X POST http://localhost:3000/api/schools/register `
     -H "Content-Type: application/json" `
-    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"marcus@kaizen.com","city":"London","country":"UK","customCode":"INVALID_JOIN_CODE"}' `
+    -d '{"schoolName":"Kaizen BJJ Academy","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"marcus@kaizen.com","city":"London","country":"UK","customCode":"INVALID_JOIN_CODE","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ"}' `
     -w "`nHTTP Status: %{http_code}`n"
   ```
 * **Expected Response**:
@@ -145,7 +197,7 @@ Active Schema: `studentJoinCodeSchema` in [`src/lib/validation/schemas.ts`](../s
   ```powershell
   curl.exe -s -X POST http://localhost:3000/api/students/join `
     -H "Content-Type: application/json" `
-    -d '{"registrationCode":"KAIZEN-BJJ-2026","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Alex2026!","isMinor":true}' `
+    -d '{"registrationCode":"KAIZEN-BJJ-2026","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ","isMinor":true}' `
     -w "`nHTTP Status: %{http_code}`n"
   ```
 * **Expected Response**:
@@ -162,7 +214,7 @@ Active Schema: `studentJoinCodeSchema` in [`src/lib/validation/schemas.ts`](../s
   ```powershell
   curl.exe -s -X POST http://localhost:3000/api/students/join `
     -H "Content-Type: application/json" `
-    -d '{"registrationCode":"KAIZEN-BJJ-2026","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Alex2026!","isMinor":true,"guardianFullName":"Parent"}' `
+    -d '{"registrationCode":"KAIZEN-BJJ-2026","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ","isMinor":true,"guardianFullName":"Parent"}' `
     -w "`nHTTP Status: %{http_code}`n"
   ```
 * **Expected Response**:
@@ -179,7 +231,7 @@ Active Schema: `studentJoinCodeSchema` in [`src/lib/validation/schemas.ts`](../s
   ```powershell
   curl.exe -s -X POST http://localhost:3000/api/students/join `
     -H "Content-Type: application/json" `
-    -d '{"registrationCode":"KAIZEN-BJJ-2026","studentFullName":"Alex","studentEmail":"alex@example.com","password":"Alex2026!","isMinor":false}' `
+    -d '{"registrationCode":"KAIZEN-BJJ-2026","studentFullName":"Alex","studentEmail":"alex@example.com","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ","isMinor":false}' `
     -w "`nHTTP Status: %{http_code}`n"
   ```
 * **Expected Response**:
@@ -196,7 +248,7 @@ Active Schema: `studentJoinCodeSchema` in [`src/lib/validation/schemas.ts`](../s
   ```powershell
   curl.exe -s -X POST http://localhost:3000/api/students/join `
     -H "Content-Type: application/json" `
-    -d '{"registrationCode":"INVALIDCODE","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Alex2026!","isMinor":false}' `
+    -d '{"registrationCode":"INVALIDCODE","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ","isMinor":false}' `
     -w "`nHTTP Status: %{http_code}`n"
   ```
 * **Expected Response**:
@@ -213,7 +265,7 @@ Active Schema: `studentJoinCodeSchema` in [`src/lib/validation/schemas.ts`](../s
   ```powershell
   curl.exe -s -X POST http://localhost:3000/api/students/join `
     -H "Content-Type: application/json" `
-    -d '{"registrationCode":"NOPE-BJJ-9999","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Alex2026!","isMinor":false}' `
+    -d '{"registrationCode":"NOPE-BJJ-9999","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ","isMinor":false}' `
     -w "`nHTTP Status: %{http_code}`n"
   ```
 * **Expected Response**:
@@ -224,18 +276,35 @@ Active Schema: `studentJoinCodeSchema` in [`src/lib/validation/schemas.ts`](../s
 
 ---
 
-### Test 2.6: Student Password Violates Complexity Policy
-* **Rule**: Password must be 6 to 11 characters with letters, numbers, and special characters.
+### Test 2.6: Student Password Below 15 Characters
+* **Rule**: Password must be between 15 and 128 characters (`min(15).max(128)`).
 * **Terminal Command**:
   ```powershell
   curl.exe -s -X POST http://localhost:3000/api/students/join `
     -H "Content-Type: application/json" `
-    -d '{"registrationCode":"KAIZEN-BJJ-2026","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"123","isMinor":false}' `
+    -d '{"registrationCode":"KAIZEN-BJJ-2026","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"short","confirmPassword":"short","isMinor":false}' `
     -w "`nHTTP Status: %{http_code}`n"
   ```
 * **Expected Response**:
   ```json
-  {"error":"wrong details"}
+  {"error":"Password must be at least 15 characters"}
+  HTTP Status: 400
+  ```
+
+---
+
+### Test 2.7: Student Password Confirmation Mismatch
+* **Rule**: `confirmPassword` must match `password` identically.
+* **Terminal Command**:
+  ```powershell
+  curl.exe -s -X POST http://localhost:3000/api/students/join `
+    -H "Content-Type: application/json" `
+    -d '{"registrationCode":"KAIZEN-BJJ-2026","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Kaizen#Belt9824$BJJ","confirmPassword":"MismatchedPassword2026!","isMinor":false}' `
+    -w "`nHTTP Status: %{http_code}`n"
+  ```
+* **Expected Response**:
+  ```json
+  {"error":"Passwords do not match"}
   HTTP Status: 400
   ```
 
@@ -378,12 +447,16 @@ You can run all server-side validation tests sequentially in a single PowerShell
 
 ```powershell
 $tests = @(
-  @{ Name="1.1 Short School Name"; Url="http://localhost:3000/api/schools/register"; Body='{"schoolName":"Abc","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"m@k.com","city":"London","country":"UK"}'; Expected=400 },
-  @{ Name="1.2 Single-word Owner"; Url="http://localhost:3000/api/schools/register"; Body='{"schoolName":"Kaizen BJJ","discipline":"brazilian_jiu_jitsu","ownerFullName":"Sensei","ownerEmail":"m@k.com","city":"London","country":"UK"}'; Expected=400 },
-  @{ Name="1.3 Weak Owner Password"; Url="http://localhost:3000/api/schools/register"; Body='{"schoolName":"Kaizen BJJ","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"m@k.com","city":"London","country":"UK","password":"weak"}'; Expected=400 },
-  @{ Name="2.1 Minor Without Guardian"; Url="http://localhost:3000/api/students/join"; Body='{"registrationCode":"KAIZEN-BJJ-2026","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Alex2026!","isMinor":true}'; Expected=400 },
-  @{ Name="2.2 Malformed Join Code"; Url="http://localhost:3000/api/students/join"; Body='{"registrationCode":"BADCODE","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Alex2026!","isMinor":false}'; Expected=400 },
-  @{ Name="2.3 Non-existent School Code"; Url="http://localhost:3000/api/students/join"; Body='{"registrationCode":"NOPE-BJJ-9999","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Alex2026!","isMinor":false}'; Expected=404 },
+  @{ Name="1.1 Short School Name"; Url="http://localhost:3000/api/schools/register"; Body='{"schoolName":"Abc","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"m@k.com","city":"London","country":"UK","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ"}'; Expected=400 },
+  @{ Name="1.2 Single-word Owner"; Url="http://localhost:3000/api/schools/register"; Body='{"schoolName":"Kaizen BJJ","discipline":"brazilian_jiu_jitsu","ownerFullName":"Sensei","ownerEmail":"m@k.com","city":"London","country":"UK","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ"}'; Expected=400 },
+  @{ Name="1.3 Short Password (<15)"; Url="http://localhost:3000/api/schools/register"; Body='{"schoolName":"Kaizen BJJ","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"m@k.com","city":"London","country":"UK","password":"short","confirmPassword":"short"}'; Expected=400 },
+  @{ Name="1.4 Mismatched Confirm Password"; Url="http://localhost:3000/api/schools/register"; Body='{"schoolName":"Kaizen BJJ","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"m@k.com","city":"London","country":"UK","password":"Kaizen#Belt9824$BJJ","confirmPassword":"DifferentPassword2026!"}'; Expected=400 },
+  @{ Name="1.5 Predictable Sequence Password"; Url="http://localhost:3000/api/schools/register"; Body='{"schoolName":"Kaizen BJJ","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"m@k.com","city":"London","country":"UK","password":"123456789012345","confirmPassword":"123456789012345"}'; Expected=400 },
+  @{ Name="1.6 Breached Password"; Url="http://localhost:3000/api/schools/register"; Body='{"schoolName":"Kaizen BJJ","discipline":"brazilian_jiu_jitsu","ownerFullName":"Marcus Aurelius","ownerEmail":"m@k.com","city":"London","country":"UK","password":"Password123!Password123!","confirmPassword":"Password123!Password123!"}'; Expected=400 },
+  @{ Name="2.1 Minor Without Guardian"; Url="http://localhost:3000/api/students/join"; Body='{"registrationCode":"KAIZEN-BJJ-2026","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ","isMinor":true}'; Expected=400 },
+  @{ Name="2.2 Malformed Join Code"; Url="http://localhost:3000/api/students/join"; Body='{"registrationCode":"BADCODE","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ","isMinor":false}'; Expected=400 },
+  @{ Name="2.3 Non-existent School Code"; Url="http://localhost:3000/api/students/join"; Body='{"registrationCode":"NOPE-BJJ-9999","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"Kaizen#Belt9824$BJJ","confirmPassword":"Kaizen#Belt9824$BJJ","isMinor":false}'; Expected=404 },
+  @{ Name="2.6 Short Student Password (<15)"; Url="http://localhost:3000/api/students/join"; Body='{"registrationCode":"KAIZEN-BJJ-2026","studentFullName":"Alex Mercer","studentEmail":"alex@example.com","password":"short","confirmPassword":"short","isMinor":false}'; Expected=400 },
   @{ Name="3.1 Missing Login Identifiers"; Url="http://localhost:3000/api/auth/login"; Body='{"password":"Password123!"}'; Expected=400 },
   @{ Name="3.2 Invalid Email Login"; Url="http://localhost:3000/api/auth/login"; Body='{"email":"invalid-email","password":"Password123!"}'; Expected=400 },
   @{ Name="3.3 Non-existent School Login"; Url="http://localhost:3000/api/auth/login"; Body='{"schoolCode":"FAKE-BJJ-9999","password":"Password123!"}'; Expected=404 },
@@ -391,8 +464,11 @@ $tests = @(
 )
 
 Write-Host "--- Running BeltTrack Server-Side Validation Suite ---" -ForegroundColor Cyan
+$i = 100
 foreach ($t in $tests) {
-  $res = curl.exe -s -X POST $t.Url -H "Content-Type: application/json" -d $t.Body -w "%{http_code}"
+  $ip = "192.168.100.$i"
+  $i++
+  $res = curl.exe -s -X POST $t.Url -H "Content-Type: application/json" -H "x-simulated-ip: $ip" -d $t.Body -w "%{http_code}"
   $status = [int]$res.Substring($res.Length - 3)
   $body = $res.Substring(0, $res.Length - 3)
   if ($status -eq $t.Expected) {
@@ -411,10 +487,14 @@ foreach ($t in $tests) {
 | :--- | :--- | :--- | :--- | :--- |
 | **Short School Name** | `POST /api/schools/register` | `400 Bad Request` | Zod (`schoolRegistrationSchema`) | `min(4)` length rule |
 | **Single-Word Owner Name** | `POST /api/schools/register` | `400 Bad Request` | Zod (`schoolRegistrationSchema`) | `.refine()` $\ge 2$ words |
-| **Weak Password** | `POST /api/schools/register` | `400 Bad Request` | Zod (`schoolRegistrationSchema`) | Regex complexity & length $6-11$ |
+| **Password < 15 Chars** | `POST /api/schools/register` | `400 Bad Request` | Zod (`passwordCreationSchema`) | `min(15).max(128)` length rule |
+| **Password Mismatch** | `POST /api/schools/register` | `400 Bad Request` | Zod (`schoolRegistrationSchema`) | `.refine(p === cp)` confirmation |
+| **Predictable Sequence** | `POST /api/schools/register` | `400 Bad Request` | Password Logic (`password.ts`)| Rejects repetition & patterns |
+| **Breached Password** | `POST /api/schools/register` | `400 Bad Request` | Breach Checker (`pwned-check.ts`)| HIBP $k$-anonymity verification |
 | **Invalid Discipline Enum** | `POST /api/schools/register` | `400 Bad Request` | Zod (`schoolRegistrationSchema`) | `disciplineEnum` membership |
 | **Minor Without Guardian** | `POST /api/students/join` | `400 Bad Request` | Zod (`studentJoinCodeSchema`) | Conditional cross-field `.refine()` |
 | **Single-Word Student Name**| `POST /api/students/join` | `400 Bad Request` | Zod (`studentJoinCodeSchema`) | `.refine()` $\ge 2$ words |
+| **Student Password < 15 Chars**| `POST /api/students/join` | `400 Bad Request` | Zod (`passwordCreationSchema`)| `min(15).max(128)` length rule |
 | **Malformed Join Code** | `POST /api/students/join` | `400 Bad Request` | Zod (`studentJoinCodeSchema`) | 6-4-4 Regex pattern |
 | **Inactive/Non-existent Code**| `POST /api/students/join` | `404 Not Found` | Prisma Route Handler | `prisma.school.findUnique()` & `isCodeActive` |
 | **Duplicate Student Email** | `POST /api/students/join` | `409 Conflict` | Prisma Route Handler | `prisma.user.findUnique()` email uniqueness |
@@ -424,4 +504,3 @@ foreach ($t in $tests) {
 | **Brute-Force Rate Limiting**| `POST /api/auth/login` | `429 Too Many Requests` | Next.js Middleware (`rate-limit.ts`) | 5 requests per 15 min per IP |
 | **Join Code Enumeration** | `POST /api/students/join` | `429 Too Many Requests` | Next.js Middleware (`rate-limit.ts`) | 10 requests per 15 min per IP |
 | **School Register Flooding**| `POST /api/schools/register`| `429 Too Many Requests` | Next.js Middleware (`rate-limit.ts`) | 5 requests per 1 hour per IP |
-

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { studentJoinCodeSchema } from '@/lib/validation/schemas';
+import { checkPredictablePassword } from '@/lib/validation/password';
+import { checkPwnedPassword } from '@/lib/validation/pwned-check';
 
 export async function POST(request: Request) {
   try {
@@ -24,6 +26,27 @@ export async function POST(request: Request) {
       guardianFullName,
       guardianEmail
     } = validated.data;
+
+    // Reject predictable sequences, excessive repetition, or user info
+    const predictability = checkPredictablePassword(password, {
+      email: studentEmail,
+      name: studentFullName
+    });
+    if (predictability.isPredictable) {
+      return NextResponse.json(
+        { error: predictability.reason || 'Password is too predictable. Please choose a more complex passphrase.' },
+        { status: 400 }
+      );
+    }
+
+    // Reject compromised/breached passwords via HIBP k-Anonymity (Registration only)
+    const pwned = await checkPwnedPassword(password);
+    if (pwned.isPwned) {
+      return NextResponse.json(
+        { error: 'This password has appeared in a known data breach. Please choose a different, unique passphrase.' },
+        { status: 400 }
+      );
+    }
 
     // Verify school exists by join code
     const school = await prisma.school.findUnique({
@@ -182,4 +205,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

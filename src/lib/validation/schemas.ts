@@ -48,6 +48,15 @@ export const optionalEmailSchema = z
   .optional();
 
 /**
+ * Secure Password Creation Schema
+ * Requires 15 to 128 characters. Explicitly permits letters, digits, symbols, spaces, and passphrases.
+ */
+export const passwordCreationSchema = z
+  .string()
+  .min(15, 'Password must be at least 15 characters')
+  .max(128, 'Password must not exceed 128 characters');
+
+/**
  * 1. DOJO OWNER REGISTRATION SCHEMA
  */
 export const schoolRegistrationSchema = z.object({
@@ -64,15 +73,8 @@ export const schoolRegistrationSchema = z.object({
       message: 'Owner name must have at least 2 words or names'
     }),
   ownerEmail: emailSchema,
-  password: z
-    .string()
-    .min(6, 'wrong details')
-    .max(11, 'wrong details')
-    .regex(
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,11}$/,
-      'wrong details'
-    )
-    .default('Kaizen2026!'),
+  password: passwordCreationSchema,
+  confirmPassword: z.string().min(1, 'Please confirm your password'),
   city: z
     .string()
     .min(2, 'City is required')
@@ -92,6 +94,9 @@ export const schoolRegistrationSchema = z.object({
   isPublicInDirectory: z
     .boolean()
     .default(true)
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword']
 });
 
 export type SchoolRegistrationInput = z.infer<typeof schoolRegistrationSchema>;
@@ -111,14 +116,8 @@ export const studentJoinCodeSchema = z.object({
       message: 'Student name must have at least 2 words or names'
     }),
   studentEmail: emailSchema,
-  password: z
-    .string()
-    .min(6, 'wrong details')
-    .max(11, 'wrong details')
-    .regex(
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,11}$/,
-      'wrong details'
-    ),
+  password: passwordCreationSchema,
+  confirmPassword: z.string().min(1, 'Please confirm your password'),
   isMinor: z
     .boolean()
     .default(false),
@@ -130,6 +129,9 @@ export const studentJoinCodeSchema = z.object({
       message: 'Guardian name must be at least 3 characters and have at least 2 words or names'
     }),
   guardianEmail: optionalEmailSchema
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword']
 }).refine(data => {
   if (data.isMinor && !data.guardianFullName) {
     return false;
@@ -191,7 +193,7 @@ export const ledgerEntrySchema = z.object({
 export const loginSchema = z.object({
   email: optionalEmailSchema,
   schoolCode: z.string().regex(/^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$/, 'wrong details').optional(),
-  password: z.string().min(6, 'Password must be at least 6 characters')
+  password: z.string().min(1, 'Password is required').max(128, 'Password must not exceed 128 characters')
 }).refine(data => Boolean(data.email || data.schoolCode), {
   message: 'Either email or school code is required',
   path: ['email']
