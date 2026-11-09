@@ -71,29 +71,47 @@ export function formatRetryTime(seconds: number): string {
 }
 
 /**
- * Resolves the client IP address from proxy and edge headers.
+ * Resolves the client IP address from proxy, edge, or dev simulation headers.
+ * 
+ * SECURITY: Simulated IP addresses via 'x-simulated-ip' are strictly restricted to 
+ * non-production environments (NODE_ENV !== 'production' && (NODE_ENV === 'development' || NODE_ENV === 'test' || ENABLE_SIMULATED_IP === 'true')).
+ * In production deployments, this header is entirely ignored, and only trusted infrastructure headers are evaluated.
  */
 export function getClientIp(request: Request): string {
-  // 1. Standard proxy header (comma-separated list, first entry is client IP)
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isDevOrTest =
+    process.env.NODE_ENV === 'development' ||
+    process.env.NODE_ENV === 'test' ||
+    process.env.ENABLE_SIMULATED_IP === 'true';
+
+  // 1. Development & Test Simulation (strictly ignored in production)
+  if (!isProduction && isDevOrTest) {
+    const simulatedIp = request.headers.get('x-simulated-ip');
+    if (simulatedIp && simulatedIp.trim()) {
+      return simulatedIp.trim();
+    }
+  }
+
+  // 2. Standard proxy header (comma-separated list, first entry is client IP)
   const xForwardedFor = request.headers.get('x-forwarded-for');
   if (xForwardedFor) {
     const firstIp = xForwardedFor.split(',')[0].trim();
     if (firstIp) return firstIp;
   }
 
-  // 2. Direct reverse proxy header
+  // 3. Direct reverse proxy header
   const xRealIp = request.headers.get('x-real-ip');
   if (xRealIp && xRealIp.trim()) {
     return xRealIp.trim();
   }
 
-  // 3. Cloudflare connecting IP
+  // 4. Cloudflare connecting IP
   const cfConnectingIp = request.headers.get('cf-connecting-ip');
   if (cfConnectingIp && cfConnectingIp.trim()) {
     return cfConnectingIp.trim();
   }
 
-  // 4. Local development fallback
+  // 5. Local development fallback
   return '127.0.0.1';
 }
 
