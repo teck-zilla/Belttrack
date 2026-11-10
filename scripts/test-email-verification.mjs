@@ -91,6 +91,12 @@ async function runEmailVerificationSuite() {
   assert(successVerify.success === true, 'Correct 6-digit code successfully verified');
   assert(isEmailVerified(testEmail) === true, 'isEmailVerified() now returns true');
 
+  // --- Test 5b: Replay rejection / second use of same valid code ---
+  console.log('\n[Test 5b] Testing replay rejection on second use of same valid code...');
+  const replayVerify = verifyCode(testEmail, createResult.code);
+  assert(!replayVerify.success, 'Replay of same valid code is rejected');
+  assert(replayVerify.error && replayVerify.error.includes('already been used'), 'Error message indicates code already used');
+
   // --- Test 6: Expired code handling ---
   console.log('\n[Test 6] Testing expired code rejection...');
   const expiredEmail = 'expired@kaizen.org';

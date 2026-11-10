@@ -468,7 +468,8 @@ export function verifyCode(
 
   if (record.verified) {
     return {
-      success: true
+      success: false,
+      error: 'This verification code has already been used. Email is already verified.'
     };
   }
 
