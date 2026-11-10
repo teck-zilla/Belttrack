@@ -137,4 +137,32 @@ Migration: [`prisma/migrations/20261110100000_add_user_email_verified/migration.
 - **Deployment**: Applied via `npx prisma migrate deploy` targeting direct PostgreSQL port `5432`.
 - **Runtime Integration**: Route handlers in `/api/auth/verify-email`, `/api/auth/me`, and `/api/auth/login` persist and query the column directly, falling back gracefully to memory store checks.
 
+---
+
+## 7. SMTP Transporter Integration
+
+### Overview
+Implementation: [`src/lib/email-verification.ts`](../src/lib/email-verification.ts)
+
+BeltTrack supports outbound transactional email delivery via `nodemailer`. When SMTP environment variables are configured, verification emails are dispatched over SMTP with a responsive HTML template and plaintext fallback. When SMTP is unconfigured or during local offline development, it gracefully falls back to structured console logging.
+
+### Environment Variables
+Configure the following in `.env` or `.env.local`:
+```env
+# SMTP Outbound Email Configuration
+SMTP_HOST=smtp.sendgrid.net           # e.g., smtp.resend.com, email-smtp.us-east-1.amazonaws.com
+SMTP_PORT=587                         # 587 (TLS/STARTTLS) or 465 (SSL)
+SMTP_SECURE=false                     # 'true' for port 465, 'false' for 587
+SMTP_USER=apikey                      # SMTP username or API key
+SMTP_PASS=your-smtp-api-key           # SMTP password or token
+SMTP_FROM="BeltTrack Dojo <no-reply@yourdomain.com>"
+```
+
+### Automated SMTP Test Suite
+Run the automated test suite:
+```bash
+npm run test:smtp
+```
+
+
 

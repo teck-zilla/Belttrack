@@ -7,6 +7,8 @@
  */
 
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 
 export interface VerificationRecord {
   email: string;
@@ -57,17 +59,104 @@ export function generateVerificationCode(): string {
 }
 
 /**
- * Dispatches or logs the transactional verification email.
- * In development and MVP environments without external SMTP/SES workers,
- * outputs the complete structured email to the server console.
+ * Safely initializes or retrieves the SMTP transporter singleton.
+ * Returns null if SMTP_HOST or SMTP_USER are not configured in environment variables.
+ */
+let smtpTransporter: Transporter | null = null;
+
+export function getSmtpTransporter(): Transporter | null {
+  const host = process.env.SMTP_HOST?.trim();
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.trim();
+
+  if (!host || !user) {
+    return null;
+  }
+
+  if (!smtpTransporter) {
+    const port = Number(process.env.SMTP_PORT) || 587;
+    const secure = process.env.SMTP_SECURE === 'true' || port === 465;
+
+    smtpTransporter = nodemailer.createTransport({
+      host,
+      port,
+      secure,
+      auth: {
+        user,
+        pass: pass || ''
+      },
+      connectionTimeout: 5000,
+      greetingTimeout: 5000,
+      socketTimeout: 10000
+    });
+  }
+
+  return smtpTransporter;
+}
+
+/**
+ * Checks whether SMTP delivery is configured in the current environment.
+ */
+export function isSmtpConfigured(): boolean {
+  return Boolean(process.env.SMTP_HOST?.trim() && process.env.SMTP_USER?.trim());
+}
+
+/**
+ * Dispatches the transactional verification email via configured SMTP transporter.
+ * Gracefully falls back to structured server console logging when SMTP is unconfigured,
+ * offline, or encounters delivery failure.
  */
 export async function sendVerificationEmail(email: string, code: string): Promise<boolean> {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) return false;
 
-  const timestamp = new Date().toISOString();
+  const transporter = getSmtpTransporter();
 
-  // Output structured transactional email to the server console
+  // If SMTP is configured, attempt outbound delivery via SMTP transporter
+  if (transporter) {
+    const startTime = performance.now();
+    try {
+      const fromAddress = process.env.SMTP_FROM?.trim() || '"BeltTrack Martial Arts" <no-reply@belttrack.app>';
+      await transporter.sendMail({
+        from: fromAddress,
+        to: normalizedEmail,
+        subject: 'BeltTrack - Verify Your Email Address',
+        text: `Welcome to BeltTrack Martial Arts Management!\n\nYour 6-digit account verification code is: ${code}\n\nThis code will expire in 6 minutes.\nEnter this code in your BeltTrack dashboard banner to confirm your email.\nIf you did not register for an account, please disregard this email.`,
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; border: 1px solid lightgray; border-radius: 8px; background-color: white; color: black;">
+            <div style="margin-bottom: 20px;">
+              <span style="font-weight: bold; font-size: 18px; letter-spacing: 0.5px; color: black;">BELTTRACK</span>
+              <span style="font-size: 13px; color: dimgray; margin-left: 8px;">Martial Arts Management</span>
+            </div>
+            <h2 style="font-size: 20px; font-weight: 600; margin: 0 0 12px; color: black;">Verify Your Email Address</h2>
+            <p style="font-size: 14px; line-height: 1.5; color: dimgray; margin: 0 0 20px;">
+              Welcome to BeltTrack! Use the 6-digit verification code below to confirm your email address and activate your account.
+            </p>
+            <div style="background-color: whitesmoke; border: 1px solid lightgray; border-radius: 6px; padding: 16px; text-align: center; margin: 0 0 20px;">
+              <span style="font-family: monospace; font-size: 32px; font-weight: bold; letter-spacing: 8px; color: black;">${code}</span>
+            </div>
+            <p style="font-size: 13px; color: gray; margin: 0 0 16px;">
+              This code will expire in <strong>6 minutes</strong>.
+            </p>
+            <hr style="border: none; border-top: 1px solid lightgray; margin: 20px 0;" />
+            <p style="font-size: 12px; color: gray; margin: 0;">
+              If you did not create a BeltTrack account, you can safely disregard this email.
+            </p>
+          </div>
+        `
+      });
+
+      const durationMs = Math.round(performance.now() - startTime);
+      console.log(`[BELTTRACK AUTH] Verification email successfully dispatched via SMTP to: ${normalizedEmail} [${durationMs}ms]`);
+      return true;
+    } catch (smtpErr) {
+      const durationMs = Math.round(performance.now() - startTime);
+      console.warn(`[BELTTRACK AUTH] SMTP dispatch failed after ${durationMs}ms, falling back to console logger:`, smtpErr);
+    }
+  }
+
+  // Graceful fallback: output structured transactional email to the server console
+  const timestamp = new Date().toISOString();
   console.log('\n======================================================================');
   console.log('              BELTTRACK TRANSACTIONAL EMAIL DISPATCH                  ');
   console.log('======================================================================');
