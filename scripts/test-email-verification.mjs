@@ -67,7 +67,7 @@ async function runEmailVerificationSuite() {
   const createResult = await createAndSendVerificationCode(testEmail);
   assert(createResult.success === true, 'Verification code created and dispatched successfully');
   assert(typeof createResult.code === 'string' && createResult.code.length === 6, 'Generated code is 6 digits');
-  assert(createResult.expiresAt > Date.now() + 14 * 60 * 1000, 'Expiration is set to ~15 minutes');
+  assert(createResult.expiresAt > Date.now() + 5 * 60 * 1000, 'Expiration is set to ~6 minutes');
 
   const record = getVerificationRecord(testEmail);
   assert(record !== undefined && record.code === createResult.code, 'Record correctly stored in verification store');
@@ -113,7 +113,7 @@ async function runEmailVerificationSuite() {
     verifyCode(lockoutEmail, '000000');
   }
   const lockedOut = verifyCode(lockoutEmail, lockoutCreate.code);
-  assert(!lockedOut.success, 'Submitting correct code after 5 failures is rejected');
+  assert(!lockedOut.success, 'Submitting correct code after 3 failures is rejected');
   assert(lockedOut.error && lockedOut.error.includes('exceeded'), 'Lockout error reported');
 
   console.log('\n==================================================');

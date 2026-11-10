@@ -30,9 +30,9 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Constants
-export const CODE_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
+export const CODE_EXPIRY_MS = 6 * 60 * 1000;  // 6 minutes
 export const RESEND_COOLDOWN_MS = 60 * 1000;  // 60 seconds
-export const MAX_VERIFICATION_ATTEMPTS = 5;
+export const MAX_VERIFICATION_ATTEMPTS = 3;
 
 /**
  * Safely normalizes an email address without throwing TypeErrors.
@@ -80,7 +80,7 @@ export async function sendVerificationEmail(email: string, code: string): Promis
   console.log(`Your 6-digit account verification code is:`);
   console.log(`                   >>>  ${code}  <<<`);
   console.log('');
-  console.log('This code will expire in 15 minutes.');
+  console.log('This code will expire in 6 minutes.');
   console.log('Enter this code in your BeltTrack dashboard banner to confirm your email.');
   console.log('If you did not register for an account, please disregard this email.');
   console.log('======================================================================\n');

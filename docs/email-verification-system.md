@@ -26,8 +26,8 @@ export function generateVerificationCode(): string {
 ### Security & Integrity Properties:
 - **Strict 6-Digit Format**: Output is guaranteed to be between `"100000"` and `"999999"`.
 - **Cryptographic Randomness**: Uses OS-level entropy via `crypto.randomBytes` rather than predictable pseudorandom generators like `Math.random()`.
-- **15-Minute Expiration**: Codes automatically expire 15 minutes after dispatch (`CODE_EXPIRY_MS = 15 * 60 * 1000`).
-- **Brute-Force Lockout**: A maximum of 5 failed verification attempts are permitted per code before the code is invalidated.
+- **6-Minute Expiration**: Codes automatically expire 6 minutes after dispatch (`CODE_EXPIRY_MS = 6 * 60 * 1000`).
+- **Brute-Force Lockout**: A maximum of 3 failed verification attempts are permitted per code before the code is invalidated.
 - **Resend Cooldown**: A 60-second cooldown rate limit prevents spamming code resends.
 
 ---
@@ -104,11 +104,37 @@ npm run test:email-verify
 
 ### Test Coverage:
 1. `randomBytes` 6-digit uniform distribution and format verification.
-2. Code creation, store persistence, and 15-minute expiration calculation.
+2. Code creation, store persistence, and 6-minute expiration calculation.
 3. Transactional email dispatch logging.
 4. Mismatched code rejection with attempt tracking.
 5. 60-second resend cooldown rate limit enforcement.
 6. Successful verification and state updating (`isEmailVerified = true`).
 7. Expired code rejection.
-8. Maximum attempt (5 tries) lockout.
+8. Maximum attempt (3 tries) lockout.
+
+---
+
+## 6. PostgreSQL Database Persistence & Migration
+
+### Schema Model
+The `User` model in `prisma/schema.prisma` persists verification status via:
+```prisma
+model User {
+  id               String            @id @default(uuid())
+  ...
+  isEmailVerified  Boolean           @default(false) @map("email_verified")
+  ...
+}
+```
+
+### Applied Migration
+Migration: [`prisma/migrations/20261110100000_add_user_email_verified/migration.sql`](../prisma/migrations/20261110100000_add_user_email_verified/migration.sql)
+- **DDL Execution**:
+  ```sql
+  ALTER TABLE "User" ADD COLUMN "email_verified" BOOLEAN NOT NULL DEFAULT false;
+  UPDATE "User" SET "email_verified" = true WHERE "email" = 'headcoach@kaizenbjj.org';
+  ```
+- **Deployment**: Applied via `npx prisma migrate deploy` targeting direct PostgreSQL port `5432`.
+- **Runtime Integration**: Route handlers in `/api/auth/verify-email`, `/api/auth/me`, and `/api/auth/login` persist and query the column directly, falling back gracefully to memory store checks.
+
 

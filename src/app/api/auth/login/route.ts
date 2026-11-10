@@ -204,7 +204,7 @@ export async function POST(request: Request) {
         school_slug: dbUser.school?.slug || null,
         first_name: dbUser.profile?.firstName || null,
         last_name: dbUser.profile?.lastName || null,
-        email_verified: isEmailVerified(dbUser.email)
+        email_verified: Boolean(dbUser.isEmailVerified || isEmailVerified(dbUser.email))
       },
       school: dbUser.school ? formatSchool(dbUser.school) : null
     });
