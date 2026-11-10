@@ -15,6 +15,9 @@ function formatSchool(school: {
   createdAt: Date;
   updatedAt: Date;
 }) {
+  const safeCreated = school.createdAt ? new Date(school.createdAt).toISOString() : new Date().toISOString();
+  const safeUpdated = school.updatedAt ? new Date(school.updatedAt).toISOString() : new Date().toISOString();
+
   return {
     id: school.id,
     name: school.name,
@@ -26,48 +29,66 @@ function formatSchool(school: {
     country: 'United Kingdom',
     timezone: school.timezone || 'UTC',
     is_public: true,
-    created_at: school.createdAt.toISOString(),
-    updated_at: school.updatedAt.toISOString(),
+    created_at: safeCreated,
+    updated_at: safeUpdated,
   };
 }
 
 export async function GET() {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    let authUser = null;
 
-    if (authError || !user) {
+    try {
+      const supabase = await createClient();
+      const { data, error: authError } = await supabase.auth.getUser();
+      if (!authError && data?.user) {
+        authUser = data.user;
+      }
+    } catch {
+      // Graceful fallback when Supabase is unconfigured or offline in dev/preview
       return NextResponse.json({
         authenticated: false,
         user: null
       });
     }
 
-    const normalizedEmail = user.email?.toLowerCase().trim();
+    if (!authUser) {
+      return NextResponse.json({
+        authenticated: false,
+        user: null
+      });
+    }
+
+    const normalizedEmail = authUser.email?.toLowerCase().trim();
 
     // Query tenant-scoped user record
-    let dbUser = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { supabaseUid: user.id },
-          ...(normalizedEmail ? [{ email: normalizedEmail }] : [])
-        ]
-      },
-      include: {
-        school: true,
-        profile: true
-      }
-    });
-
-    if (dbUser && !dbUser.supabaseUid) {
-      dbUser = await prisma.user.update({
-        where: { id: dbUser.id },
-        data: { supabaseUid: user.id },
+    let dbUser = null;
+    try {
+      dbUser = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { supabaseUid: authUser.id },
+            ...(normalizedEmail ? [{ email: normalizedEmail }] : [])
+          ]
+        },
         include: {
           school: true,
           profile: true
         }
       });
+
+      if (dbUser && !dbUser.supabaseUid) {
+        dbUser = await prisma.user.update({
+          where: { id: dbUser.id },
+          data: { supabaseUid: authUser.id },
+          include: {
+            school: true,
+            profile: true
+          }
+        });
+      }
+    } catch (dbErr) {
+      console.warn('[BELTTRACK AUTH /api/auth/me] Database query fallback:', dbErr);
     }
 
     if (!dbUser) {
@@ -75,11 +96,12 @@ export async function GET() {
         authenticated: true,
         needsOnboarding: true,
         user: {
-          id: user.id,
-          email: user.email,
+          id: authUser.id,
+          email: authUser.email,
           role: null,
           status: 'pending_approval',
-          school_id: null
+          school_id: null,
+          email_verified: isEmailVerified(authUser.email)
         }
       });
     }
@@ -88,13 +110,13 @@ export async function GET() {
       authenticated: true,
       user: {
         id: dbUser.id,
-        supabase_uid: user.id,
+        supabase_uid: authUser.id,
         email: dbUser.email,
         role: dbUser.role.toLowerCase(),
         status: dbUser.status.toLowerCase(),
         school_id: dbUser.schoolId,
-        school_name: dbUser.school.name,
-        school_slug: dbUser.school.slug,
+        school_name: dbUser.school?.name || null,
+        school_slug: dbUser.school?.slug || null,
         first_name: dbUser.profile?.firstName || null,
         last_name: dbUser.profile?.lastName || null,
         email_verified: isEmailVerified(dbUser.email)
@@ -103,7 +125,7 @@ export async function GET() {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to retrieve active session';
+    console.error('[BELTTRACK AUTH /api/auth/me] Unexpected server error:', error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

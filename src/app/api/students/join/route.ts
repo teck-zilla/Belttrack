@@ -8,7 +8,16 @@ import { createAndSendVerificationCode } from '@/lib/email-verification';
 
 export async function POST(request: Request) {
   try {
-    const json = await request.json();
+    let json: unknown;
+    try {
+      json = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid or missing JSON payload in request body' },
+        { status: 400 }
+      );
+    }
+
     const validated = studentJoinCodeSchema.safeParse(json);
 
     if (!validated.success) {
@@ -216,7 +225,7 @@ export async function POST(request: Request) {
           stripes_count: 0,
           total_classes_attended: 0,
           is_flagged_inactive: false,
-          enrolled_at: result.profile.createdAt.toISOString()
+          enrolled_at: result.profile.createdAt ? new Date(result.profile.createdAt).toISOString() : new Date().toISOString()
         }
       },
       { status: 201 }

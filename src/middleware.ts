@@ -75,7 +75,11 @@ export async function middleware(request: NextRequest) {
 
   // IMPORTANT: Do not run code between createServerClient and supabase.auth.getUser().
   // getUser() validates the JWT against Supabase Auth and updates cookies if refreshed.
-  await supabase.auth.getUser();
+  try {
+    await supabase.auth.getUser();
+  } catch {
+    // Graceful catch: never crash middleware with HTTP 500 on transient auth session refresh errors
+  }
 
   return supabaseResponse;
 }

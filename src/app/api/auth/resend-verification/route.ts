@@ -9,7 +9,16 @@ const resendPayloadSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const json = await request.json();
+    let json: unknown;
+    try {
+      json = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid or missing JSON payload in request body' },
+        { status: 400 }
+      );
+    }
+
     const parsed = resendPayloadSchema.safeParse(json);
 
     if (!parsed.success) {
@@ -41,7 +50,7 @@ export async function POST(request: Request) {
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal error resending verification';
+    console.error('[BELTTRACK AUTH /api/auth/resend-verification] POST error:', error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

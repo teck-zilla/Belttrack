@@ -3,7 +3,7 @@
  * 
  * Implements cryptographically secure 6-digit verification code generation
  * using Node.js crypto.randomBytes, transactional email dispatch logging,
- * and stateful verification tracking.
+ * and stateful verification tracking with defensive error handling.
  */
 
 import crypto from 'crypto';
@@ -35,6 +35,14 @@ export const RESEND_COOLDOWN_MS = 60 * 1000;  // 60 seconds
 export const MAX_VERIFICATION_ATTEMPTS = 5;
 
 /**
+ * Safely normalizes an email address without throwing TypeErrors.
+ */
+function normalizeEmail(email: unknown): string {
+  if (typeof email !== 'string') return '';
+  return email.toLowerCase().trim();
+}
+
+/**
  * Generates a cryptographically secure 6-digit numeric verification code
  * using the Node.js crypto.randomBytes algorithm.
  * 
@@ -54,7 +62,9 @@ export function generateVerificationCode(): string {
  * outputs the complete structured email to the server console.
  */
 export async function sendVerificationEmail(email: string, code: string): Promise<boolean> {
-  const normalizedEmail = email.toLowerCase().trim();
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return false;
+
   const timestamp = new Date().toISOString();
 
   // Output structured transactional email to the server console
@@ -84,9 +94,12 @@ export async function sendVerificationEmail(email: string, code: string): Promis
 export async function createAndSendVerificationCode(
   email: string
 ): Promise<{ success: boolean; error?: string; expiresAt?: number; code?: string }> {
-  const normalizedEmail = email.toLowerCase().trim();
-  const now = Date.now();
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) {
+    return { success: false, error: 'A valid email address is required.' };
+  }
 
+  const now = Date.now();
   const existing = verificationStore.get(normalizedEmail);
 
   // Check cooldown if existing record was sent recently
@@ -128,10 +141,23 @@ export function verifyCode(
   email: string,
   inputCode: string
 ): { success: boolean; error?: string } {
-  const normalizedEmail = email.toLowerCase().trim();
-  const cleanedCode = inputCode.trim();
-  const now = Date.now();
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) {
+    return {
+      success: false,
+      error: 'Invalid or missing email address.'
+    };
+  }
 
+  const cleanedCode = typeof inputCode === 'string' ? inputCode.trim() : '';
+  if (!cleanedCode) {
+    return {
+      success: false,
+      error: 'Verification code is required.'
+    };
+  }
+
+  const now = Date.now();
   const record = verificationStore.get(normalizedEmail);
 
   if (!record) {
@@ -186,8 +212,9 @@ export function verifyCode(
 /**
  * Checks whether an email address is verified.
  */
-export function isEmailVerified(email: string): boolean {
-  const normalizedEmail = email.toLowerCase().trim();
+export function isEmailVerified(email?: string | null): boolean {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return false;
   const record = verificationStore.get(normalizedEmail);
   return record ? record.verified : false;
 }
@@ -196,7 +223,9 @@ export function isEmailVerified(email: string): boolean {
  * Manually marks an email as verified or unverified.
  */
 export function setEmailVerified(email: string, verified: boolean): void {
-  const normalizedEmail = email.toLowerCase().trim();
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return;
+
   const existing = verificationStore.get(normalizedEmail);
   if (existing) {
     existing.verified = verified;
@@ -218,9 +247,15 @@ export function setEmailVerified(email: string, verified: boolean): void {
 export async function resendVerificationCode(
   email: string
 ): Promise<{ success: boolean; error?: string; retryAfter?: number; code?: string }> {
-  const normalizedEmail = email.toLowerCase().trim();
-  const now = Date.now();
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) {
+    return {
+      success: false,
+      error: 'A valid email address is required.'
+    };
+  }
 
+  const now = Date.now();
   const record = verificationStore.get(normalizedEmail);
 
   if (record && !record.verified) {
@@ -243,13 +278,17 @@ export async function resendVerificationCode(
  * Retrieves the current verification record (for diagnostic/test inspection).
  */
 export function getVerificationRecord(email: string): VerificationRecord | undefined {
-  return verificationStore.get(email.toLowerCase().trim());
+  const normalized = normalizeEmail(email);
+  if (!normalized) return undefined;
+  return verificationStore.get(normalized);
 }
 
 /**
  * Clears verification state for an email (useful for test resets).
  */
 export function clearVerificationState(email: string): void {
-  verificationStore.delete(email.toLowerCase().trim());
+  const normalized = normalizeEmail(email);
+  if (normalized) {
+    verificationStore.delete(normalized);
+  }
 }
-

@@ -10,7 +10,16 @@ const verifyPayloadSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const json = await request.json();
+    let json: unknown;
+    try {
+      json = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid or missing JSON payload in request body' },
+        { status: 400 }
+      );
+    }
+
     const parsed = verifyPayloadSchema.safeParse(json);
 
     if (!parsed.success) {
@@ -39,14 +48,24 @@ export async function POST(request: Request) {
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal error processing verification';
+    console.error('[BELTTRACK AUTH /api/auth/verify-email] POST error:', error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const email = searchParams.get('email');
+    let url: URL;
+    try {
+      url = new URL(request.url, 'http://localhost:3000');
+    } catch {
+      return NextResponse.json(
+        { error: 'Malformed request URL' },
+        { status: 400 }
+      );
+    }
+
+    const email = url.searchParams.get('email');
 
     if (!email) {
       return NextResponse.json(
@@ -63,7 +82,7 @@ export async function GET(request: Request) {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal error checking status';
+    console.error('[BELTTRACK AUTH /api/auth/verify-email] GET error:', error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

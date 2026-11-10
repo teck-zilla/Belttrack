@@ -8,7 +8,16 @@ import { createAndSendVerificationCode } from '@/lib/email-verification';
 
 export async function POST(request: Request) {
   try {
-    const json = await request.json();
+    let json: unknown;
+    try {
+      json = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid or missing JSON payload in request body' },
+        { status: 400 }
+      );
+    }
+
     const validated = schoolRegistrationSchema.safeParse(json);
 
     if (!validated.success) {
@@ -189,8 +198,8 @@ export async function POST(request: Request) {
           country,
           timezone: result.school.timezone,
           is_public: true,
-          created_at: result.school.createdAt.toISOString(),
-          updated_at: result.school.updatedAt.toISOString()
+          created_at: result.school.createdAt ? new Date(result.school.createdAt).toISOString() : new Date().toISOString(),
+          updated_at: result.school.updatedAt ? new Date(result.school.updatedAt).toISOString() : new Date().toISOString()
         }
       },
       { status: 201 }

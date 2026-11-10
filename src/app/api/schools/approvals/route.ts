@@ -51,7 +51,7 @@ export async function GET(request: Request) {
       fullName: u.profile ? `${u.profile.firstName} ${u.profile.lastName}` : u.email,
       isMinor: u.profile?.isMinor ?? false,
       guardianName: u.guardianLinks[0]?.guardian?.email ? u.guardianLinks[0].guardian.email : undefined,
-      enrolledAt: u.createdAt.toISOString()
+      enrolledAt: u.createdAt ? new Date(u.createdAt).toISOString() : new Date().toISOString()
     }));
 
     return NextResponse.json({
@@ -68,7 +68,15 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    let body: any;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid or missing JSON payload in request body.' },
+        { status: 400 }
+      );
+    }
     const { schoolId, userId, action } = body;
 
     if (!schoolId || !userId || !action) {
