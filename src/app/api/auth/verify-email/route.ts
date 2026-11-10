@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { emailSchema } from '@/lib/validation/schemas';
 import { verifyCode, isEmailVerified } from '@/lib/email-verification';
+import { prisma } from '@/lib/prisma';
 
 const verifyPayloadSchema = z.object({
   email: emailSchema,
@@ -39,6 +40,16 @@ export async function POST(request: Request) {
       );
     }
 
+    // Persist verified status to PostgreSQL User table if present
+    try {
+      await prisma.user.updateMany({
+        where: { email: email.toLowerCase().trim() },
+        data: { isEmailVerified: true }
+      });
+    } catch (dbErr) {
+      console.warn('[BELTTRACK AUTH /api/auth/verify-email] Database update warning:', dbErr);
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -74,10 +85,26 @@ export async function GET(request: Request) {
       );
     }
 
-    const verified = isEmailVerified(email);
+    const normalizedEmail = email.toLowerCase().trim();
+    let verified = isEmailVerified(normalizedEmail);
+
+    // Fall back to database lookup if in-memory store doesn't indicate verified
+    if (!verified) {
+      try {
+        const user = await prisma.user.findUnique({
+          where: { email: normalizedEmail },
+          select: { isEmailVerified: true }
+        });
+        if (user?.isEmailVerified) {
+          verified = true;
+        }
+      } catch (dbErr) {
+        console.warn('[BELTTRACK AUTH /api/auth/verify-email] DB lookup fallback:', dbErr);
+      }
+    }
 
     return NextResponse.json({
-      email: email.toLowerCase().trim(),
+      email: normalizedEmail,
       verified
     });
   } catch (error: unknown) {

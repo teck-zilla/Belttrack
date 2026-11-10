@@ -77,6 +77,7 @@ model User {
   hashedPassword   String?
   role             Role              @default(STUDENT)
   status           MembershipStatus  @default(PENDING_APPROVAL)
+  isEmailVerified  Boolean           @default(false) @map("email_verified")
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
