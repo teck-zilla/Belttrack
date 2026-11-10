@@ -7,7 +7,14 @@ import { checkPwnedPassword } from '@/lib/validation/pwned-check';
 import { createAndSendVerificationCode } from '@/lib/email-verification';
 
 export async function POST(request: Request) {
+  const requestStart = performance.now();
+  let dbDurationMs = 0;
+  let emailDurationMs = 0;
+
   try {
+    const url = new URL(request.url, 'http://localhost:3000');
+    const isAsyncEmail = url.searchParams.get('async_email') === 'true' || request.headers.get('x-email-mode') === 'async';
+
     let json: unknown;
     try {
       json = await request.json();
@@ -110,6 +117,7 @@ export async function POST(request: Request) {
     }
 
     // Atomic transaction for Student User, StudentProfile, and optional Guardian link
+    const dbStart = performance.now();
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create or link Student User record
       const studentUser = await tx.user.create({
@@ -180,15 +188,30 @@ export async function POST(request: Request) {
 
       return { studentUser, profile };
     });
+    dbDurationMs = Math.round(performance.now() - dbStart);
 
-    // Generate and dispatch 6-digit verification code via randomBytes algorithm
-    try {
-      await createAndSendVerificationCode(studentEmail.toLowerCase());
-    } catch (emailErr) {
-      console.error('[BELTTRACK AUTH] Failed to dispatch verification email:', emailErr);
+    // Dispatch 6-digit verification code: Synchronous (in-request) vs Background (asynchronous)
+    const emailMode = isAsyncEmail ? 'background' : 'synchronous';
+
+    if (isAsyncEmail) {
+      // Mode 2: Detached background execution (non-blocking for HTTP response)
+      createAndSendVerificationCode(studentEmail.toLowerCase()).catch((emailErr) => {
+        console.error('[BELTTRACK AUTH] Background email dispatch failed:', emailErr);
+      });
+    } else {
+      // Mode 1: Synchronous execution on request thread
+      const emailStart = performance.now();
+      try {
+        await createAndSendVerificationCode(studentEmail.toLowerCase());
+      } catch (emailErr) {
+        console.error('[BELTTRACK AUTH] Failed to dispatch verification email:', emailErr);
+      }
+      emailDurationMs = Math.round(performance.now() - emailStart);
     }
 
-    return NextResponse.json(
+    const totalDurationMs = Math.round(performance.now() - requestStart);
+
+    const response = NextResponse.json(
       {
         success: true,
         schoolName: school.name,
@@ -226,10 +249,24 @@ export async function POST(request: Request) {
           total_classes_attended: 0,
           is_flagged_inactive: false,
           enrolled_at: result.profile.createdAt ? new Date(result.profile.createdAt).toISOString() : new Date().toISOString()
+        },
+        timings: {
+          totalMs: totalDurationMs,
+          dbMs: dbDurationMs,
+          emailMs: emailDurationMs,
+          emailMode
         }
       },
       { status: 201 }
     );
+
+    // Set Server-Timing header for browser DevTools and performance profilers
+    response.headers.set(
+      'Server-Timing',
+      `db;dur=${dbDurationMs}, email;dur=${emailDurationMs}, total;dur=${totalDurationMs};desc="${emailMode}"`
+    );
+
+    return response;
   } catch (error: unknown) {
     if (typeof error === 'object' && error !== null && 'code' in error && (error as { code: string }).code === 'P2002') {
       return NextResponse.json(

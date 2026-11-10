@@ -31,20 +31,46 @@ export async function POST(request: Request) {
     }
 
     const { email, code } = parsed.data;
-    const result = verifyCode(email, code);
+    const normalizedEmail = email.toLowerCase().trim();
+    const result = verifyCode(normalizedEmail, code);
 
-    if (!result.success) {
+    let isVerified = result.success;
+    let failureReason = result.error;
+
+    // If memory store doesn't verify (e.g. server restart), check PostgreSQL User table
+    if (!isVerified) {
+      try {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: normalizedEmail },
+          select: { verificationCode: true, verificationExpiresAt: true }
+        });
+
+        if (dbUser?.verificationCode && dbUser.verificationCode === code) {
+          if (dbUser.verificationExpiresAt && new Date() > dbUser.verificationExpiresAt) {
+            failureReason = 'Verification code has expired. Please request a new code.';
+          } else {
+            isVerified = true;
+          }
+        }
+      } catch (dbErr) {
+        console.warn('[BELTTRACK AUTH /api/auth/verify-email] DB fallback verification error:', dbErr);
+      }
+    }
+
+    if (!isVerified) {
       return NextResponse.json(
-        { error: result.error || 'Failed to verify email code' },
+        { error: failureReason || 'Failed to verify email code' },
         { status: 400 }
       );
     }
 
-    // Persist verified status to PostgreSQL User table if present
+    // Persist verified status to PostgreSQL User table
     try {
       await prisma.user.updateMany({
-        where: { email: email.toLowerCase().trim() },
-        data: { isEmailVerified: true }
+        where: { email: normalizedEmail },
+        data: {
+          isEmailVerified: true
+        }
       });
     } catch (dbErr) {
       console.warn('[BELTTRACK AUTH /api/auth/verify-email] Database update warning:', dbErr);

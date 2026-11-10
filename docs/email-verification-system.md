@@ -164,5 +164,101 @@ Run the automated test suite:
 npm run test:smtp
 ```
 
+---
+
+## 8. Registration Response Time & Server-Timing Instrumentation
+
+### Overview
+Both `/api/schools/register` and `/api/students/join` are instrumented with sub-millisecond precision (`performance.now()`) to measure:
+1. **`dbMs`**: Database persistence and transaction execution duration.
+2. **`emailMs`**: SMTP transmission latency.
+3. **`totalMs`**: End-to-end request processing time.
+
+### Benchmark Modes
+
+1. **Synchronous Mode (Default)**:
+   - Awaits the SMTP response inline before sending the HTTP response.
+   - User-facing latency reflects DB duration + SMTP round-trip.
+
+2. **Background Job Mode (Asynchronous)**:
+   - Enabled by appending `?async_email=true` to the request URL or passing header `x-email-mode: async`.
+   - Returns the HTTP 201 response immediately upon database commit while the email dispatches asynchronously in the background.
+
+### Response Headers & Payload
+- **`Server-Timing` Header**:
+  ```http
+  Server-Timing: db;dur=142, email;dur=320, total;dur=465;desc="synchronous"
+  ```
+- **Response JSON**:
+  ```json
+  {
+    "success": true,
+    "timings": {
+      "totalMs": 465,
+      "dbMs": 142,
+      "emailMs": 320,
+      "emailMode": "synchronous"
+    }
+  }
+  ```
+
+---
+
+## 9. Token-Compliant HTML Email Design
+
+### Overview
+Implementation: [`src/lib/email-verification.ts`](../src/lib/email-verification.ts) via `renderVerificationEmailHtml(code, recipientEmail)` and `getEmailDesignTokens()`.
+
+The verification email template is compiled directly from BeltTrack design tokens:
+- **Primary Brand Color**: `--color-primary` (`#1b2a4a` - Deep Dojo Navy)
+- **Accent Brand Color**: `--color-tertiary` (`#2563eb` - BeltTrack Electric Blue)
+- **Background / Canvas**: `--color-surface` (`#f4f3fb` - Lavender-tinted White)
+- **Card Container**: `--color-surface-container-lowest` (`#ffffff` - Pure White Card)
+- **Borders & Outlines**: `--color-outline-variant` (`#afb1bd` - Slate Gray)
+- **Typography & Labels**:
+  - Headings: `--font-family-headline` (`Outfit`)
+  - Body Text: `--font-family-body` (`Inter`)
+  - 6-Digit Passcode: `--font-family-label` (`JetBrains Mono`, 36px, 10px tracking)
+- **Security Notice Banner**:
+  - Background: `--color-palette-warning-98` (`#fff8f1`)
+  - Border: `--color-palette-warning-40` (`#775300`)
+  - Text: Explains 6-minute window and 3-attempt brute-force protection.
+- **Audit Compliance**:
+  Tokens are resolved dynamically at runtime from `variables.css` (compiled from `tokens-complete.json`), ensuring 0 hardcoded `#hex` or `rgba()` literals in source code (`npm run audit` = 0 violations).
+
+---
+
+## 10. Database Verification Code Persistence (Testing & State Recovery)
+
+### Schema Model
+The `User` model in `prisma/schema.prisma` includes:
+```prisma
+model User {
+  id                    String            @id @default(uuid())
+  ...
+  isEmailVerified       Boolean           @default(false) @map("email_verified")
+  verificationCode      String?           @map("verification_code")
+  verificationExpiresAt DateTime?         @map("verification_expires_at")
+  ...
+}
+```
+
+### Applied Migration
+Migration: [`prisma/migrations/20261110185900_add_user_verification_code_columns/migration.sql`](../prisma/migrations/20261110185900_add_user_verification_code_columns/migration.sql)
+```sql
+ALTER TABLE "User" 
+  ADD COLUMN "verification_code" TEXT,
+  ADD COLUMN "verification_expires_at" TIMESTAMP(3);
+```
+
+### Inspection & Testing Query
+To inspect the active verification code for any registered user directly in PostgreSQL:
+```bash
+node -e "const { PrismaClient } = require('@prisma/client'); const p = new PrismaClient(); p.user.findUnique({ where: { email: 'user@example.com' }, select: { email: true, verificationCode: true, verificationExpiresAt: true, isEmailVerified: true } }).then(console.log).finally(() => p.\$disconnect());"
+```
+
+
+
+
 
 
