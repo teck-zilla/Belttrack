@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import type { DisciplineType } from '@/types/domain';
+import { isEmailVerified } from '@/lib/email-verification';
 
 function formatSchool(school: {
   id: string;
@@ -95,7 +96,8 @@ export async function GET() {
         school_name: dbUser.school.name,
         school_slug: dbUser.school.slug,
         first_name: dbUser.profile?.firstName || null,
-        last_name: dbUser.profile?.lastName || null
+        last_name: dbUser.profile?.lastName || null,
+        email_verified: isEmailVerified(dbUser.email)
       },
       school: dbUser.school ? formatSchool(dbUser.school) : null
     });

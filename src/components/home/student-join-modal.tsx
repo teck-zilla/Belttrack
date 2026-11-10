@@ -28,7 +28,7 @@ export function StudentJoinModal({
   onOpenTerms,
   onSuccess
 }: StudentJoinModalProps) {
-  const { login } = useAuth();
+  const { login, setSessionUser } = useAuth();
   const modalRef = useAccessibleModal(isOpen, onClose, '#btn-open-join');
 
   const [inputCode, setInputCode] = useState('');
@@ -232,11 +232,21 @@ export function StudentJoinModal({
         });
       }
 
+      // Automatically establish student session with unverified email state
+      setSessionUser({
+        id: data.user?.id || 'usr_' + Date.now(),
+        email: normalizedStudentEmail,
+        fullName: studentName.trim(),
+        school_id: data.school?.id || data.schoolId,
+        supabase_uid: data.user?.supabaseUid || undefined,
+        isEmailVerified: false
+      }, 'student', false);
+
       // Automatically sign in the student to establish their session
       try {
         await login(normalizedStudentEmail, studentPassword);
       } catch {
-        // Fallback if direct login fails
+        // Fallback session established via setSessionUser
       }
     } catch {
       setFormFeedback('Network error while joining school. Please try again.');

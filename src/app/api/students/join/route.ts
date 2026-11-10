@@ -4,6 +4,7 @@ import { getAdminClient } from '@/lib/supabase/admin';
 import { studentJoinCodeSchema } from '@/lib/validation/schemas';
 import { checkPredictablePassword } from '@/lib/validation/password';
 import { checkPwnedPassword } from '@/lib/validation/pwned-check';
+import { createAndSendVerificationCode } from '@/lib/email-verification';
 
 export async function POST(request: Request) {
   try {
@@ -171,11 +172,37 @@ export async function POST(request: Request) {
       return { studentUser, profile };
     });
 
+    // Generate and dispatch 6-digit verification code via randomBytes algorithm
+    try {
+      await createAndSendVerificationCode(studentEmail.toLowerCase());
+    } catch (emailErr) {
+      console.error('[BELTTRACK AUTH] Failed to dispatch verification email:', emailErr);
+    }
+
     return NextResponse.json(
       {
         success: true,
         schoolName: school.name,
         schoolId: school.id,
+        school: {
+          id: school.id,
+          name: school.name,
+          slug: school.slug,
+          registration_code: school.joinCode,
+          discipline: school.discipline,
+          city: school.city,
+          country: 'United Kingdom',
+          timezone: school.timezone,
+          is_public: true
+        },
+        user: {
+          id: result.studentUser.id,
+          email: result.studentUser.email,
+          role: 'student',
+          status: 'PENDING_APPROVAL',
+          email_verified: false,
+          supabaseUid: result.studentUser.supabaseUid
+        },
         member: {
           id: result.profile.id,
           school_id: school.id,

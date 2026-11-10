@@ -12,6 +12,7 @@
     "build:tokens": "node build-tokens.js",
     "audit": "node audit.js",
     "test:rate-limit": "node scripts/test-rate-limit.mjs",
+    "test:email-verify": "node scripts/test-email-verification.mjs",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy"

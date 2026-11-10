@@ -2,7 +2,7 @@
  * BeltTrack Martial Arts Management - Auth Context
  * 
  * Provides Supabase-backed session management, tenant profile synchronization,
- * and seamless fallback to interactive preview personas.
+ * email verification tracking, and seamless fallback to interactive preview personas.
  */
 
 'use client';
@@ -19,6 +19,7 @@ export interface AuthUser {
   avatarUrl?: string;
   school_id?: string | null;
   supabase_uid?: string;
+  isEmailVerified?: boolean;
 }
 
 export interface LoginCredentials {
@@ -34,6 +35,7 @@ export interface AuthContextType {
   isRealSession: boolean;
   isLoading: boolean;
   activeRole: UserRole;
+  isEmailVerified: boolean;
   switchRole: (newRole: UserRole) => void;
   login: (
     emailOrCredentials: string | LoginCredentials,
@@ -41,14 +43,18 @@ export interface AuthContextType {
   ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
-  setSessionUser: (authUser: AuthUser, role?: UserRole) => void;
+  setSessionUser: (authUser: AuthUser, role?: UserRole, isVerified?: boolean) => void;
+  verifyEmailCode: (code: string) => Promise<{ success: boolean; error?: string }>;
+  resendVerificationCode: () => Promise<{ success: boolean; error?: string; retryAfter?: number }>;
+  setEmailVerifiedState: (verified: boolean) => void;
 }
 
 const DEMO_USER: AuthUser = {
   id: 'usr_7f201e8b41',
   email: 'headcoach@kaizenbjj.org',
   fullName: 'Marcus Vance',
-  school_id: 'd9b2e041-381a-4e2b-bb8c-2f9a1c1d09e1'
+  school_id: 'd9b2e041-381a-4e2b-bb8c-2f9a1c1d09e1',
+  isEmailVerified: true
 };
 
 const DEMO_MEMBER: SchoolMember = {
@@ -74,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [activeRole, setActiveRole] = useState<UserRole>('owner');
   const [isRealSession, setIsRealSession] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isEmailVerified, setIsEmailVerified] = useState<boolean>(true);
 
   const refreshSession = useCallback(async () => {
     try {
@@ -81,6 +88,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         if (data.authenticated && data.user) {
+          const verified = data.user.email_verified !== undefined ? Boolean(data.user.email_verified) : true;
+          setIsEmailVerified(verified);
+
           const authUser: AuthUser = {
             id: data.user.id,
             supabase_uid: data.user.supabase_uid,
@@ -88,7 +98,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             fullName: data.user.first_name && data.user.last_name
               ? `${data.user.first_name} ${data.user.last_name}`
               : data.user.email,
-            school_id: data.user.school_id
+            school_id: data.user.school_id,
+            isEmailVerified: verified
           };
 
           const role = (data.user.role as UserRole) || 'student';
@@ -141,6 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setActiveRole('owner');
           setIsRealSession(false);
           setIsLoading(false);
+          setIsEmailVerified(true);
         }
       });
 
@@ -162,10 +174,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const setSessionUser = (authUser: AuthUser, role: UserRole = 'owner') => {
-    setUser(authUser);
+  const setSessionUser = (authUser: AuthUser, role: UserRole = 'owner', isVerified?: boolean) => {
+    const verified = isVerified !== undefined
+      ? isVerified
+      : (authUser.isEmailVerified !== undefined ? authUser.isEmailVerified : false);
+
+    setUser({
+      ...authUser,
+      isEmailVerified: verified
+    });
     setIsRealSession(true);
     setActiveRole(role);
+    setIsEmailVerified(verified);
+
     if (authUser.school_id) {
       setCurrentMember({
         id: `mem_${authUser.id.slice(0, 8)}`,
@@ -181,6 +202,69 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         is_flagged_inactive: false,
         enrolled_at: new Date().toISOString()
       });
+    }
+  };
+
+  const setEmailVerifiedState = (verified: boolean) => {
+    setIsEmailVerified(verified);
+    setUser((prev) => (prev ? { ...prev, isEmailVerified: verified } : null));
+  };
+
+  const verifyEmailCode = async (code: string): Promise<{ success: boolean; error?: string }> => {
+    if (!user?.email) {
+      return { success: false, error: 'No active user email session found.' };
+    }
+
+    try {
+      const res = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: user.email,
+          code: code.trim()
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return { success: false, error: data.error || 'Verification failed. Please check the code.' };
+      }
+
+      setEmailVerifiedState(true);
+      return { success: true };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Network error verifying code.';
+      return { success: false, error: msg };
+    }
+  };
+
+  const resendVerificationCode = async (): Promise<{ success: boolean; error?: string; retryAfter?: number }> => {
+    if (!user?.email) {
+      return { success: false, error: 'No active user email session found.' };
+    }
+
+    try {
+      const res = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return {
+          success: false,
+          error: data.error || 'Failed to resend verification code.',
+          retryAfter: data.retryAfter
+        };
+      }
+
+      return { success: true };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Network error resending verification code.';
+      return { success: false, error: msg };
     }
   };
 
@@ -208,6 +292,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data.user) {
+        const verified = data.user.email_verified !== undefined ? Boolean(data.user.email_verified) : true;
+        setIsEmailVerified(verified);
+
         const authUser: AuthUser = {
           id: data.user.id,
           supabase_uid: data.user.supabase_uid,
@@ -215,7 +302,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           fullName: data.user.first_name && data.user.last_name
             ? `${data.user.first_name} ${data.user.last_name}`
             : data.user.email,
-          school_id: data.user.school_id
+          school_id: data.user.school_id,
+          isEmailVerified: verified
         };
 
         const role = (data.user.role as UserRole) || 'student';
@@ -265,6 +353,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setActiveRole('owner');
       setIsRealSession(false);
       setIsLoading(false);
+      setIsEmailVerified(true);
       setActiveSchool(DEFAULT_DEMO_SCHOOL);
     }
   };
@@ -278,11 +367,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isRealSession,
         isLoading,
         activeRole,
+        isEmailVerified,
         switchRole,
         login,
         logout,
         refreshSession,
-        setSessionUser
+        setSessionUser,
+        verifyEmailCode,
+        resendVerificationCode,
+        setEmailVerifiedState
       }}
     >
       {children}

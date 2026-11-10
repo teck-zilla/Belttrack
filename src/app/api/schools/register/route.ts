@@ -4,6 +4,7 @@ import { getAdminClient } from '@/lib/supabase/admin';
 import { schoolRegistrationSchema } from '@/lib/validation/schemas';
 import { checkPredictablePassword } from '@/lib/validation/password';
 import { checkPwnedPassword } from '@/lib/validation/pwned-check';
+import { createAndSendVerificationCode } from '@/lib/email-verification';
 
 export async function POST(request: Request) {
   try {
@@ -160,9 +161,23 @@ export async function POST(request: Request) {
       }
     }
 
+    // Generate and dispatch 6-digit verification code via randomBytes algorithm
+    try {
+      await createAndSendVerificationCode(ownerEmail.toLowerCase());
+    } catch (emailErr) {
+      console.error('[BELTTRACK AUTH] Failed to dispatch verification email:', emailErr);
+    }
+
     return NextResponse.json(
       {
         success: true,
+        user: {
+          id: result.user.id,
+          email: result.user.email,
+          role: 'owner',
+          email_verified: false,
+          supabaseUid: result.user.supabaseUid
+        },
         school: {
           id: result.school.id,
           name: result.school.name,
