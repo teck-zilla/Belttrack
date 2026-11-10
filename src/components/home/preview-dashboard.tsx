@@ -2,6 +2,7 @@
 
 import { ManualLedgerModal } from './manual-ledger-modal';
 import { MemberApprovalModal } from './member-approval-modal';
+import { EmailVerificationBanner } from './email-verification-banner';
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/auth-context';
@@ -78,6 +79,9 @@ export function PreviewDashboard() {
           )}
         </div>
       </div>
+
+      {/* EMAIL VERIFICATION BANNER */}
+      <EmailVerificationBanner />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* CARD 1: DYNAMIC RANK PROGRESSION & GRADING READINESS */}

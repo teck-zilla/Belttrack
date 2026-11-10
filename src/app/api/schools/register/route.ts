@@ -4,10 +4,20 @@ import { getAdminClient } from '@/lib/supabase/admin';
 import { schoolRegistrationSchema } from '@/lib/validation/schemas';
 import { checkPredictablePassword } from '@/lib/validation/password';
 import { checkPwnedPassword } from '@/lib/validation/pwned-check';
+import { createAndSendVerificationCode } from '@/lib/email-verification';
 
 export async function POST(request: Request) {
   try {
-    const json = await request.json();
+    let json: unknown;
+    try {
+      json = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid or missing JSON payload in request body' },
+        { status: 400 }
+      );
+    }
+
     const validated = schoolRegistrationSchema.safeParse(json);
 
     if (!validated.success) {
@@ -160,9 +170,23 @@ export async function POST(request: Request) {
       }
     }
 
+    // Generate and dispatch 6-digit verification code via randomBytes algorithm
+    try {
+      await createAndSendVerificationCode(ownerEmail.toLowerCase());
+    } catch (emailErr) {
+      console.error('[BELTTRACK AUTH] Failed to dispatch verification email:', emailErr);
+    }
+
     return NextResponse.json(
       {
         success: true,
+        user: {
+          id: result.user.id,
+          email: result.user.email,
+          role: 'owner',
+          email_verified: false,
+          supabaseUid: result.user.supabaseUid
+        },
         school: {
           id: result.school.id,
           name: result.school.name,
@@ -174,8 +198,8 @@ export async function POST(request: Request) {
           country,
           timezone: result.school.timezone,
           is_public: true,
-          created_at: result.school.createdAt.toISOString(),
-          updated_at: result.school.updatedAt.toISOString()
+          created_at: result.school.createdAt ? new Date(result.school.createdAt).toISOString() : new Date().toISOString(),
+          updated_at: result.school.updatedAt ? new Date(result.school.updatedAt).toISOString() : new Date().toISOString()
         }
       },
       { status: 201 }

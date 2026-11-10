@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { loginSchema } from '@/lib/validation/schemas';
+import { isEmailVerified } from '@/lib/email-verification';
 
 function formatSchool(school: {
   id: string;
@@ -14,6 +15,9 @@ function formatSchool(school: {
   createdAt: Date;
   updatedAt: Date;
 }) {
+  const safeCreated = school.createdAt ? new Date(school.createdAt).toISOString() : new Date().toISOString();
+  const safeUpdated = school.updatedAt ? new Date(school.updatedAt).toISOString() : new Date().toISOString();
+
   return {
     id: school.id,
     name: school.name,
@@ -25,14 +29,23 @@ function formatSchool(school: {
     country: 'United Kingdom',
     timezone: school.timezone || 'UTC',
     is_public: true,
-    created_at: school.createdAt.toISOString(),
-    updated_at: school.updatedAt.toISOString(),
+    created_at: safeCreated,
+    updated_at: safeUpdated,
   };
 }
 
 export async function POST(request: Request) {
   try {
-    const json = await request.json();
+    let json: unknown;
+    try {
+      json = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid or missing JSON payload in request body' },
+        { status: 400 }
+      );
+    }
+
     const validated = loginSchema.safeParse(json);
 
     if (!validated.success) {
@@ -83,13 +96,22 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = await createClient();
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email: targetEmail,
-      password,
-    });
+    let authData: { user: { id: string } | null } | null = null;
+    let authError: { message?: string } | null = null;
 
-    if (authError || !authData.user) {
+    try {
+      const supabase = await createClient();
+      const res = await supabase.auth.signInWithPassword({
+        email: targetEmail,
+        password,
+      });
+      authData = res.data;
+      authError = res.error;
+    } catch {
+      // Supabase is unconfigured or offline - proceed directly to fallback preview check
+    }
+
+    if (authError || !authData?.user) {
       // Fallback for demo/preview environment if Supabase Auth is offline
       const fallbackUser = await prisma.user.findFirst({
         where: { email: targetEmail },
@@ -110,10 +132,11 @@ export async function POST(request: Request) {
             role: fallbackUser.role.toLowerCase(),
             status: fallbackUser.status.toLowerCase(),
             school_id: fallbackUser.schoolId,
-            school_name: fallbackUser.school.name,
-            school_slug: fallbackUser.school.slug,
+            school_name: fallbackUser.school?.name || null,
+            school_slug: fallbackUser.school?.slug || null,
             first_name: fallbackUser.profile?.firstName || null,
-            last_name: fallbackUser.profile?.lastName || null
+            last_name: fallbackUser.profile?.lastName || null,
+            email_verified: isEmailVerified(fallbackUser.email)
           },
           school: fallbackUser.school ? formatSchool(fallbackUser.school) : null
         });
@@ -161,7 +184,8 @@ export async function POST(request: Request) {
           email: targetEmail,
           role: null,
           status: 'pending_approval',
-          school_id: null
+          school_id: null,
+          email_verified: isEmailVerified(targetEmail)
         }
       });
     }
@@ -176,16 +200,17 @@ export async function POST(request: Request) {
         role: dbUser.role.toLowerCase(),
         status: dbUser.status.toLowerCase(),
         school_id: dbUser.schoolId,
-        school_name: dbUser.school.name,
-        school_slug: dbUser.school.slug,
+        school_name: dbUser.school?.name || null,
+        school_slug: dbUser.school?.slug || null,
         first_name: dbUser.profile?.firstName || null,
-        last_name: dbUser.profile?.lastName || null
+        last_name: dbUser.profile?.lastName || null,
+        email_verified: isEmailVerified(dbUser.email)
       },
       school: dbUser.school ? formatSchool(dbUser.school) : null
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal authentication error';
+    console.error('[BELTTRACK AUTH /api/auth/login] Unexpected error:', error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

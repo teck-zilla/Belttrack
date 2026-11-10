@@ -443,14 +443,15 @@ export default function HomePage() {
       setActiveSchool(data.school);
       setFormFeedback(`Dojo tenant "${data.school.name}" successfully registered in database! Code: ${data.school.registration_code}. Authenticating session...`);
 
-      // Automatically sign in the registered school owner
+      // Automatically sign in the registered school owner with unverified email state
       setSessionUser({
         id: data.user?.id || 'usr_' + Date.now(),
         email: normalizedOwnerEmail,
         fullName: ownerName.trim(),
         school_id: data.school.id,
-        supabase_uid: data.user?.supabaseUid || undefined
-      }, 'owner');
+        supabase_uid: data.user?.supabaseUid || undefined,
+        isEmailVerified: false
+      }, 'owner', false);
 
       // Attempt automatic sign-in for owner
       try {
