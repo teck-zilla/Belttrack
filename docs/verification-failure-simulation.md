@@ -6,16 +6,16 @@ This document outlines the testing and simulation procedures for three critical 
 2. **Failure Mode 2: Wrong / Mismatched Verification Code** (entering an incorrect 6-digit number).
 3. **Failure Mode 3: Same Valid Code Used Twice / Replay Attack** (attempting to reuse an already-consumed one-time code).
 
-BeltTrack persists verification state directly to the PostgreSQL database on the `User` model:
+BeltTrack persists verification state directly to the PostgreSQL database on the `User` table:
 - `verification_code` (`text`, nullable): The active 6-digit one-time password (OTP).
 - `verification_expires_at` (`timestamp`, nullable): The UTC expiration timestamp.
-- `is_email_verified` (`boolean`): The user's email verification status.
+- `email_verified` (`boolean`): The user's email verification status (mapped to `isEmailVerified` in Prisma).
 
 ---
 
 ## Architecture & Lifecycle State Machine
 
-| State | `verification_code` | `verification_expires_at` | `is_email_verified` | Allowed Actions |
+| State | `verification_code` | `verification_expires_at` | `email_verified` | Allowed Actions |
 |---|---|---|---|---|
 | **Unverified (Active Code)** | `'123456'` | `NOW() + INTERVAL '6 minutes'` | `false` | Submit code, resend after 60s cooldown |
 | **Unverified (Expired Code)** | `'123456'` | `NOW() - INTERVAL '10 minutes'` | `false` | Resend fresh code only; submission rejected |
@@ -96,9 +96,12 @@ Cleanup complete.
 
 You can stage specific states directly using the Supabase SQL Editor or `psql` and submit verification attempts against the Next.js API route (`POST /api/auth/verify-email`).
 
+> [!NOTE]
+> In raw PostgreSQL SQL, the boolean column name is `"email_verified"`. Prisma maps this to `isEmailVerified` in TypeScript via `@map("email_verified")`.
+
 ### Prerequisite: Locate or Seed a Test User
 ```sql
-SELECT id, email, is_email_verified, verification_code, verification_expires_at 
+SELECT id, email, email_verified, verification_code, verification_expires_at 
 FROM "User" 
 WHERE email = 'student@kaizen.org';
 ```
@@ -113,7 +116,7 @@ UPDATE "User"
 SET 
   "verification_code" = '111222',
   "verification_expires_at" = NOW() - INTERVAL '10 minutes',
-  "is_email_verified" = false
+  "email_verified" = false
 WHERE "email" = 'student@kaizen.org';
 ```
 
@@ -132,7 +135,7 @@ curl -X POST http://localhost:3000/api/auth/verify-email \
     "error": "Verification code has expired. Please request a new code."
   }
   ```
-- **Database Invariant**: Run `SELECT is_email_verified FROM "User" WHERE email = 'student@kaizen.org';` &rarr; Returns `false`.
+- **Database Invariant**: Run `SELECT email_verified FROM "User" WHERE email = 'student@kaizen.org';` &rarr; Returns `false`.
 
 ---
 
@@ -144,7 +147,7 @@ UPDATE "User"
 SET 
   "verification_code" = '333444',
   "verification_expires_at" = NOW() + INTERVAL '6 minutes',
-  "is_email_verified" = false
+  "email_verified" = false
 WHERE "email" = 'student@kaizen.org';
 ```
 
@@ -164,7 +167,7 @@ curl -X POST http://localhost:3000/api/auth/verify-email \
   }
   ```
 - **Database Invariant**:
-  - `is_email_verified` remains `false`.
+  - `email_verified` remains `false`.
   - `verification_code` remains `'333444'`, permitting legitimate subsequent attempts.
 
 ---
@@ -177,7 +180,7 @@ UPDATE "User"
 SET 
   "verification_code" = '555666',
   "verification_expires_at" = NOW() + INTERVAL '6 minutes',
-  "is_email_verified" = false
+  "email_verified" = false
 WHERE "email" = 'student@kaizen.org';
 ```
 
@@ -197,11 +200,11 @@ curl -X POST http://localhost:3000/api/auth/verify-email \
   ```
 - **Database Consumption Invariant**:
   ```sql
-  SELECT is_email_verified, verification_code, verification_expires_at 
+  SELECT email_verified, verification_code, verification_expires_at 
   FROM "User" 
   WHERE email = 'student@kaizen.org';
   ```
-  - `is_email_verified` &rarr; `true`
+  - `email_verified` &rarr; `true`
   - `verification_code` &rarr; `NULL` (actively consumed)
   - `verification_expires_at` &rarr; `NULL` (actively consumed)
 
@@ -228,3 +231,4 @@ curl -X POST http://localhost:3000/api/auth/verify-email \
 2. **Replay Rejection**: If an already-verified user or an attacker submits any code, the endpoint rejects the request with HTTP `400 Bad Request` before evaluating any credentials.
 3. **Tenant & School Isolation**: Verification operations are strictly bound by user email and school tenant context; failures never leak tenant metadata or alter school records.
 4. **Brute Force Protection**: Verification attempts are tracked, with permanent invalidation after 3 failed attempts in memory and time-bound expiration in the database.
+

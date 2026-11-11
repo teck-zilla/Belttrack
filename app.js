@@ -89,6 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Dynamic Role View Elements
   const cardRankTitle = document.getElementById('card-rank-title');
   const cardRankDesc = document.getElementById('card-rank-desc');
+  const martialBeltVisual = document.getElementById('martial-belt-visual');
+  const selectStandaloneDiscipline = document.getElementById('select-standalone-discipline');
   const cardAttendanceMeta = document.getElementById('card-attendance-meta');
   const badgeAttendanceStatus = document.getElementById('badge-attendance-status');
   const cardAttendanceTitle = document.getElementById('card-attendance-title');
@@ -103,9 +105,244 @@ document.addEventListener('DOMContentLoaded', () => {
   const ledgerPolicyBox = document.getElementById('ledger-policy-box');
   const ledgerStatFooter = document.getElementById('ledger-stat-footer');
 
+  const DISCIPLINE_CONFIG = {
+    brazilian_jiu_jitsu: {
+      trackTitle: 'Brazilian Jiu-Jitsu (Gi Track)',
+      floorType: 'Dojo Mat',
+      studentRank: {
+        owner: 'Student: Lucas Silva • Current: White Belt (3 Stripes)',
+        student: 'Self: Lucas Silva (Adult 18+) • Linked Minor: Leo Silva (Age 11)'
+      },
+      beltAria: 'White Belt with 3 Stripes',
+      beltHtml: `
+        <div class="belt-body">
+          <div class="belt-seam"></div>
+        </div>
+        <div class="belt-rank-bar">
+          <span class="belt-stripe"></span>
+          <span class="belt-stripe"></span>
+          <span class="belt-stripe"></span>
+          <span class="belt-stripe empty"></span>
+        </div>
+      `,
+      ownerSchedule: [
+        { name: 'BJJ Fundamentals (Gi)', time: 'Coach Marcus • 18:00 - 19:15', count: '18 Checked In', highlight: true },
+        { name: 'Competition Sparring', time: 'Coach Elena • 19:30 - 20:45', count: '12 Confirmed', highlight: false }
+      ],
+      studentSchedule: [
+        { name: 'BJJ Fundamentals (Gi)', time: 'Today • 18:00 - 19:15', tag: 'Lucas Silva (Enrolled)' },
+        { name: 'Kids BJJ Fundamentals', time: 'Saturday • 10:00 - 11:00', tag: 'Leo Silva (Guardian Read-Only)' }
+      ],
+      ledger: {
+        tuition: '$120.00',
+        tuitionTitle: 'Monthly Tuition (Gi Track)',
+        juniorTuition: '$95.00',
+        receiptPrefix: 'BJJ',
+        techTitle: 'Armbar from Guard (Coach Verified)',
+        techCode: 'TECH-BJJ-01',
+        studentName: 'Lucas Silva',
+        juniorName: 'Leo Silva'
+      }
+    },
+    karate: {
+      trackTitle: 'Shotokan Karate (Kyu / Dan Track)',
+      floorType: 'Dojo Floor',
+      studentRank: {
+        owner: 'Student: Kenji Sato • Current: 8th Kyu (Yellow Belt)',
+        student: 'Self: Kenji Sato (Adult 18+) • Linked Minor: Ren Sato (Age 9)'
+      },
+      beltAria: 'Yellow Belt (8th Kyu)',
+      beltHtml: `
+        <div class="belt-body belt-yellow">
+          <div class="belt-seam"></div>
+        </div>
+        <div class="belt-rank-bar">
+          <span class="belt-stripe"></span>
+          <span class="belt-stripe empty"></span>
+          <span class="belt-stripe empty"></span>
+          <span class="belt-stripe empty"></span>
+        </div>
+      `,
+      ownerSchedule: [
+        { name: 'Kihon & Kata (Heian Shodan)', time: 'Sensei Takahashi • 18:00 - 19:15', count: '16 Checked In', highlight: true },
+        { name: 'Kumite Drills & Bunkai', time: 'Sensei Kenji • 19:30 - 20:45', count: '14 Confirmed', highlight: false }
+      ],
+      studentSchedule: [
+        { name: 'Kihon & Kata (Heian Shodan)', time: 'Today • 18:00 - 19:15', tag: 'Kenji Sato (Enrolled)' },
+        { name: 'Junior Karate Tigers (Kata)', time: 'Saturday • 10:00 - 11:00', tag: 'Ren Sato (Guardian Read-Only)' }
+      ],
+      ledger: {
+        tuition: '$115.00',
+        tuitionTitle: 'Monthly Tuition (Dojo Kyu Track)',
+        juniorTuition: '$90.00',
+        receiptPrefix: 'KT',
+        techTitle: 'Heian Shodan Kata (Sensei Verified)',
+        techCode: 'TECH-KT-01',
+        studentName: 'Kenji Sato',
+        juniorName: 'Ren Sato'
+      }
+    },
+    taekwondo: {
+      trackTitle: 'WT / Olympic Taekwondo (Geup Track)',
+      floorType: 'Dojang Floor',
+      studentRank: {
+        owner: 'Student: Min-ho Park • Current: 8th Geup (Yellow Belt)',
+        student: 'Self: Min-ho Park (Adult 18+) • Linked Minor: Ji-woo Park (Age 8)'
+      },
+      beltAria: 'Yellow Belt (8th Geup)',
+      beltHtml: `
+        <div class="belt-body belt-yellow">
+          <div class="belt-seam"></div>
+        </div>
+        <div class="belt-rank-bar">
+          <span class="belt-stripe"></span>
+          <span class="belt-stripe empty"></span>
+          <span class="belt-stripe empty"></span>
+          <span class="belt-stripe empty"></span>
+        </div>
+      `,
+      ownerSchedule: [
+        { name: 'Kicking Drills & Poomsae', time: 'Master Park • 18:00 - 19:15', count: '20 Checked In', highlight: true },
+        { name: 'Olympic Sparring (Gyeorugi)', time: 'Instructor Kim • 19:30 - 20:45', count: '15 Confirmed', highlight: false }
+      ],
+      studentSchedule: [
+        { name: 'Kicking Drills & Poomsae', time: 'Today • 18:00 - 19:15', tag: 'Min-ho Park (Enrolled)' },
+        { name: 'Little Tigers Taekwondo', time: 'Saturday • 10:00 - 11:00', tag: 'Ji-woo Park (Guardian Read-Only)' }
+      ],
+      ledger: {
+        tuition: '$125.00',
+        tuitionTitle: 'Monthly Tuition (Dojang Geup Track)',
+        juniorTuition: '$95.00',
+        receiptPrefix: 'TKD',
+        techTitle: 'Taegeuk 1 Jang Poomsae (Master Verified)',
+        techCode: 'TECH-TKD-01',
+        studentName: 'Min-ho Park',
+        juniorName: 'Ji-woo Park'
+      }
+    },
+    judo: {
+      trackTitle: 'Kodokan Judo (Gokyo Track)',
+      floorType: 'Tatami Mat',
+      studentRank: {
+        owner: 'Student: Denis Rostova • Current: 5th Kyu (Yellow Belt)',
+        student: 'Self: Denis Rostova (Adult 18+) • Linked Minor: Mila Rostova (Age 10)'
+      },
+      beltAria: 'Yellow Belt (5th Kyu Gokyo)',
+      beltHtml: `
+        <div class="belt-body belt-yellow">
+          <div class="belt-seam"></div>
+        </div>
+        <div class="belt-rank-bar">
+          <span class="belt-stripe empty"></span>
+          <span class="belt-stripe empty"></span>
+          <span class="belt-stripe empty"></span>
+          <span class="belt-stripe empty"></span>
+        </div>
+      `,
+      ownerSchedule: [
+        { name: 'Nage-Waza & Ukemi Breakfalls', time: 'Sensei Rostova • 18:00 - 19:15', count: '17 Checked In', highlight: true },
+        { name: 'Randori (Free Practice)', time: 'Sensei Mikhail • 19:30 - 20:45', count: '11 Confirmed', highlight: false }
+      ],
+      studentSchedule: [
+        { name: 'Nage-Waza & Ukemi', time: 'Today • 18:00 - 19:15', tag: 'Denis Rostova (Enrolled)' },
+        { name: 'Youth Judo Fundamentals', time: 'Saturday • 10:00 - 11:00', tag: 'Mila Rostova (Guardian Read-Only)' }
+      ],
+      ledger: {
+        tuition: '$110.00',
+        tuitionTitle: 'Monthly Tuition (Gokyo Judogi Track)',
+        juniorTuition: '$85.00',
+        receiptPrefix: 'JUDO',
+        techTitle: 'Ippon Seoi Nage (Sensei Verified)',
+        techCode: 'TECH-JUDO-01',
+        studentName: 'Denis Rostova',
+        juniorName: 'Mila Rostova'
+      }
+    },
+    muay_thai: {
+      trackTitle: 'Muay Thai (Khan Prajioud Track)',
+      floorType: 'Ring & Bag',
+      studentRank: {
+        owner: 'Student: Somchai Thaworn • Current: Khan 4 (Green Prajioud)',
+        student: 'Self: Somchai Thaworn (Adult 18+) • Linked Minor: Lek Thaworn (Age 12)'
+      },
+      beltAria: 'Khan 4 (Green Prajioud Armband)',
+      beltHtml: `
+        <div class="belt-body belt-prajioud">
+          <div class="belt-seam"></div>
+          <span class="belt-badge-label">KHAN 4</span>
+        </div>
+        <div class="belt-rank-bar">
+          <span class="belt-stripe"></span>
+          <span class="belt-stripe"></span>
+          <span class="belt-stripe empty"></span>
+          <span class="belt-stripe empty"></span>
+        </div>
+      `,
+      ownerSchedule: [
+        { name: 'Pad Work & Clinch Control', time: 'Kru Somchai • 18:00 - 19:15', count: '19 Checked In', highlight: true },
+        { name: 'Dutch Drills & Light Sparring', time: 'Kru Alex • 19:30 - 20:45', count: '14 Confirmed', highlight: false }
+      ],
+      studentSchedule: [
+        { name: 'Pad Work & Clinch Control', time: 'Today • 18:00 - 19:15', tag: 'Somchai Thaworn (Enrolled)' },
+        { name: 'Junior Muay Thai Kickboxing', time: 'Saturday • 10:00 - 11:00', tag: 'Lek Thaworn (Guardian Read-Only)' }
+      ],
+      ledger: {
+        tuition: '$130.00',
+        tuitionTitle: 'Monthly Tuition (Camp Prajioud Track)',
+        juniorTuition: '$100.00',
+        receiptPrefix: 'MT',
+        techTitle: 'Double Collar Tie & Knee (Kru Verified)',
+        techCode: 'TECH-MT-01',
+        studentName: 'Somchai Thaworn',
+        juniorName: 'Lek Thaworn'
+      }
+    },
+    krav_maga: {
+      trackTitle: 'Tactical Krav Maga (Civilian Track)',
+      floorType: 'Tactical Center',
+      studentRank: {
+        owner: 'Student: David Cohen • Current: Practitioner Level 1 (P1)',
+        student: 'Self: David Cohen (Adult 18+) • Linked Minor: Eli Cohen (Age 13)'
+      },
+      beltAria: 'Practitioner Level 1 (P1)',
+      beltHtml: `
+        <div class="belt-body belt-tactical">
+          <div class="belt-seam"></div>
+          <span class="belt-badge-label">P-1</span>
+        </div>
+        <div class="belt-rank-bar">
+          <span class="belt-stripe"></span>
+          <span class="belt-stripe empty"></span>
+          <span class="belt-stripe empty"></span>
+          <span class="belt-stripe empty"></span>
+        </div>
+      `,
+      ownerSchedule: [
+        { name: 'Combatives & 360 Defense', time: 'Lead Inst. David • 18:00 - 19:15', count: '18 Checked In', highlight: true },
+        { name: 'Choke Releases & Ground Escapes', time: 'Inst. Sarah • 19:30 - 20:45', count: '13 Confirmed', highlight: false }
+      ],
+      studentSchedule: [
+        { name: 'Combatives & 360 Defense', time: 'Today • 18:00 - 19:15', tag: 'David Cohen (Enrolled)' },
+        { name: 'Teen Self-Defense & Awareness', time: 'Saturday • 10:00 - 11:00', tag: 'Eli Cohen (Guardian Read-Only)' }
+      ],
+      ledger: {
+        tuition: '$135.00',
+        tuitionTitle: 'Monthly Tuition (Civilian P-Level)',
+        juniorTuition: '$105.00',
+        receiptPrefix: 'KM',
+        techTitle: '360-Degree Defense (Verified)',
+        techCode: 'TECH-KM-01',
+        studentName: 'David Cohen',
+        juniorName: 'Eli Cohen'
+      }
+    }
+  };
+
   function updateRoleView(role) {
     state.activeRole = role;
     const isOwnerGroup = role === 'owner' || role === 'coach';
+    const disc = state.school.discipline || 'brazilian_jiu_jitsu';
+    const cfg = DISCIPLINE_CONFIG[disc] || DISCIPLINE_CONFIG.brazilian_jiu_jitsu;
 
     // 1. Persona Indicator Label
     if (personaLabel) {
@@ -116,12 +353,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Card 1: Rank & Curriculum View
     if (cardRankTitle) {
-      cardRankTitle.textContent = 'Brazilian Jiu-Jitsu (Gi Track)';
+      cardRankTitle.textContent = cfg.trackTitle;
     }
     if (cardRankDesc) {
       cardRankDesc.textContent = isOwnerGroup
-        ? 'Student: Lucas Silva • Current: White Belt (3 Stripes)'
-        : 'Self: Lucas Silva (Adult 18+) • Linked Minor: Leo Silva (Age 11)';
+        ? cfg.studentRank.owner
+        : cfg.studentRank.student;
+    }
+    if (martialBeltVisual) {
+      martialBeltVisual.setAttribute('aria-label', cfg.beltAria);
+      martialBeltVisual.innerHTML = cfg.beltHtml;
     }
     if (btnSimulateCheckin) {
       btnSimulateCheckin.disabled = false;
@@ -151,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (cardAttendanceTitle) {
       cardAttendanceTitle.textContent = isOwnerGroup
-        ? 'Active Mat Roll-Call & Retention Watch'
+        ? `Active ${cfg.floorType} Roll-Call & Retention Watch`
         : 'My Schedule & Minor Supervision';
     }
 
@@ -169,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="alert-dot" aria-hidden="true"></span>
           <div class="alert-content">
             <strong class="alert-title">Guardian Supervision & Attendance Status</strong>
-            <span class="alert-text">Lucas Silva is in good standing (42/50 classes). Minor dependent Leo Silva is supervised strictly under guardian read-only controls.</span>
+            <span class="alert-text">${cfg.ledger.studentName} is in good standing (42/50 classes). Minor dependent ${cfg.ledger.juniorName} is supervised strictly under guardian read-only controls.</span>
           </div>
         `;
       }
@@ -177,47 +418,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (attendanceScheduleList) {
       if (isOwnerGroup) {
-        attendanceScheduleList.innerHTML = `
+        attendanceScheduleList.innerHTML = cfg.ownerSchedule.map((item) => `
           <div class="schedule-item">
             <div>
-              <strong class="schedule-name">BJJ Fundamentals (Gi)</strong>
-              <span class="schedule-time">Coach Marcus • 18:00 - 19:15</span>
+              <strong class="schedule-name">${item.name}</strong>
+              <span class="schedule-time">${item.time}</span>
             </div>
-            <span class="schedule-count highlight">18 Checked In</span>
+            <span class="schedule-count ${item.highlight ? 'highlight' : ''}">${item.count}</span>
           </div>
-          <div class="schedule-item">
-            <div>
-              <strong class="schedule-name">Competition Sparring</strong>
-              <span class="schedule-time">Coach Elena • 19:30 - 20:45</span>
-            </div>
-            <span class="schedule-count">12 Confirmed</span>
-          </div>
-        `;
+        `).join('');
       } else {
-        attendanceScheduleList.innerHTML = `
+        attendanceScheduleList.innerHTML = cfg.studentSchedule.map((item) => `
           <div class="schedule-item">
             <div>
-              <strong class="schedule-name">BJJ Fundamentals (Gi)</strong>
-              <span class="schedule-time">Today • 18:00 - 19:15</span>
+              <strong class="schedule-name">${item.name}</strong>
+              <span class="schedule-time">${item.time}</span>
             </div>
-            <span class="schedule-count highlight">Lucas Silva (Enrolled)</span>
+            <span class="schedule-count highlight">${item.tag}</span>
           </div>
-          <div class="schedule-item">
-            <div>
-              <strong class="schedule-name">Kids BJJ Fundamentals</strong>
-              <span class="schedule-time">Saturday • 10:00 - 11:00</span>
-            </div>
-            <span class="schedule-count highlight">Leo Silva (Guardian Read-Only)</span>
-          </div>
-        `;
+        `).join('');
       }
     }
 
     if (attendanceStatFooter) {
       if (isOwnerGroup) {
-        attendanceStatFooter.innerHTML = '<span>Overall Dojo Mat Attendance:</span><span class="metric-val">94.2% Retention</span>';
+        attendanceStatFooter.innerHTML = `<span>Overall ${cfg.floorType} Attendance:</span><span class="metric-val">94.2% Retention</span>`;
       } else {
-        attendanceStatFooter.innerHTML = '<span>Mat Attendance Status:</span><span class="metric-val">Current &amp; Verified</span>';
+        attendanceStatFooter.innerHTML = '<span>Attendance Status:</span><span class="metric-val">Current &amp; Verified</span>';
       }
     }
 
@@ -256,21 +483,21 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="ledger-item">
             <div class="ledger-top">
               <span class="ledger-title">Monthly Tuition (Cash Settlement)</span>
-              <span class="ledger-amount">$120.00</span>
+              <span class="ledger-amount">${cfg.ledger.tuition}</span>
             </div>
             <div class="ledger-bottom">
               <span>Student: Mateo Diaz</span>
-              <span class="ledger-receipt">REC-2026-BJJ-084</span>
+              <span class="ledger-receipt">REC-2026-${cfg.ledger.receiptPrefix}-084</span>
             </div>
           </div>
           <div class="ledger-item">
             <div class="ledger-top">
-              <span class="ledger-title">Armbar from Guard (Coach Verified)</span>
+              <span class="ledger-title">${cfg.ledger.techTitle}</span>
               <span class="ledger-amount">Verified</span>
             </div>
             <div class="ledger-bottom">
-              <span>Lucas Silva • Mat Sign-off</span>
-              <span class="ledger-receipt">TECH-BJJ-01</span>
+              <span>${cfg.ledger.studentName} • Mat Sign-off</span>
+              <span class="ledger-receipt">${cfg.ledger.techCode}</span>
             </div>
           </div>
         `;
@@ -278,22 +505,22 @@ document.addEventListener('DOMContentLoaded', () => {
         ledgerEntriesList.innerHTML = `
           <div class="ledger-item">
             <div class="ledger-top">
-              <span class="ledger-title">Monthly Tuition (Gi Track)</span>
-              <span class="ledger-amount">$120.00</span>
+              <span class="ledger-title">${cfg.ledger.tuitionTitle}</span>
+              <span class="ledger-amount">${cfg.ledger.tuition}</span>
             </div>
             <div class="ledger-bottom">
-              <span>Lucas Silva (Self)</span>
-              <span class="ledger-receipt">REC-2026-BJJ-084</span>
+              <span>${cfg.ledger.studentName} (Self)</span>
+              <span class="ledger-receipt">REC-2026-${cfg.ledger.receiptPrefix}-084</span>
             </div>
           </div>
           <div class="ledger-item">
             <div class="ledger-top">
               <span class="ledger-title">Junior Monthly Tuition (Kids)</span>
-              <span class="ledger-amount">$95.00</span>
+              <span class="ledger-amount">${cfg.ledger.juniorTuition}</span>
             </div>
             <div class="ledger-bottom">
-              <span>Leo Silva (Minor) • Guardian Settled</span>
-              <span class="ledger-receipt">REC-2026-BJJ-092</span>
+              <span>${cfg.ledger.juniorName} (Minor) • Guardian Settled</span>
+              <span class="ledger-receipt">REC-2026-${cfg.ledger.receiptPrefix}-092</span>
             </div>
           </div>
         `;
@@ -342,6 +569,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize initial role view
   updateRoleView(state.activeRole);
+
+  if (selectStandaloneDiscipline) {
+    selectStandaloneDiscipline.addEventListener('change', (e) => {
+      state.school.discipline = e.target.value;
+      updateRoleView(state.activeRole);
+    });
+  }
 
   // --------------------------------------------------------------------------
   // MODAL CONTROLS & DYNAMIC TITLE MANAGEMENT
@@ -843,17 +1077,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const schoolNameInput = document.getElementById('input-reg-school-name');
       const codeInput = document.getElementById('input-reg-code');
       const cityInput = document.getElementById('input-reg-city');
+      const selectDiscipline = document.getElementById('select-reg-discipline');
 
       const newName = schoolNameInput.value.trim() || 'Vance BJJ';
       const newCode = codeInput.value.trim().toUpperCase() || 'VANCE-BJJ-2026';
       const newCity = cityInput ? cityInput.value.trim() || 'London' : 'London';
+      const newDiscipline = selectDiscipline ? selectDiscipline.value : 'brazilian_jiu_jitsu';
 
       state.school.name = newName;
       state.school.code = newCode;
       state.school.city = newCity;
+      state.school.discipline = newDiscipline;
 
       if (displayTenantName) displayTenantName.textContent = newName;
       if (displayTenantCode) displayTenantCode.textContent = newCode;
+      if (selectStandaloneDiscipline) selectStandaloneDiscipline.value = newDiscipline;
+
+      updateRoleView(state.activeRole);
 
       if (feedbackRegister) {
         feedbackRegister.textContent = `New dojo tenant "${newName}" initialized with isolated code: ${newCode}`;

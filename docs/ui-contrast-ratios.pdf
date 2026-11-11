@@ -1,0 +1,776 @@
+%PDF-1.4
+%âãÏÓ
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [7 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Length 13951 >>
+stream
+1 1 1 rg
+0 0 792 612 re f
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+0 604 792 8 re f
+BT
+/F2 18 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+36 574 Td (BELTTRACK MARTIAL ARTS MANAGEMENT) Tj
+ET
+BT
+/F2 12 Tf
+0.22 0.27 0.36 rg
+36 557 Td (Design System WCAG 2.1 Contrast Ratio Audit Report) Tj
+ET
+BT
+/F1 8.5 Tf
+0.45 0.48 0.55 rg
+36 544 Td (Scope: Role Pairs Applied in the BeltTrack UI  |  Evaluation Standard: WCAG 2.1 Relative Luminance Algorithm  |  Audit Date: November 2026) Tj
+ET
+0.85 0.87 0.90 RG
+1 w
+36 536 m 756 536 l s
+0.96 0.97 0.99 rg
+0.82 0.86 0.94 RG
+36 476 720 44 re B
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 506 Td (EXECUTIVE SUMMARY & ACCESSIBILITY COMPLIANCE HIGHLIGHTS) Tj
+ET
+BT
+/F1 7.8 Tf
+0.22 0.25 0.32 rg
+48 494 Td (  - 100% of tested UI role pairs meet or exceed WCAG 2.1 Level AA (minimum 4.5:1 for standard body text).) Tj
+48 483 Td (  - 87.5% of UI role pairs (14 of 16) achieve WCAG Level AAA Enhanced Contrast (minimum 7.0:1). Maximum UI contrast reaches 18.87:1.) Tj
+ET
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+36 446 720 18 re f
+BT
+/F2 8 Tf
+1 1 1 rg
+44 453 Td (UI Component Usage) Tj
+274 453 Td (Background Role & Value) Tj
+424 453 Td (Foreground Role & Value) Tj
+592 453 Td (Contrast Ratio) Tj
+686 453 Td (WCAG Status) Tj
+ET
+0.975 0.98 0.995 rg
+36 425 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 425 m 756 425 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 432 Td (Primary CTA Button \(Active Role / Submit\)) Tj
+ET
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 430.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 432 Td (#1B2A4A  bg-primary) Tj
+ET
+1 1 1 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 430.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 432 Td (#FFFFFF  text-primary-foreground) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 432 Td (14.22:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 429 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 432.5 Td (AAA (Pass)) Tj
+ET
+1 1 1 rg
+36 404 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 404 m 756 404 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 411 Td (Attendance Badge \("18 Checked In"\)) Tj
+ET
+0.7411764705882353 0.8156862745098039 1 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 409.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 411 Td (#BDD0FF  bg-tertiary-container) Tj
+ET
+0.0784313725490196 0.16862745098039217 0.41568627450980394 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 409.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 411 Td (#142B6A  text-tertiary-on-container) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 411 Td (8.61:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 408 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 411.5 Td (AAA (Pass)) Tj
+ET
+0.975 0.98 0.995 rg
+36 383 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 383 m 756 383 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 390 Td (Sparring / Settlement Badge \("12 Confirmed", "0% FEES"\)) Tj
+ET
+0.6588235294117647 0.7450980392156863 1 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 388.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 390 Td (#A8BEFF  bg-primary-container) Tj
+ET
+0.07058823529411765 0.10980392156862745 0.2 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 388.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 390 Td (#121C33  text-primary-on-container) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 390 Td (9.26:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 387 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 390.5 Td (AAA (Pass)) Tj
+ET
+1 1 1 rg
+36 362 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 362 m 756 362 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 369 Td (Card Surface Lowest \(Main Dashboard Cards\)) Tj
+ET
+1 1 1 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 367.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 369 Td (#FFFFFF  bg-surface-container-lowest) Tj
+ET
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 367.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 369 Td (#101115  text-surface-foreground) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 369 Td (18.87:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 366 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 369.5 Td (AAA (Pass)) Tj
+ET
+0.975 0.98 0.995 rg
+36 341 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 341 m 756 341 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 348 Td (Card Surface Lowest + Primary Heading Text) Tj
+ET
+1 1 1 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 346.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 348 Td (#FFFFFF  bg-surface-container-lowest) Tj
+ET
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 346.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 348 Td (#1B2A4A  text-primary) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 348 Td (14.22:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 345 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 348.5 Td (AAA (Pass)) Tj
+ET
+1 1 1 rg
+36 320 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 320 m 756 320 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 327 Td (Card Surface Lowest + Secondary / Variant Body Text) Tj
+ET
+1 1 1 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 325.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 327 Td (#FFFFFF  bg-surface-container-lowest) Tj
+ET
+0.19607843137254902 0.20784313725490197 0.24313725490196078 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 325.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 327 Td (#32353E  text-surface-on-variant) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 327 Td (12.25:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 324 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 327.5 Td (AAA (Pass)) Tj
+ET
+0.975 0.98 0.995 rg
+36 299 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 299 m 756 299 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 306 Td (Card Surface Lowest + Tertiary Accent Links/Labels) Tj
+ET
+1 1 1 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 304.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 306 Td (#FFFFFF  bg-surface-container-lowest) Tj
+ET
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 304.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 306 Td (#2563EB  text-tertiary) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 306 Td (5.17:1) Tj
+ET
+0.92 0.94 0.99 rg
+0.70 0.80 0.94 RG
+0.5 w
+682 303 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.12 0.32 0.72 rg
+694 306.5 Td (AA (Pass)) Tj
+ET
+1 1 1 rg
+36 278 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 278 m 756 278 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 285 Td (Schedule Item Container Low + Primary Text) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 283.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 285 Td (#F4F3FB  bg-surface-container-low) Tj
+ET
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 283.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 285 Td (#1B2A4A  text-primary) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 285 Td (12.91:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 282 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 285.5 Td (AAA (Pass)) Tj
+ET
+0.975 0.98 0.995 rg
+36 257 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 257 m 756 257 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 264 Td (Schedule Item Container Low + Variant Text) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 262.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 264 Td (#F4F3FB  bg-surface-container-low) Tj
+ET
+0.19607843137254902 0.20784313725490197 0.24313725490196078 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 262.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 264 Td (#32353E  text-surface-on-variant) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 264 Td (11.12:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 261 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 264.5 Td (AAA (Pass)) Tj
+ET
+1 1 1 rg
+36 236 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 236 m 756 236 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 243 Td (Directory Button \(Surface Container + Foreground\)) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 241.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 243 Td (#E2E2EA  bg-surface-container) Tj
+ET
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 241.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 243 Td (#101115  text-surface-foreground) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 243 Td (14.64:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 240 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 243.5 Td (AAA (Pass)) Tj
+ET
+0.975 0.98 0.995 rg
+36 215 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 215 m 756 215 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 222 Td (Inactive Segment Switcher \(Container + Variant\)) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 220.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 222 Td (#E2E2EA  bg-surface-container) Tj
+ET
+0.19607843137254902 0.20784313725490197 0.24313725490196078 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 220.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 222 Td (#32353E  text-surface-on-variant) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 222 Td (9.51:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 219 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 222.5 Td (AAA (Pass)) Tj
+ET
+1 1 1 rg
+36 194 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 194 m 756 194 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 201 Td (Error Alert Banner \(Error Container + On-Error\)) Tj
+ET
+1 0.8549019607843137 0.8235294117647058 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 199.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 201 Td (#FFDAD2  bg-error-container) Tj
+ET
+0.4117647058823529 0 0.011764705882352941 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 199.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 201 Td (#690003  text-error-on-container) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 201 Td (10.12:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 198 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 201.5 Td (AAA (Pass)) Tj
+ET
+0.975 0.98 0.995 rg
+36 173 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 173 m 756 173 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 180 Td (Email Verification Notice Badge \(Warning + On-Warning\)) Tj
+ET
+0.8705882352941177 0.6 0.058823529411764705 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 178.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 180 Td (#DE990F  bg-warning) Tj
+ET
+0.08235294117647059 0.047058823529411764 0 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 178.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 180 Td (#150C00  text-warning-foreground) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 180 Td (7.99:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 177 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 180.5 Td (AAA (Pass)) Tj
+ET
+1 1 1 rg
+36 152 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 152 m 756 152 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 159 Td (Modal Dialog Box \(Surface Container Lowest + Outline\)) Tj
+ET
+1 1 1 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 157.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 159 Td (#FFFFFF  bg-surface-container-lowest) Tj
+ET
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 157.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 159 Td (#5C5E6A  text-outline) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 159 Td (6.43:1) Tj
+ET
+0.92 0.94 0.99 rg
+0.70 0.80 0.94 RG
+0.5 w
+682 156 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.12 0.32 0.72 rg
+694 159.5 Td (AA (Pass)) Tj
+ET
+0.975 0.98 0.995 rg
+36 131 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 131 m 756 131 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 138 Td (Modal Backdrop / Dialog Scrim \(Inverse Surface\)) Tj
+ET
+0.12549019607843137 0.13333333333333333 0.15294117647058825 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 136.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 138 Td (#202227  bg-inverse-surface) Tj
+ET
+0.8980392156862745 0.8980392156862745 0.9294117647058824 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 136.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 138 Td (#E5E5ED  text-inverse-on-surface) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 138 Td (12.70:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 135 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 138.5 Td (AAA (Pass)) Tj
+ET
+1 1 1 rg
+36 110 720 21 re f
+0.88 0.90 0.93 RG
+0.5 w
+36 110 m 756 110 l s
+BT
+/F2 7.8 Tf
+0.10 0.12 0.18 rg
+44 117 Td (Martial Arts Belt Graphic \(Black Rank Bar + White Stripes\)) Tj
+ET
+0.12549019607843137 0.13333333333333333 0.15294117647058825 rg
+0.70 0.73 0.78 RG
+0.5 w
+274 115.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+288 117 Td (#202227  bg-inverse-surface) Tj
+ET
+1 1 1 rg
+0.70 0.73 0.78 RG
+0.5 w
+424 115.5 8.5 8.5 re B
+BT
+/F1 7.5 Tf
+0.18 0.20 0.25 rg
+438 117 Td (#FFFFFF  bg-surface-container-lowest) Tj
+ET
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+600 117 Td (15.91:1) Tj
+ET
+0.90 0.96 0.92 rg
+0.65 0.84 0.72 RG
+0.5 w
+682 114 64 12.5 re B
+BT
+/F2 7.2 Tf
+0.06 0.42 0.20 rg
+691 117.5 Td (AAA (Pass)) Tj
+ET
+0.80 0.82 0.86 RG
+1 w
+36 110 720 354 re s
+BT
+/F1 7.5 Tf
+0.45 0.48 0.55 rg
+36 90 Td
+(* WCAG 2.1 Benchmark: Normal text threshold is >= 4.5:1 (AA) and >= 7.0:1 (AAA). UI graphical components threshold is >= 3.0:1.) Tj
+0 -11 Td
+(BeltTrack Martial Arts Management Platform  |  Private Multi-Tenant Architecture  |  Zero Monetization  |  100% Token Compliant) Tj
+ET
+BT
+/F2 7.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+705 79 Td
+(Page 1 of 1) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 792 612] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000019 00000 n 
+0000000068 00000 n 
+0000000125 00000 n 
+0000000222 00000 n 
+0000000324 00000 n 
+0000000429 00000 n 
+0000014433 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+14579
+%%EOF
