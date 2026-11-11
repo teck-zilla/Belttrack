@@ -244,8 +244,21 @@
             <span class="preview-tag">Isolated Tenant Preview</span>
             <h2 class="dashboard-title">Dojo Operating Dashboard</h2>
           </div>
-          <div class="persona-indicator">
-            Viewing as: <strong id="persona-label">Owner / Head Coach</strong>
+          <div class="dashboard-header-actions">
+            <div class="discipline-indicator-box">
+              <label for="select-standalone-discipline" class="discipline-label">Discipline:</label>
+              <select id="select-standalone-discipline" class="discipline-select" aria-label="Filter preview dashboard discipline">
+                <option value="brazilian_jiu_jitsu" selected>BJJ</option>
+                <option value="karate">Karate</option>
+                <option value="taekwondo">Taekwondo</option>
+                <option value="judo">Judo</option>
+                <option value="muay_thai">Muay Thai</option>
+                <option value="krav_maga">Krav Maga</option>
+              </select>
+            </div>
+            <div class="persona-indicator">
+              Viewing as: <strong id="persona-label">Owner / Head Coach</strong>
+            </div>
           </div>
         </div>
 
@@ -262,7 +275,7 @@
             <p class="card-desc" id="card-rank-desc">Student: Lucas Silva • Current: White Belt (3 Stripes)</p>
 
             <!-- Visual Martial Arts Belt -->
-            <div class="martial-belt-visual" aria-label="White Belt with 3 Stripes">
+            <div class="martial-belt-visual" id="martial-belt-visual" aria-label="White Belt with 3 Stripes">
               <div class="belt-body">
                 <div class="belt-seam"></div>
               </div>

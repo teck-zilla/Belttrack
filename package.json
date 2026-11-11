@@ -16,6 +16,7 @@
     "test:smtp": "node scripts/test-smtp-verification.mjs",
     "test:db-code": "node scripts/test-db-verification-code.mjs",
     "simulate:failures": "node scripts/simulate-verification-failures.mjs",
+    "generate:contrast-pdf": "node scripts/generate-contrast-pdf.mjs",
     "benchmark:registration": "node scripts/benchmark-registration.mjs",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
