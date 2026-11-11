@@ -73,7 +73,7 @@ export default function HomePage() {
   // Form states
   const [schoolName, setSchoolName] = useState('Vance Gracie Jiu-Jitsu');
   const [discipline, setDiscipline] = useState<DisciplineType>('brazilian_jiu_jitsu');
-  const [city, setCity] = useState('Manchester');
+  const [city, setCity] = useState('');
   const [country, setCountry] = useState('United Kingdom');
   const [timezone, setTimezone] = useState('UTC');
   const [ownerName, setOwnerName] = useState('Marcus Vance');
@@ -107,6 +107,7 @@ export default function HomePage() {
     schoolName.trim().length > 3 &&
     discipline &&
     isValidSchoolJoinCode(generatedCode) &&
+    city.trim().length >= 2 &&
     country.trim().length >= 2 &&
     timezone &&
     ownerName.trim().length >= 3 &&
@@ -118,6 +119,7 @@ export default function HomePage() {
     !fieldErrors['schoolName'] &&
     !fieldErrors['discipline'] &&
     !fieldErrors['generatedCode'] &&
+    !fieldErrors['city'] &&
     !fieldErrors['country'] &&
     !fieldErrors['timezone'] &&
     !fieldErrors['ownerName'] &&
@@ -130,6 +132,13 @@ export default function HomePage() {
     const trimmed = (val || '').trim();
     if (!trimmed) {
       return 'empty field error';
+    }
+
+    // City field: length should not fall below 2 characters
+    if (fieldId === 'city') {
+      if (trimmed.length < 2) {
+        return 'structure error';
+      }
     }
 
     // Email fields: valid email check
@@ -357,6 +366,9 @@ export default function HomePage() {
     const eCode = validateField('generatedCode', generatedCode);
     if (eCode) errors['generatedCode'] = eCode;
 
+    const eCity = validateField('city', city);
+    if (eCity) errors['city'] = eCity;
+
     const eCountry = validateField('country', country);
     if (eCountry) errors['country'] = eCountry;
 
@@ -378,6 +390,7 @@ export default function HomePage() {
         schoolName: 'reg-school-name',
         discipline: 'reg-discipline',
         generatedCode: 'reg-code',
+        city: 'reg-city',
         country: 'reg-country',
         timezone: 'reg-timezone',
         ownerName: 'reg-owner-name',
@@ -641,6 +654,27 @@ export default function HomePage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
+                  <label htmlFor="reg-city" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
+                    City <span aria-hidden="true" className="text-error ml-0.5">*</span>
+                    <span className="sr-only"> (required)</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="reg-city"
+                    name="city"
+                    required
+                    aria-required="true"
+                    aria-invalid={Boolean(fieldErrors['city'])}
+                    aria-describedby={fieldErrors['city'] ? 'err-reg-city' : undefined}
+                    placeholder="e.g. Tokyo, New York, London"
+                    value={city}
+                    onChange={(e) => handleInputChange('city', e.target.value, setCity)}
+                    onBlur={() => handleBlur('city', city)}
+                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${fieldErrors['city'] ? 'border-error' : 'border-outline-variant'}`}
+                  />
+                  <InlineFieldError id="err-reg-city" message={fieldErrors['city']} />
+                </div>
+                <div>
                   <label htmlFor="reg-country" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
                     Country <span aria-hidden="true" className="text-error ml-0.5">*</span>
                     <span className="sr-only"> (required)</span>
@@ -653,6 +687,7 @@ export default function HomePage() {
                     aria-required="true"
                     aria-invalid={Boolean(fieldErrors['country'])}
                     aria-describedby={fieldErrors['country'] ? 'err-reg-country' : undefined}
+                    placeholder="e.g. Japan, United States, UK"
                     value={country}
                     onChange={(e) => handleInputChange('country', e.target.value, setCountry)}
                     onBlur={() => handleBlur('country', country)}
@@ -660,32 +695,34 @@ export default function HomePage() {
                   />
                   <InlineFieldError id="err-reg-country" message={fieldErrors['country']} />
                 </div>
-                <div>
-                  <label htmlFor="reg-timezone" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
-                    Operating Timezone <span aria-hidden="true" className="text-error ml-0.5">*</span>
-                    <span className="sr-only"> (required)</span>
-                  </label>
-                  <select
-                    id="reg-timezone"
-                    name="timezone"
-                    required
-                    aria-required="true"
-                    aria-invalid={Boolean(fieldErrors['timezone'])}
-                    aria-describedby={fieldErrors['timezone'] ? 'err-reg-timezone' : undefined}
-                    value={timezone}
-                    onChange={(e) => {
-                      setTimezone(e.target.value);
-                      if (fieldErrors['timezone']) {
-                        setFieldErrors((prev) => {
-                          const next = { ...prev };
-                          delete next['timezone'];
-                          return next;
-                        });
-                      }
-                    }}
-                    onBlur={() => handleBlur('timezone', timezone)}
-                    className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${fieldErrors['timezone'] ? 'border-error' : 'border-outline-variant'}`}
-                  >
+              </div>
+
+              <div>
+                <label htmlFor="reg-timezone" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
+                  Operating Timezone <span aria-hidden="true" className="text-error ml-0.5">*</span>
+                  <span className="sr-only"> (required)</span>
+                </label>
+                <select
+                  id="reg-timezone"
+                  name="timezone"
+                  required
+                  aria-required="true"
+                  aria-invalid={Boolean(fieldErrors['timezone'])}
+                  aria-describedby={fieldErrors['timezone'] ? 'err-reg-timezone' : undefined}
+                  value={timezone}
+                  onChange={(e) => {
+                    setTimezone(e.target.value);
+                    if (fieldErrors['timezone']) {
+                      setFieldErrors((prev) => {
+                        const next = { ...prev };
+                        delete next['timezone'];
+                        return next;
+                      });
+                    }
+                  }}
+                  onBlur={() => handleBlur('timezone', timezone)}
+                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${fieldErrors['timezone'] ? 'border-error' : 'border-outline-variant'}`}
+                >
                     <option value="UTC">UTC (Coordinated Universal Time)</option>
                     <optgroup label="North America" className="bg-surface-container-low text-surface-foreground font-semibold">
                       <option value="America/New_York">America/New York (EST/EDT)</option>
@@ -733,7 +770,6 @@ export default function HomePage() {
                   </select>
                   <InlineFieldError id="err-reg-timezone" message={fieldErrors['timezone']} />
                 </div>
-              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
