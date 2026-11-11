@@ -13,6 +13,7 @@
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
+import { renderVerificationEmailHtml } from '../src/lib/email-verification.ts';
 
 // Basic .env loader if not already in process.env
 const envPath = path.resolve(process.cwd(), '.env');
@@ -108,17 +109,8 @@ async function main() {
         from,
         to: targetRecipient,
         subject: 'BeltTrack - SMTP Live Diagnostic Test',
-        text: `This is a live test email from BeltTrack.\n\nYour test verification code is: ${mockCode}\n\nIf you received this message, your SMTP configuration is 100% operational!`,
-        html: `
-          <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid lightgray; border-radius: 8px;">
-            <h2 style="color: black;">BeltTrack SMTP Live Test</h2>
-            <p style="color: dimgray;">If you are reading this email, your BeltTrack SMTP configuration is working perfectly.</p>
-            <div style="background-color: whitesmoke; border: 1px solid lightgray; border-radius: 6px; padding: 12px; text-align: center; font-size: 28px; font-weight: bold; letter-spacing: 6px;">
-              ${mockCode}
-            </div>
-            <p style="color: gray; font-size: 12px; margin-top: 16px;">Timestamp: ${new Date().toISOString()}</p>
-          </div>
-        `
+        text: `Welcome to BeltTrack Martial Arts Management!\n\nYour test verification code is: ${mockCode}\n\nThis code will expire in 6 minutes.\nEnter this code in your BeltTrack dashboard banner to confirm your email.\nIf you did not register for an account, please disregard this email.`,
+        html: renderVerificationEmailHtml(mockCode, targetRecipient)
       });
 
       const sendDurationMs = Math.round(performance.now() - sendStart);
