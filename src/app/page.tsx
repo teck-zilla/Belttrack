@@ -23,6 +23,15 @@ interface DirectorySchool {
   joinCode: string;
 }
 
+const DISCIPLINE_LABELS: Record<DisciplineType, string> = {
+  brazilian_jiu_jitsu: 'Brazilian Jiu-Jitsu',
+  judo: 'Judo',
+  karate: 'Karate',
+  taekwondo: 'Taekwondo',
+  muay_thai: 'Muay Thai',
+  krav_maga: 'Krav Maga'
+};
+
 function InlineFieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
   return (
@@ -60,7 +69,11 @@ export default function HomePage() {
   const [isTermsModalOpen, setTermsModalOpen] = useState(false);
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 
-  const handleCloseRegister = useCallback(() => setRegisterModalOpen(false), []);
+  const handleCloseRegister = useCallback(() => {
+    setRegisterModalOpen(false);
+    setRegisterSuccessData(null);
+    setRegTermsAccepted(false);
+  }, []);
   const handleCloseJoin = useCallback(() => setJoinModalOpen(false), []);
   const handleCloseDirectory = useCallback(() => setDirectoryModalOpen(false), []);
   const handleCloseTerms = useCallback(() => setTermsModalOpen(false), []);
@@ -88,6 +101,15 @@ export default function HomePage() {
   const [formFeedback, setFormFeedback] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [registerSuccessData, setRegisterSuccessData] = useState<{
+    schoolName: string;
+    discipline: DisciplineType;
+    registrationCode: string;
+    city: string;
+    country: string;
+    ownerEmail: string;
+  } | null>(null);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   const ownerStrength = calculatePasswordStrength(ownerPassword);
 
@@ -454,7 +476,6 @@ export default function HomePage() {
 
       // Update active tenant state with verified DB record
       setActiveSchool(data.school);
-      setFormFeedback(`Dojo tenant "${data.school.name}" successfully registered in database! Code: ${data.school.registration_code}. Authenticating session...`);
 
       // Automatically sign in the registered school owner with unverified email state
       setSessionUser({
@@ -473,11 +494,15 @@ export default function HomePage() {
         // Fallback: user can sign in via Login modal
       }
 
-      setTimeout(() => {
-        setRegisterModalOpen(false);
-        setFormFeedback(null);
-        setRegTermsAccepted(false);
-      }, 1500);
+      setRegisterSuccessData({
+        schoolName: data.school.name,
+        discipline: data.school.discipline,
+        registrationCode: data.school.registration_code || data.school.joinCode || generatedCode,
+        city: data.school.city || city,
+        country: data.school.country || country,
+        ownerEmail: normalizedOwnerEmail
+      });
+      setFormFeedback(null);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Database error registering school tenant';
       setFormFeedback(message);
@@ -542,34 +567,192 @@ export default function HomePage() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-labelledby="title-register-modal"
+          aria-labelledby={registerSuccessData ? "title-launchpad-modal" : "title-register-modal"}
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface bg-opacity-60 backdrop-blur-sm"
         >
           <div ref={registerModalRef} className="w-full max-w-lg p-4 sm:p-6 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-hard-2 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[10px] bg-primary text-primary-foreground flex-shrink-0 flex items-center justify-center shadow-soft" aria-hidden="true">
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <rect x="2" y="6" width="20" height="12" rx="4" />
-                    <line x1="8" y1="6" x2="8" y2="18" />
-                    <line x1="12" y1="6" x2="12" y2="18" strokeDasharray="2 2" />
-                    <path d="M16 10l2 2-2 2" />
-                  </svg>
+            {registerSuccessData ? (
+              <div className="space-y-5 py-1">
+                {/* Header with success badge & close */}
+                <div className="flex items-center justify-between pb-3 border-b border-outline-variant">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-[10px] bg-tertiary-container text-tertiary-on-container flex-shrink-0 flex items-center justify-center shadow-soft" aria-hidden="true">
+                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                    </div>
+                    <div>
+                      <span className="font-label text-xs font-bold text-tertiary uppercase tracking-wider block">
+                        Dojo Launchpad • Tenant Activated
+                      </span>
+                      <h3 id="title-launchpad-modal" className="font-headline text-xl font-bold text-primary">
+                        {registerSuccessData.schoolName}
+                      </h3>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCloseRegister}
+                    className="text-surface-on-variant hover:text-surface-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary rounded p-1"
+                    aria-label="Close modal"
+                  >
+                    ✕
+                  </button>
                 </div>
-                <div>
-                  <span className="font-label text-xs font-bold text-tertiary uppercase">Tenant Creation</span>
-                  <h3 id="title-register-modal" className="font-headline text-xl font-bold text-primary">Register Martial Arts School</h3>
+
+                {/* Academy Meta Badge */}
+                <div className="flex flex-wrap items-center gap-2 text-xs font-body text-surface-on-variant">
+                  <span className="px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant font-medium text-surface-foreground">
+                    📍 {registerSuccessData.city}, {registerSuccessData.country}
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant font-medium text-surface-foreground">
+                    🥋 {DISCIPLINE_LABELS[registerSuccessData.discipline] || registerSuccessData.discipline}
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full bg-tertiary-container text-tertiary-on-container font-label font-bold uppercase tracking-wider text-[10px]">
+                    Single Source of Truth
+                  </span>
+                </div>
+
+                {/* Prominent School Join Code Card */}
+                <div className="p-4 rounded-xl bg-surface-container-low border-2 border-dashed border-tertiary space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-label text-[11px] font-bold text-tertiary uppercase tracking-wider">
+                      Official School Join Code
+                    </span>
+                    <span className="font-label text-[10px] text-surface-on-variant">
+                      Share with students &amp; coaches
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 p-3 rounded-[10px] bg-surface-container-lowest border border-outline-variant">
+                    <span className="font-headline text-xl sm:text-2xl font-black text-primary tracking-wider select-all">
+                      {registerSuccessData.registrationCode}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                          navigator.clipboard.writeText(registerSuccessData.registrationCode);
+                          setCopiedCode(true);
+                          setTimeout(() => setCopiedCode(false), 2000);
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-[10px] bg-primary text-primary-foreground font-label text-xs font-medium hover:bg-tertiary transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary cursor-pointer"
+                      aria-label="Copy School Join Code"
+                    >
+                      {copiedCode ? (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                          </svg>
+                          <span>Copy Code</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <p className="font-body text-xs text-surface-on-variant leading-relaxed">
+                    Provide this code to your martial artists during enrollment. Accounts registering with this code will be placed under <strong className="text-surface-foreground">PENDING_APPROVAL</strong> until you or an authorized coach verify their profile.
+                  </p>
+                </div>
+
+                {/* 3-Step Actionable Onboarding Checklist */}
+                <div className="space-y-2.5">
+                  <span className="font-title text-xs font-bold text-surface-foreground block">
+                    Next Steps to Activate Your Academy
+                  </span>
+
+                  <div className="space-y-2 text-xs font-body">
+                    <div className="p-3 rounded-[10px] bg-surface-container-low border border-outline-variant flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground font-label font-bold text-[11px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        1
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className="font-title font-semibold text-surface-foreground">
+                          Verify Head Coach Email
+                        </p>
+                        <p className="text-surface-on-variant">
+                          A confirmation link was sent to <strong className="text-surface-foreground">{registerSuccessData.ownerEmail}</strong>. Verify your email to activate full multi-tenant broadcast permissions.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-[10px] bg-surface-container-low border border-outline-variant flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground font-label font-bold text-[11px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        2
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className="font-title font-semibold text-surface-foreground">
+                          Review Incoming Member Approvals
+                        </p>
+                        <p className="text-surface-on-variant">
+                          Access the <strong>Member Approvals</strong> queue on your dashboard to review and approve incoming student and guardian join requests.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-[10px] bg-surface-container-low border border-outline-variant flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground font-label font-bold text-[11px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        3
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className="font-title font-semibold text-surface-foreground">
+                          Start Live Roll-Call &amp; Technique Sign-Offs
+                        </p>
+                        <p className="text-surface-on-variant">
+                          Run real-time mat attendance, monitor student absence risk indicators, and sign off verified curriculum techniques during class.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Primary CTA: Enter Dojo Operating Console */}
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={handleCloseRegister}
+                    className="w-full py-2.5 px-4 rounded-[10px] bg-primary text-primary-foreground font-label text-xs sm:text-sm font-semibold hover:bg-tertiary hover:shadow-soft transition-all duration-[300ms] flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest cursor-pointer"
+                  >
+                    <span>Enter Dojo Operating Console</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </button>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => { setRegisterModalOpen(false); setRegTermsAccepted(false); }}
-                className="text-surface-on-variant hover:text-surface-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary rounded p-1"
-                aria-label="Close modal"
-              >
-                ✕
-              </button>
-            </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-[10px] bg-primary text-primary-foreground flex-shrink-0 flex items-center justify-center shadow-soft" aria-hidden="true">
+                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <rect x="2" y="6" width="20" height="12" rx="4" />
+                        <line x1="8" y1="6" x2="8" y2="18" />
+                        <line x1="12" y1="6" x2="12" y2="18" strokeDasharray="2 2" />
+                        <path d="M16 10l2 2-2 2" />
+                      </svg>
+                    </div>
+                    <div>
+                      <span className="font-label text-xs font-bold text-tertiary uppercase">Tenant Creation</span>
+                      <h3 id="title-register-modal" className="font-headline text-xl font-bold text-primary">Register Martial Arts School</h3>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCloseRegister}
+                    className="text-surface-on-variant hover:text-surface-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary rounded p-1"
+                    aria-label="Close modal"
+                  >
+                    ✕
+                  </button>
+                </div>
 
             <form onSubmit={handleRegisterSchool} className="space-y-4">
               <div>
@@ -973,9 +1156,11 @@ export default function HomePage() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </div>
+    </div>
+  )}
 
       {/* MODAL 2: JOIN WITH REGISTRATION CODE */}
       <StudentJoinModal
