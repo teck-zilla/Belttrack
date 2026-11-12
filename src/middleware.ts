@@ -36,7 +36,33 @@ export async function middleware(request: NextRequest) {
     rateLimitHeaders['X-RateLimit-Reset'] = rateLimitResult.reset.toString();
   }
 
-  // 2. Supabase Auth Session Refreshing
+  // 2. CSRF Origin Protection for State-Changing API Mutations
+  const isApiRoute = pathname.startsWith('/api/');
+  const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+
+  if (isApiRoute && isMutation) {
+    const origin = request.headers.get('origin');
+    const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
+
+    if (origin && host) {
+      try {
+        const originUrl = new URL(origin);
+        if (originUrl.host !== host) {
+          return NextResponse.json(
+            { error: 'Cross-origin request blocked (CSRF protection)' },
+            { status: 403 }
+          );
+        }
+      } catch {
+        return NextResponse.json(
+          { error: 'Invalid Origin header' },
+          { status: 403 }
+        );
+      }
+    }
+  }
+
+  // 3. Supabase Auth Session Refreshing
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -53,6 +79,8 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse;
   }
 
+  const isProduction = process.env.NODE_ENV === 'production';
+
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
@@ -67,7 +95,12 @@ export async function middleware(request: NextRequest) {
           supabaseResponse.headers.set(headerName, headerValue);
         });
         cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, options)
+          supabaseResponse.cookies.set(name, value, {
+            path: '/',
+            sameSite: 'lax',
+            secure: isProduction,
+            ...options,
+          })
         );
       },
     },

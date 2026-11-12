@@ -11,6 +11,8 @@ export async function createClient() {
     throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.');
   }
 
+  const isProduction = process.env.NODE_ENV === 'production';
+
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
@@ -19,7 +21,12 @@ export async function createClient() {
       setAll(cookiesToSet) {
         try {
           cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
+            cookieStore.set(name, value, {
+              path: '/',
+              sameSite: 'lax',
+              secure: isProduction,
+              ...options,
+            })
           );
         } catch {
           // The `setAll` method was called from a Server Component.
