@@ -592,3 +592,340 @@ export function clearVerificationState(email: string): void {
     verificationStore.delete(normalized);
   }
 }
+
+/**
+ * ----------------------------------------------------------------------
+ * PASSWORD RESET OTP EXTENSIONS
+ * ----------------------------------------------------------------------
+ */
+
+export interface PasswordResetRecord {
+  email: string;
+  code: string;
+  expiresAt: number;
+  attempts: number;
+  used: boolean;
+  lastSentAt: number;
+}
+
+export interface PasswordResetCodeResult {
+  success: boolean;
+  error?: string;
+  expiresAt?: number;
+  retryAfter?: number;
+  code?: string;
+}
+
+const globalForReset = globalThis as unknown as {
+  _belttrackPasswordResetStore?: Map<string, PasswordResetRecord>;
+};
+
+const passwordResetStore =
+  globalForReset._belttrackPasswordResetStore ?? new Map<string, PasswordResetRecord>();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForReset._belttrackPasswordResetStore = passwordResetStore;
+}
+
+/**
+ * Renders token-compliant HTML password reset email.
+ */
+export function renderPasswordResetEmailHtml(code: string, recipientEmail?: string): string {
+  const t = getEmailDesignTokens();
+  const recipientDisplay = recipientEmail
+    ? `<p style="font-family: ${t.fontBody}; font-size: 13px; line-height: 1.5; color: ${t.textMuted}; margin: 0 0 16px 0;">This email was sent to <strong>${recipientEmail}</strong> for a password reset request.</p>`
+    : '';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BeltTrack Password Reset Code</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: ${t.surface}; font-family: ${t.fontBody}; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: ${t.surface}; padding: 32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 560px; background-color: ${t.cardBg}; border: 1px solid ${t.outline}; border-radius: 16px; overflow: hidden;">
+          <tr>
+            <td height="5" style="background-color: ${t.tertiary}; font-size: 0; line-height: 0;">&nbsp;</td>
+          </tr>
+          <tr>
+            <td style="padding: 28px 32px 20px 32px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td>
+                    <div style="font-family: ${t.fontHeadline}; font-size: 20px; font-weight: 800; letter-spacing: 0.5px; color: ${t.primary}; line-height: 1.2;">
+                      BELTTRACK
+                    </div>
+                    <div style="font-family: ${t.fontBody}; font-size: 12px; font-weight: 500; color: ${t.textMuted}; letter-spacing: 0.25px; margin-top: 2px;">
+                      Martial Arts School Management Platform
+                    </div>
+                  </td>
+                  <td align="right" valign="top">
+                    <span style="font-family: ${t.fontMono}; font-size: 11px; font-weight: 700; color: ${t.onPrimary}; background-color: ${t.tertiary}; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+                      Password Reset
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 0 32px;">
+              <div style="border-top: 1px solid ${t.surface};"></div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 24px 32px 8px 32px;">
+              <h1 style="font-family: ${t.fontHeadline}; font-size: 22px; font-weight: 700; color: ${t.onSurface}; margin: 0 0 12px 0; line-height: 1.3;">
+                Reset Your Password
+              </h1>
+              <p style="font-family: ${t.fontBody}; font-size: 14px; line-height: 1.6; color: ${t.textMuted}; margin: 0 0 20px 0;">
+                A password reset request was initiated for your BeltTrack account. Enter the single-use 6-digit confirmation code below in the sign-in modal to choose a new password.
+              </p>
+              ${recipientDisplay}
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 20px 0;">
+                <tr>
+                  <td align="center" style="background-color: ${t.surface}; border: 2px dashed ${t.tertiary}; border-radius: 12px; padding: 24px 16px;">
+                    <div style="font-family: ${t.fontBody}; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: ${t.textMuted}; margin-bottom: 8px;">
+                      Password Reset Passcode
+                    </div>
+                    <div style="font-family: ${t.fontMono}; font-size: 36px; font-weight: 800; letter-spacing: 10px; color: ${t.primary}; margin: 4px 0; text-indent: 10px;">
+                      ${code}
+                    </div>
+                    <div style="font-family: ${t.fontBody}; font-size: 12px; color: ${t.textMuted}; margin-top: 8px;">
+                      Select or click to copy &bull; Expires in 6 minutes
+                    </div>
+                  </td>
+                </tr>
+              </table>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: ${t.warningBg}; border-left: 4px solid ${t.warningText}; border-radius: 6px; margin: 16px 0 24px 0;">
+                <tr>
+                  <td style="padding: 12px 16px;">
+                    <div style="font-family: ${t.fontBody}; font-size: 13px; line-height: 1.5; color: ${t.warningText};">
+                      <strong>Security Notice:</strong> This code is valid for <strong>6 minutes</strong>. If you did not request this password reset, you can safely ignore this email — your account credentials remain unchanged.
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: ${t.surface}; padding: 20px 32px; border-top: 1px solid ${t.outline};">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td style="font-family: ${t.fontBody}; font-size: 12px; line-height: 1.5; color: ${t.textMuted};">
+                    <div><strong>BeltTrack Martial Arts Management</strong> &bull; Private Multi-Tenant Platform</div>
+                    <div style="margin-top: 4px;">Strict tenant isolation &bull; Zero monetization &bull; Closed source of truth</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+/**
+ * Dispatches password reset email via SMTP or console fallback.
+ */
+export async function sendPasswordResetEmail(email: string, code: string): Promise<boolean> {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return false;
+
+  const transporter = getSmtpTransporter();
+
+  if (transporter) {
+    try {
+      const fromAddress = process.env.SMTP_FROM?.trim() || '"BeltTrack Martial Arts" <no-reply@belttrack.app>';
+      const emailHtml = renderPasswordResetEmailHtml(code, normalizedEmail);
+
+      await transporter.sendMail({
+        from: fromAddress,
+        to: normalizedEmail,
+        subject: 'BeltTrack - Your Password Reset Code',
+        text: `A password reset was requested for your BeltTrack account.\n\nYour 6-digit reset code is: ${code}\n\nThis code will expire in 6 minutes.\nEnter this code in the sign-in modal to choose a new password.\nIf you did not request this, please disregard this email.`,
+        html: emailHtml
+      });
+
+      console.log(`[BELTTRACK AUTH] Password reset email dispatched via SMTP to: ${normalizedEmail}`);
+      return true;
+    } catch (smtpErr) {
+      console.warn('[BELTTRACK AUTH] SMTP reset dispatch failed, falling back to console:', smtpErr);
+    }
+  }
+
+  const timestamp = new Date().toISOString();
+  console.log('\n======================================================================');
+  console.log('              BELTTRACK PASSWORD RESET CODE DISPATCH                  ');
+  console.log('======================================================================');
+  console.log(`[Timestamp]: ${timestamp}`);
+  console.log(`[To]:        ${normalizedEmail}`);
+  console.log(`[Subject]:   BeltTrack - Your Password Reset Code`);
+  console.log('----------------------------------------------------------------------');
+  console.log(`Your 6-digit password reset code is:`);
+  console.log(`                   >>>  ${code}  <<<`);
+  console.log('');
+  console.log('This code will expire in 6 minutes.');
+  console.log('Enter this code in the BeltTrack sign-in modal to reset your password.');
+  console.log('======================================================================\n');
+
+  return true;
+}
+
+/**
+ * Creates and dispatches a 6-digit password reset code.
+ */
+export async function createAndSendPasswordResetCode(
+  email: string
+): Promise<PasswordResetCodeResult> {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) {
+    return { success: false, error: 'A valid email address is required.' };
+  }
+
+  const now = Date.now();
+  const existing = passwordResetStore.get(normalizedEmail);
+
+  if (existing && !existing.used && now - existing.lastSentAt < RESEND_COOLDOWN_MS) {
+    const retryAfter = Math.ceil((RESEND_COOLDOWN_MS - (now - existing.lastSentAt)) / 1000);
+    return {
+      success: false,
+      error: `Please wait ${retryAfter} seconds before requesting a new code.`,
+      expiresAt: existing.expiresAt
+    };
+  }
+
+  const code = generateVerificationCode();
+  const expiresAt = now + CODE_EXPIRY_MS;
+
+  const record: PasswordResetRecord = {
+    email: normalizedEmail,
+    code,
+    expiresAt,
+    attempts: 0,
+    used: false,
+    lastSentAt: now
+  };
+
+  passwordResetStore.set(normalizedEmail, record);
+
+  await sendPasswordResetEmail(normalizedEmail, code);
+
+  return {
+    success: true,
+    expiresAt,
+    code
+  };
+}
+
+/**
+ * Verifies a submitted 6-digit password reset code.
+ */
+export function verifyPasswordResetCode(
+  email: string,
+  inputCode: string
+): { success: boolean; error?: string } {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) {
+    return { success: false, error: 'Invalid or missing email address.' };
+  }
+
+  const cleanedCode = typeof inputCode === 'string' ? inputCode.trim() : '';
+  if (!cleanedCode) {
+    return { success: false, error: 'Verification code is required.' };
+  }
+
+  const now = Date.now();
+  const record = passwordResetStore.get(normalizedEmail);
+
+  if (!record) {
+    return {
+      success: false,
+      error: 'No active reset code found for this email. Please request a new code.'
+    };
+  }
+
+  if (record.used) {
+    return {
+      success: false,
+      error: 'This reset code has already been used. Please request a new code.'
+    };
+  }
+
+  if (now > record.expiresAt) {
+    return {
+      success: false,
+      error: 'Reset code has expired. Please request a new code.'
+    };
+  }
+
+  if (record.attempts >= MAX_VERIFICATION_ATTEMPTS) {
+    return {
+      success: false,
+      error: 'Maximum attempts exceeded. Please request a new code.'
+    };
+  }
+
+  if (record.code !== cleanedCode) {
+    record.attempts += 1;
+    const remaining = MAX_VERIFICATION_ATTEMPTS - record.attempts;
+    return {
+      success: false,
+      error: remaining > 0
+        ? `Incorrect code. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`
+        : 'Incorrect code. Maximum attempts exceeded. Please request a new code.'
+    };
+  }
+
+  return { success: true };
+}
+
+/**
+ * Marks a password reset code as used.
+ */
+export function markPasswordResetCodeUsed(email: string): void {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return;
+
+  const record = passwordResetStore.get(normalizedEmail);
+  if (record) {
+    record.used = true;
+    passwordResetStore.set(normalizedEmail, record);
+  }
+}
+
+/**
+ * Resends a password reset code if cooldown has elapsed.
+ */
+export async function resendPasswordResetCode(
+  email: string
+): Promise<PasswordResetCodeResult> {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) {
+    return { success: false, error: 'A valid email address is required.' };
+  }
+
+  const now = Date.now();
+  const record = passwordResetStore.get(normalizedEmail);
+
+  if (record && !record.used) {
+    const elapsed = now - record.lastSentAt;
+    if (elapsed < RESEND_COOLDOWN_MS) {
+      const retryAfter = Math.ceil((RESEND_COOLDOWN_MS - elapsed) / 1000);
+      return {
+        success: false,
+        error: `Please wait ${retryAfter} seconds before requesting a new code.`,
+        retryAfter
+      };
+    }
+  }
+
+  return await createAndSendPasswordResetCode(normalizedEmail);
+}
