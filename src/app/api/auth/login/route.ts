@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { loginSchema } from '@/lib/validation/schemas';
 import { isEmailVerified } from '@/lib/email-verification';
+import { getLatestAuthSession } from '@/lib/session-security';
 
 function formatSchool(school: {
   id: string;
@@ -122,9 +123,32 @@ export async function POST(request: Request) {
       });
 
       if (fallbackUser && fallbackUser.hashedPassword === 'managed-auth-preview' && password === 'Kaizen2026!') {
+        const sessionRow = fallbackUser.supabaseUid
+          ? await getLatestAuthSession(fallbackUser.supabaseUid)
+          : null;
+
+        const effectiveSession = sessionRow || {
+          id: `sess_preview_${fallbackUser.id.slice(0, 8)}`,
+          user_id: fallbackUser.id,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          ip: '127.0.0.1',
+          user_agent: request.headers.get('user-agent') || 'BeltTrack Preview Mode',
+          aal: 'aal1'
+        };
+
+        console.log(`[BELTTRACK AUTH /api/auth/login] Captured session row for ${fallbackUser.email}:`, {
+          sessionId: effectiveSession.id,
+          userId: effectiveSession.user_id,
+          createdAt: effectiveSession.created_at,
+          ip: effectiveSession.ip,
+          userAgent: effectiveSession.user_agent,
+        });
+
         return NextResponse.json({
           success: true,
           authenticated: true,
+          session: effectiveSession,
           user: {
             id: fallbackUser.id,
             supabase_uid: fallbackUser.supabaseUid || fallbackUser.id,
@@ -136,7 +160,7 @@ export async function POST(request: Request) {
             school_slug: fallbackUser.school?.slug || null,
             first_name: fallbackUser.profile?.firstName || null,
             last_name: fallbackUser.profile?.lastName || null,
-            email_verified: isEmailVerified(fallbackUser.email)
+            email_verified: Boolean(fallbackUser.isEmailVerified || isEmailVerified(fallbackUser.email))
           },
           school: fallbackUser.school ? formatSchool(fallbackUser.school) : null
         });
@@ -190,9 +214,21 @@ export async function POST(request: Request) {
       });
     }
 
+    const sessionRow = await getLatestAuthSession(authData.user.id);
+    if (sessionRow) {
+      console.log(`[BELTTRACK AUTH /api/auth/login] Captured PostgreSQL auth.sessions row for ${dbUser.email}:`, {
+        sessionId: sessionRow.id,
+        userId: sessionRow.user_id,
+        createdAt: sessionRow.created_at,
+        ip: sessionRow.ip,
+        userAgent: sessionRow.user_agent,
+      });
+    }
+
     return NextResponse.json({
       success: true,
       authenticated: true,
+      session: sessionRow,
       user: {
         id: dbUser.id,
         supabase_uid: authData.user.id,

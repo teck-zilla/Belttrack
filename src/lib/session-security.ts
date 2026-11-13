@@ -9,6 +9,10 @@
  */
 
 import crypto from 'crypto';
+import { prisma } from '@/lib/prisma';
+import type { AuthSessionRow } from '@/types/domain';
+
+export type { AuthSessionRow };
 
 /**
  * Returns hardened cookie flags for BeltTrack authentication cookies.
@@ -110,6 +114,54 @@ export function validateCsrfOrigin(
     return { valid: true };
   } catch {
     return { valid: false, reason: 'Malformed Origin header' };
+  }
+}
+
+/**
+ * Queries the active or latest session row directly from PostgreSQL's auth.sessions table.
+ */
+export async function getLatestAuthSession(supabaseUid: string): Promise<AuthSessionRow | null> {
+  if (!supabaseUid || typeof supabaseUid !== 'string') return null;
+
+  try {
+    const rows = await prisma.$queryRaw<Array<{
+      id: string;
+      user_id: string;
+      created_at: Date | string;
+      updated_at: Date | string;
+      ip: string | null;
+      user_agent: string | null;
+      aal: string | null;
+    }>>`
+      SELECT 
+        id::text, 
+        user_id::text, 
+        created_at, 
+        updated_at, 
+        ip::text, 
+        user_agent,
+        aal::text
+      FROM auth.sessions 
+      WHERE user_id = ${supabaseUid}::uuid 
+      ORDER BY created_at DESC 
+      LIMIT 1;
+    `;
+
+    if (!rows || rows.length === 0) return null;
+
+    const row = rows[0];
+    return {
+      id: row.id,
+      user_id: row.user_id,
+      created_at: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
+      updated_at: row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at),
+      ip: row.ip || null,
+      user_agent: row.user_agent || null,
+      aal: row.aal || null,
+    };
+  } catch (err) {
+    console.warn('[BELTTRACK AUTH] Unable to query auth.sessions from PostgreSQL:', err);
+    return null;
   }
 }
 
