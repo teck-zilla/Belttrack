@@ -18,6 +18,70 @@ BeltTrack has evolved from an interactive MVP preview (**V1**) into a fully auth
 
 ---
 
+## 🗺️ Recommended Multi-Account Architecture & Implementation Roadmap
+
+BeltTrack is designed for martial arts academies where participants frequently hold multiple active personas—such as a **Head Coach** who trains as a student under an affiliated master, an **Instructor** teaching across multiple academies, or a **Parent / Guardian** training in adult BJJ while managing their child's youth Judo attendance.
+
+Under standard web browser security ([RFC 6265](https://datatracker.ietf.org/doc/html/rfc6265)), browser cookie storage is scoped per origin (`domain:port`), meaning concurrent logins for different accounts on the same origin overwrite each other. BeltTrack resolves this via the **Unified Identity & Multi-Membership Architecture** combined with **Tenant Subdomain Scoping**.
+
+### 1. Architectural Model Overview
+
+```text
+                      [ User Identity: coach@kaizenbjj.org ]
+                               (1 Supabase Auth Session)
+                                          │
+          ┌───────────────────────────────┼───────────────────────────────┐
+          ▼                               ▼                               ▼
+  [ Membership 1 ]                [ Membership 2 ]                [ Membership 3 ]
+   School: Kaizen BJJ              School: LEMS Judo               School: Kaizen BJJ
+   Role: OWNER / COACH             Role: STUDENT (Adult)           Role: GUARDIAN
+   Status: ACTIVE                  Status: ACTIVE                  Status: LINKED (Minor)
+          │                               │                               │
+          └───────────────────────┬───────┴───────────────────────────────┘
+                                  ▼
+                  [ Top Navigation Dojo Switcher ]
+                  Cookie: `belttrack_active_school_id`
+```
+
+### 2. The 4 Architectural Pillars
+
+1. **Pillar 1: Unified Identity & Multi-Membership Data Model**:
+   - Decouples global authentication (`User` / `auth.users`) from academy enrollment (`SchoolMember`).
+   - A single human maintains one email and password, eliminating multiple credentials or cookie collisions.
+   - Enforces strict multi-tenant Row-Level Security: each private record, attendance entry, and immutable ledger row binds strictly to the active `school_id`.
+
+2. **Pillar 2: Active Tenant Context in Next.js 14+ App Router**:
+   - A secure cookie (`belttrack_active_school_id`) tracks the academy currently in view.
+   - Next.js `middleware.ts` verifies that the authenticated user holds valid membership in the requested school before forwarding requests with an `x-school-id` header.
+   - Preserves 100% compatibility with Server Components and SSR without client-side state drift.
+
+3. **Pillar 3: Top Navigation Academy & Persona Switcher**:
+   - Replaces static preview simulator toggles with a dynamic multi-membership dropdown.
+   - Displays the user's active academy and role with 1-click switching, dependent profile management, and a "+ Join Another School" action.
+
+4. **Pillar 4: Production Subdomain Scoping (`<school-slug>.belttrack.com`)**:
+   - In production, academies are accessible via dedicated subdomains (e.g. `kaizen.belttrack.com`, `lems.belttrack.com`).
+   - Host-only cookie scoping allows power users (e.g. affiliate coaches) to maintain simultaneous tabs for different academies in the same browser window without session interference.
+
+---
+
+### 3. Implementation Roadmap
+
+| Phase | Milestone | Scope & Deliverables | Target |
+| :--- | :--- | :--- | :--- |
+| **Phase 1** | **Immediate QA Testing & Isolation** | • Support concurrent testing via isolated browser profiles (Chrome/Edge Profiles or Incognito windows)<br>• Maintain existing interactive role switcher in top navigation for client-side demo evaluation | **Current (Complete)** |
+| **Phase 2** | **Multi-Membership Schema & Active Context** | • Introduce `SchoolMember` relation in `prisma/schema.prisma` decoupling `User` from single `schoolId`<br>• Implement `belttrack_active_school_id` signed cookie handling in `src/middleware.ts`<br>• Update `src/context/tenant-context.tsx` to read and synchronize active academy membership | **Sprint 1** |
+| **Phase 3** | **Interactive Academy & Role Switcher UI** | • Upgrade `src/components/layout/top-nav.tsx` with dynamic tenant selection dropdown<br>• Add "+ Join School with Code" flow for existing accounts without re-registration<br>• Enforce strict cross-tenant RLS checks on active membership switches | **Sprint 2** |
+| **Phase 4** | **Guardian & Dependent Multi-Persona Views** | • Connect `GuardianStudent` relation to active switcher for 1-click toggling between parent and child<br>• Restrict guardian view to read-only attendance, curriculum progress, and immutable receipts | **Sprint 3** |
+| **Phase 5** | **Production Subdomain Tenant Routing** | • Configure wildcard DNS (`*.belttrack.com`)<br>• Extract academy slug from `request.headers.get('host')` in Next.js middleware<br>• Enforce host-only cookie policies for complete multi-tenant browser isolation | **Production Launch** |
+
+> [!NOTE]
+> For complete technical specifications and RFC 6265 browser cookie jar analysis, refer to [`docs/multi-tenant-session-architecture.pdf`](./docs/multi-tenant-session-architecture.pdf).
+
+---
+
+---
+
 ## 🛠️ Installation & Setup Guide (For Developers)
 
 Follow these steps to set up and run BeltTrack locally for development:
