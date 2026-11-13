@@ -1,0 +1,759 @@
+%PDF-1.4
+%âãÏÓ
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [9 0 R 11 0 R 13 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold /Encoding /WinAnsiEncoding >>
+endobj
+8 0 obj
+<< /Length 7825 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+0 784 612 8 re f
+BT
+/F2 16 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 750 Td (BELTTRACK MARTIAL ARTS MANAGEMENT OS) Tj
+ET
+BT
+/F2 12 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+40 734 Td (Gating Architecture Specification: 8 Types & Detailed Breakdown) Tj
+ET
+BT
+/F1 8.5 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+40 720 Td (Security Model: Hard vs. Soft Gating  |  Zero-Monetization Guarantee  |  Date: November 2026) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+0.75 w
+40 710 m 572 710 l S
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 642 532 58 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 642 532 58 re s
+BT
+/F2 9.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+50 682 Td (GATING PHILOSOPHY: PRIVACY & INTEGRITY OVER COMMERCIAL PAYWALLS) Tj
+ET
+BT
+/F1 8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+50 668 Td (Unlike commercial SaaS platforms, BeltTrack operates with ZERO feature tiers, paywalls, or subscriptions.) Tj
+50 656 Td (All gating mechanisms exist exclusively to enforce multi-tenant isolation, prevent unauthorized access,) Tj
+50 644 Td (protect minor students, prevent network abuse, and guarantee immutable ledger integrity.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 624 Td (1. GATING TAXONOMY: HARD GATING VS. SOFT GATING) Tj
+ET
+0.98 0.94 0.94 rg
+40 578 260 42 re f
+0.80 0.20 0.20 RG
+40 578 260 42 re s
+BT
+/F2 8.5 Tf
+0.70 0.10 0.10 rg
+48 608 Td (HARD GATING (Cryptographic & Server-Enforced)) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 596 Td (Enforced at DB (RLS), Edge Middleware, and HTTP protocol.) Tj
+48 586 Td (CANNOT be bypassed via client JS, DOM hacks, or forged requests.) Tj
+ET
+0.94 0.96 1.0 rg
+312 578 260 42 re f
+0.20 0.40 0.85 RG
+312 578 260 42 re s
+BT
+/F2 8.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+320 608 Td (SOFT GATING (UI & Workflow Guidance)) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+320 596 Td (Enforced via UI banners, role preview toggles, and modals.) Tj
+320 586 Td (Guides user progress without bricking local testing or audits.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 554 Td (2. MASTER GATING CLASSIFICATION MATRIX) Tj
+ET
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 538 532 18 re f
+BT
+/F2 8 Tf
+1 1 1 rg
+46 543 Td (Gating Mechanism) Tj
+185 543 Td (Classification) Tj
+245 543 Td (Enforcement Layer) Tj
+365 543 Td (Client Bypassable?) Tj
+445 543 Td (Failure Response) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 516 532 22 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 516 532 22 re s
+BT
+/F5 8 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+46 523 Td (1. Multi-Tenant Isolation) Tj
+ET
+BT
+/F2 7.5 Tf
+0.73 0.10 0.10 rg
+185 523 Td (HARD) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+245 523 Td (PostgreSQL RLS / Prisma) Tj
+ET
+BT
+/F2 7.2 Tf
+0.08 0.55 0.25 rg
+365 523 Td (NO \(Impossible\)) Tj
+ET
+BT
+/F4 7 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+445 523 Td (Zero rows returned) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 494 532 22 re s
+BT
+/F5 8 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+46 501 Td (2. Rate Limiting & Abuse) Tj
+ET
+BT
+/F2 7.5 Tf
+0.73 0.10 0.10 rg
+185 501 Td (HARD) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+245 501 Td (Edge Middleware / In-Memory) Tj
+ET
+BT
+/F2 7.2 Tf
+0.08 0.55 0.25 rg
+365 501 Td (NO \(Impossible\)) Tj
+ET
+BT
+/F4 7 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+445 501 Td (HTTP 429 Too Many Req) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 472 532 22 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 472 532 22 re s
+BT
+/F5 8 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+46 479 Td (3. CSRF & Origin Guard) Tj
+ET
+BT
+/F2 7.5 Tf
+0.73 0.10 0.10 rg
+185 479 Td (HARD) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+245 479 Td (Edge Middleware Host Check) Tj
+ET
+BT
+/F2 7.2 Tf
+0.08 0.55 0.25 rg
+365 479 Td (NO \(Impossible\)) Tj
+ET
+BT
+/F4 7 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+445 479 Td (HTTP 403 Forbidden) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 450 532 22 re s
+BT
+/F5 8 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+46 457 Td (4. Cookie Security \(HttpOnly\)) Tj
+ET
+BT
+/F2 7.5 Tf
+0.73 0.10 0.10 rg
+185 457 Td (HARD) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+245 457 Td (Browser Engine / TLS) Tj
+ET
+BT
+/F2 7.2 Tf
+0.08 0.55 0.25 rg
+365 457 Td (NO \(Impossible\)) Tj
+ET
+BT
+/F4 7 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+445 457 Td (document.cookie empty) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 428 532 22 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 428 532 22 re s
+BT
+/F5 8 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+46 435 Td (5. Ledger Immutability) Tj
+ET
+BT
+/F2 7.5 Tf
+0.73 0.10 0.10 rg
+185 435 Td (HARD) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+245 435 Td (Prisma Schema / Route API) Tj
+ET
+BT
+/F2 7.2 Tf
+0.08 0.55 0.25 rg
+365 435 Td (NO \(Impossible\)) Tj
+ET
+BT
+/F4 7 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+445 435 Td (No UPDATE/DELETE) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 406 532 22 re s
+BT
+/F5 8 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+46 413 Td (6. Minor / Guardian Safety) Tj
+ET
+BT
+/F2 7.5 Tf
+0.73 0.10 0.10 rg
+185 413 Td (HARD) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+245 413 Td (Zod Schemas / DB FK) Tj
+ET
+BT
+/F2 7.2 Tf
+0.08 0.55 0.25 rg
+365 413 Td (NO \(Impossible\)) Tj
+ET
+BT
+/F4 7 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+445 413 Td (HTTP 400 Bad Request) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 384 532 22 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 384 532 22 re s
+BT
+/F5 8 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+46 391 Td (7. Member Approval \(Pending\)) Tj
+ET
+BT
+/F2 7.5 Tf
+0.87 0.60 0.06 rg
+185 391 Td (HYBRID) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+245 391 Td (Server API \(H\) / UI \(S\)) Tj
+ET
+BT
+/F2 7.2 Tf
+0.65 0.40 0.05 rg
+365 391 Td (Partial \(Preview UI\)) Tj
+ET
+BT
+/F4 7 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+445 391 Td (Roster / Tech lock) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 362 532 22 re s
+BT
+/F5 8 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+46 369 Td (8. Email Verification Code) Tj
+ET
+BT
+/F2 7.5 Tf
+0.15 0.39 0.92 rg
+185 369 Td (SOFT) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+245 369 Td (UI Banner / OTP Resend) Tj
+ET
+BT
+/F2 7.2 Tf
+0.65 0.40 0.05 rg
+365 369 Td (YES \(Audit mode\)) Tj
+ET
+BT
+/F4 7 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+445 369 Td (Persistent Warning) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 35 m 572 35 l S
+BT
+/F1 8 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+40 24 Td (BeltTrack Martial Arts Management OS  |  Architecture Security Specification) Tj
+510 24 Td (Page 1 of 3) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R /F5 7 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 7549 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+0 784 612 8 re f
+BT
+/F2 14 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 752 Td (3. DETAILED BREAKDOWN: HARD GATING MECHANISMS) Tj
+ET
+BT
+/F1 8.5 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+40 738 Td (Enforced at the Database, Protocol, and Server Runtime Layers - Completely Non-Bypassable) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 728 m 572 728 l S
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 630 532 82 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 630 532 82 re s
+BT
+/F2 9 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 698 Td (A. Multi-Tenant Isolation \(school_id Foreign Key & RLS Boundary\)) Tj
+ET
+BT
+/F2 7.2 Tf
+0.73 0.10 0.10 rg
+48 684 Td (Threat Mitigated: ) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+125 684 Td (Cross-tenant data exposure \(e.g., Academy A viewing Academy B students or ledgers\).) Tj
+ET
+BT
+/F2 7.2 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 668 Td (Enforcement: ) Tj
+ET
+BT
+/F1 7 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+105 668 Td (PostgreSQL Row-Level Security \(RLS\) policies and Prisma client extensions enforce that every query) Tj
+48 658 Td (binds strictly to school_id. Cross-tenant queries are blocked at the database engine level.) Tj
+ET
+BT
+/F4 6.8 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+48 642 Td (Source Reference: prisma/schema.prisma | src/lib/prisma-extension.ts) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 542 532 82 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 542 532 82 re s
+BT
+/F2 9 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 610 Td (B. Network Abuse & Sliding-Window Rate Limiting) Tj
+ET
+BT
+/F2 7.2 Tf
+0.73 0.10 0.10 rg
+48 596 Td (Threat Mitigated: ) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+125 596 Td (Brute-force credential stuffing, join code enumeration, and DoS request flooding.) Tj
+ET
+BT
+/F2 7.2 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 580 Td (Enforcement: ) Tj
+ET
+BT
+/F1 7 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+105 580 Td (Next.js Middleware evaluates in-memory sliding-window IP limits before request execution: /api/auth/login \(5) Tj
+48 570 Td (req/60s\), /api/schools/register \(3 req/60s\), /api/students/join \(5 req/60s\). Exceeding limits returns HTTP 429.) Tj
+ET
+BT
+/F4 6.8 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+48 554 Td (Source Reference: src/middleware.ts | src/lib/rate-limit.ts) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 454 532 82 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 454 532 82 re s
+BT
+/F2 9 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 522 Td (C. CSRF Origin & Host Validation Guard) Tj
+ET
+BT
+/F2 7.2 Tf
+0.73 0.10 0.10 rg
+48 508 Td (Threat Mitigated: ) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+125 508 Td (Unauthorized cross-site form submissions or forged API mutations from third-party sites.) Tj
+ET
+BT
+/F2 7.2 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 492 Td (Enforcement: ) Tj
+ET
+BT
+/F1 7 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+105 492 Td (Middleware inspects all state-changing HTTP requests \(POST, PUT, PATCH, DELETE\) targeting /api/*. If) Tj
+48 482 Td (Origin does not match Host/X-Forwarded-Host, the request is rejected with HTTP 403 Forbidden.) Tj
+ET
+BT
+/F4 6.8 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+48 466 Td (Source Reference: src/middleware.ts | src/lib/session-security.ts) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 366 532 82 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 366 532 82 re s
+BT
+/F2 9 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 434 Td (D. Session Cookie Security Flags \(HttpOnly, Secure, SameSite=Lax\)) Tj
+ET
+BT
+/F2 7.2 Tf
+0.73 0.10 0.10 rg
+48 420 Td (Threat Mitigated: ) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+125 420 Td (XSS session hijacking, public Wi-Fi eavesdropping, and cross-site subrequest leakage.) Tj
+ET
+BT
+/F2 7.2 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 404 Td (Enforcement: ) Tj
+ET
+BT
+/F1 7 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+105 404 Td (Enforced by the browser engine. HttpOnly prevents document.cookie reads;) Tj
+48 394 Td (Secure enforces TLS/HTTPS; SameSite=Lax blocks cross-origin subrequest transmission.) Tj
+ET
+BT
+/F4 6.8 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+48 378 Td (Source Reference: src/lib/supabase/server.ts | src/middleware.ts) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 278 532 82 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 278 532 82 re s
+BT
+/F2 9 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 346 Td (E. Ledger Immutability & Reversal Accounting \(Zero-Monetization\)) Tj
+ET
+BT
+/F2 7.2 Tf
+0.73 0.10 0.10 rg
+48 332 Td (Threat Mitigated: ) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+125 332 Td (Financial record manipulation, backdating tuition, and ledger tampering.) Tj
+ET
+BT
+/F2 7.2 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 316 Td (Enforcement: ) Tj
+ET
+BT
+/F1 7 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+105 316 Td (The database schema and API expose zero UPDATE or DELETE endpoints for) Tj
+48 306 Td (LedgerEntry. Corrections strictly require issuing an offsetting reversal entry \(CORRECTION_REVERSAL with REC-YYYY-DISC-XXXX\).) Tj
+ET
+BT
+/F4 6.8 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+48 290 Td (Source Reference: prisma/schema.prisma | src/components/home/manual-ledger-modal.tsx) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 190 532 82 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 190 532 82 re s
+BT
+/F2 9 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 258 Td (F. Minor Student & Guardian Safety Gate) Tj
+ET
+BT
+/F2 7.2 Tf
+0.73 0.10 0.10 rg
+48 244 Td (Threat Mitigated: ) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+125 244 Td (Unsupervised minor registration or unauthorized adult access to child records.) Tj
+ET
+BT
+/F2 7.2 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 228 Td (Enforcement: ) Tj
+ET
+BT
+/F1 7 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+105 228 Td (The registration schema enforces isMinor logic: minor students cannot register without verified guardian) Tj
+48 218 Td (full name and email. Access is strictly scoped to linked GuardianStudent relations.) Tj
+ET
+BT
+/F4 6.8 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+48 202 Td (Source Reference: src/lib/validation/schemas.ts | src/components/home/student-join-modal.tsx) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 35 m 572 35 l S
+BT
+/F1 8 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+40 24 Td (BeltTrack Martial Arts Management OS  |  Architecture Security Specification) Tj
+510 24 Td (Page 2 of 3) Tj
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R /F5 7 0 R >> >> /Contents 10 0 R >>
+endobj
+12 0 obj
+<< /Length 5152 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+0 784 612 8 re f
+BT
+/F2 14 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 752 Td (4. SOFT & HYBRID GATING (PROGRESSIVE ONBOARDING)) Tj
+ET
+BT
+/F1 8.5 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+40 738 Td (Workflows Designed for Educational Auditing, Persona Previews, and Frictionless Evaluation) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 728 m 572 728 l S
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 636 532 76 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 636 532 76 re s
+BT
+/F2 9 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 698 Td (A. Member Enrollment Approval \(PENDING_APPROVAL\) - HYBRID) Tj
+ET
+BT
+/F2 7.2 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+48 684 Td (Behavior: HYBRID GATING) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 670 Td (When students register via join code, the API hard-gates roster and technique logs until approved by a) Tj
+48 660 Td (coach. In preview UI mode, a soft educational card explains pending state without breaking the user experience.) Tj
+ET
+BT
+/F4 6.8 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+48 646 Td (Components: src/components/home/student-join-modal.tsx | src/components/home/member-approval-modal.tsx) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 554 532 76 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 554 532 76 re s
+BT
+/F2 9 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 616 Td (B. Email Verification \(6-Digit OTP Confirmation\) - SOFT GATED) Tj
+ET
+BT
+/F2 7.2 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+48 602 Td (Behavior: SOFT GATING) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 588 Td (Head coaches with unverified emails are not locked out of their session. A persistent, prominent) Tj
+48 578 Td (warning banner prompts for the 6-digit code, allowing preview and configuration without session termination.) Tj
+ET
+BT
+/F4 6.8 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+48 564 Td (Components: src/components/home/email-verification-banner.tsx | src/lib/email-verification.ts) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 472 532 76 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 472 532 76 re s
+BT
+/F2 9 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+48 534 Td (C. Interactive Persona Switcher \(Owner, Coach, Student, Guardian\) - SOFT GATED) Tj
+ET
+BT
+/F2 7.2 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+48 520 Td (Behavior: SOFT GATING \(PREVIEW AUDIT\)) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 506 Td (The homepage role switcher dynamically toggles between personas in client state, allowing academy owners to) Tj
+48 496 Td (preview and audit what each user role sees without requiring four separate browser accounts.) Tj
+ET
+BT
+/F4 6.8 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+48 482 Td (Components: src/context/auth-context.tsx | src/components/layout/top-nav.tsx) Tj
+ET
+BT
+/F2 11 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 442 Td (5. WHAT IS EXPLICITLY NOT GATED \(ZERO-MONETIZATION CORE\)) Tj
+ET
+0.98 0.98 1.0 rg
+40 364 532 72 re f
+0.15 0.39 0.92 RG
+40 364 532 72 re s
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+50 420 Td (PRD MANDATE & ARCHITECTURAL INVARIANT \(AGENTS.md\)) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+50 406 Td ("Tier: No feature tiers exist; the platform has zero tiers, zero feature paywalls, and zero tiered subscriptions.") Tj
+50 394 Td (All martial arts schools receive full access to technique curriculum trees, attendance drop-off alerts,) Tj
+50 382 Td (multi-discipline rank tracking, and internal immutable ledgers with zero transaction processing cuts.) Tj
+50 370 Td (Gating in BeltTrack exists solely for privacy, safety, and tenant sovereignty.) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 299 532 55 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 299 532 55 re s
+BT
+/F2 8.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+50 339 Td (SUMMARY COMPARISON: WHEN TO APPLY HARD VS. SOFT GATING) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+50 325 Td ( - Apply HARD Gating: Whenever data privacy, cross-tenant isolation, or financial records are at stake.) Tj
+50 313 Td ( - Apply SOFT Gating: Whenever guiding user completion, demonstrating personas, or providing educational UI hints.) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 35 m 572 35 l S
+BT
+/F1 8 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+40 24 Td (BeltTrack Martial Arts Management OS  |  Architecture Security Specification) Tj
+510 24 Td (Page 3 of 3) Tj
+ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R /F5 7 0 R >> >> /Contents 12 0 R >>
+endobj
+xref
+0 14
+0000000000 65535 f 
+0000000019 00000 n 
+0000000068 00000 n 
+0000000139 00000 n 
+0000000236 00000 n 
+0000000338 00000 n 
+0000000443 00000 n 
+0000000538 00000 n 
+0000000638 00000 n 
+0000008515 00000 n 
+0000008681 00000 n 
+0000016283 00000 n 
+0000016451 00000 n 
+0000021656 00000 n 
+trailer
+<< /Size 14 /Root 1 0 R >>
+startxref
+21824
+%%EOF

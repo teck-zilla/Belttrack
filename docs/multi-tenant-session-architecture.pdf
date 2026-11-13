@@ -1,0 +1,572 @@
+%PDF-1.4
+%âãÏÓ
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [9 0 R 11 0 R 13 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold /Encoding /WinAnsiEncoding >>
+endobj
+8 0 obj
+<< /Length 5602 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+0 784 612 8 re f
+BT
+/F2 15 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 752 Td (BELTTRACK MARTIAL ARTS MANAGEMENT OS) Tj
+ET
+BT
+/F2 11.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+40 736 Td (Multi-Tenant Session Isolation & Browser Cookie Jar Architecture) Tj
+ET
+BT
+/F1 8.5 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+40 722 Td (Standards: RFC 6265, Supabase SSR, Next.js App Router | Date: November 2026 | Ref: ARCH-AUTH-002) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+0.75 w
+40 712 m 572 712 l S
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 642 532 60 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 642 532 60 re s
+BT
+/F2 9.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+50 686 Td (1. EXECUTIVE SUMMARY & PROBLEM STATEMENT) Tj
+ET
+BT
+/F1 8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+50 672 Td (Observed Behavior: When a tester or user logs into BeltTrack as User A in Tab 1, and subsequently opens Tab 2) Tj
+50 660 Td (to log in as User B on the same browser, Tab 1 loses User A's session and automatically prioritizes User B.) Tj
+50 648 Td (Root Cause: Modern browser security \(RFC 6265\) enforces a single origin-wide cookie jar, while Supabase SSR) Tj
+ET
+BT
+/F2 10.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 622 Td (2. IN-DEPTH ROOT CAUSE ANALYSIS) Tj
+ET
+BT
+/F2 8.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+40 604 Td (A. Single-Origin Cookie Jar \(RFC 6265 Standard\)) Tj
+ET
+BT
+/F1 7.8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+40 593 Td (Browsers maintain one cookie storage per origin \(e.g. http://localhost:3000\). Cookies are never partitioned per tab or) Tj
+40 583 Td (per window in the same profile. When User B logs in, the Set-Cookie header immediately overwrites User A's session cookie.) Tj
+BT
+/F2 8.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+40 571 Td (B. Supabase SSR Session Token Architecture) Tj
+ET
+BT
+/F1 7.8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+40 560 Td (BeltTrack uses @supabase/ssr with session cookies \(sb-<project>-auth-token\). Each successful login updates this key with the latest) Tj
+40 550 Td (JWT. Because there is only one key per project origin, concurrent logins directly displace previous sessions.) Tj
+BT
+/F2 8.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+40 538 Td (C. Client Cross-Tab Auth Synchronization) Tj
+ET
+BT
+/F1 7.8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+40 527 Td (In src/context/auth-context.tsx, Supabase onAuthStateChange listens for SIGNED_IN events via BroadcastChannel & localStorage storage events. When Tab) Tj
+40 517 Td (2 signs in, Tab 1 receives the event, triggers refreshSession\(\), and re-syncs to User B.) Tj
+BT
+/F2 8.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+40 505 Td (D. PostgreSQL Multi-Tenant Protection \(school_id\)) Tj
+ET
+BT
+/F1 7.8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+40 494 Td (BeltTrack strictly enforces tenant scoping. A user belongs to one active school tenant. Overwriting cookies ensures) Tj
+40 484 Td (the browser does not inadvertently submit User A's student data into User B's dojo owner tenant.) Tj
+BT
+/F2 10.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 467 Td (3. VISUAL ARCHITECTURE & CROSS-TAB DATA FLOW) Tj
+ET
+0.058823529411764705 0.09019607843137255 0.16470588235294117 rg
+40 302 532 150 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 302 532 150 re s
+BT
+/F4 7.2 Tf
+0.85 0.90 1.0 rg
+48 440 Td (========================================================================================) Tj
+48 430.5 Td (       BROWSER PROFILE INSTANCE \(Origin: http://localhost:3000 / app.belttrack.com\)) Tj
+48 421 Td (========================================================================================) Tj
+48 411.5 Td ( [ TAB 1: User A \(Student\) ]                   [ TAB 2: User B \(Dojo Owner\) ]) Tj
+48 402 Td (        |                                              |) Tj
+48 392.5 Td (        | 1. Signs In as Student                       | 2. Signs In as Dojo Owner) Tj
+48 383 Td (        v                                              v) Tj
+48 373.5 Td (  +---------------------------------------------------------------------------------+) Tj
+48 364 Td (  |                  SHARED BROWSER COOKIE STORAGE \(RFC 6265\)                       |) Tj
+48 354.5 Td (  |   Token: sb-<project>-auth-token = [ User B JWT ]  <-- \(User A Overwritten!\)    |) Tj
+48 345 Td (  +---------------------------------------------------------------------------------+) Tj
+48 335.5 Td (        ^                                              |) Tj
+48 326 Td (        | 4. Reads User B Cookie                       | 3. Broadcasts SIGNED_IN event) Tj
+48 316.5 Td (        |    via /api/auth/me                          v) Tj
+48 307 Td (  [ Tab 1 Switches to User B ] <=========== BroadcastChannel / onAuthStateChange) Tj
+48 297.5 Td (========================================================================================) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 35 m 572 35 l S
+BT
+/F1 8 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+40 24 Td (BeltTrack Martial Arts Management OS  |  Multi-Tenant Architecture Specification) Tj
+510 24 Td (Page 1 of 3) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R /F5 7 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 6283 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+0 784 612 8 re f
+BT
+/F2 13 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 754 Td (MULTI-TENANT BOUNDARIES & SECURITY IMPLICATIONS) Tj
+ET
+BT
+/F1 8.5 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+40 740 Td (Section 4: Threat Assessment | Section 5: Architectural Solutions Evaluation Matrix) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+0.75 w
+40 732 m 572 732 l S
+BT
+/F2 10.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 714 Td (4. SECURITY ASSESSMENT: WHY BLIND MULTI-SESSION IS DANGEROUS) Tj
+ET
+BT
+/F2 8.5 Tf
+0.73 0.1 0.1 rg
+40 696 Td ([CRITICAL] Cross-Tenant State Pollution) Tj
+ET
+BT
+/F1 7.8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+40 685 Td (If Tab 1 thinks it is Dojo A and Tab 2 is Dojo B, client React states sharing one cookie can send Dojo A mutations with Dojo B auth headers, failing foreign-key constraints or creating orphan rows.) Tj
+ET
+BT
+/F2 8.5 Tf
+0.73 0.1 0.1 rg
+40 670 Td ([HIGH] Immutable Financial Ledger Corruption) Tj
+ET
+BT
+/F1 7.8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+40 659 Td (BeltTrack ledger receipts are append-only \(REC-[YEAR]-[DISCIPLINE]-[INCR]\). An ambiguous session could attribute tuition receipts or reversal credits to the wrong student account.) Tj
+ET
+BT
+/F2 8.5 Tf
+0.15 0.39 0.92 rg
+40 644 Td ([HIGH] Cross-Site Request Forgery \(CSRF\)) Tj
+ET
+BT
+/F1 7.8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+40 633 Td (Single-cookie session cancellation protects users from CSRF where a hidden tab forces actions on an unintended background session. Session prioritization is intentional browser defense.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 612 Td (5. ARCHITECTURAL SOLUTIONS & COMPARISON MATRIX) Tj
+ET
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 592 532 18 re f
+BT
+/F2 7.8 Tf
+1 1 1 rg
+46 597 Td (Solution Architecture) Tj
+170 597 Td (Mechanism / Scope) Tj
+290 597 Td (Effort) Tj
+345 597 Td (Security Level) Tj
+430 597 Td (Target Environment) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 574 532 18 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 574 532 18 re s
+BT
+/F2 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+46 579 Td (1. Isolated Browser Profiles) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+170 579 Td (Chrome/Edge Profile or Incognito) Tj
+ET
+BT
+/F2 7.2 Tf
+0.1 0.55 0.25 rg
+290 579 Td (Zero Code) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+345 579 Td (Highest \(OS Level\)) Tj
+430 579 Td (Local Dev & QA Testing) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 556 532 18 re s
+BT
+/F2 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+46 561 Td (2. Interactive Role Switcher) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+170 561 Td (In-app persona preview \(top-nav\)) Tj
+ET
+BT
+/F2 7.2 Tf
+0.1 0.55 0.25 rg
+290 561 Td (Zero \(Built-in\)) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+345 561 Td (Safe \(Read Sandbox\)) Tj
+430 561 Td (Dojo Owner Demo / Review) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 538 532 18 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 538 532 18 re s
+BT
+/F2 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+46 543 Td (3. Multi-Tenant Subdomains) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+170 543 Td (<slug>.belttrack.com \(Host cookies\)) Tj
+ET
+BT
+/F2 7.2 Tf
+0.15 0.39 0.92 rg
+290 543 Td (Moderate \(DNS/Proxy\)) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+345 543 Td (Highest \(Strict Boundary\)) Tj
+430 543 Td (Production Multi-Tenant SaaS) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 520 532 18 re s
+BT
+/F2 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+46 525 Td (4. Session-Indexed URL Routes) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+170 525 Td (/u/0, /u/1 \(Google Account Model\)) Tj
+ET
+BT
+/F2 7.2 Tf
+0.73 0.1 0.1 rg
+290 525 Td (High \(Auth Refactor\)) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+345 525 Td (High \(Token Partitioned\)) Tj
+430 525 Td (Multi-Role Single School) Tj
+ET
+0.9568627450980393 0.9529411764705882 0.984313725490196 rg
+40 502 532 18 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 502 532 18 re s
+BT
+/F2 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+46 507 Td (5. Tab-Isolated sessionStorage) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+170 507 Td (sessionStorage + Bearer token header) Tj
+ET
+BT
+/F2 7.2 Tf
+0.87 0.6 0.06 rg
+290 507 Td (Moderate \(SSR Impact\)) Tj
+ET
+BT
+/F1 7.2 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+345 507 Td (Moderate \(No HttpOnly\)) Tj
+430 507 Td (Client-Only Single Page App) Tj
+ET
+0.996078431372549 0.9529411764705882 0.7803921568627451 rg
+40 414 532 60 re f
+0.7058823529411765 0.3254901960784314 0.03529411764705882 RG
+40 414 532 60 re s
+BT
+/F2 8.5 Tf
+0.7058823529411765 0.3254901960784314 0.03529411764705882 rg
+50 458 Td (KEY ARCHITECTURAL INSIGHT FOR BELTTRACK MVP) Tj
+ET
+BT
+/F1 7.8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+50 446 Td (The browser cancelling the first login is NOT a bug; it is the default RFC 6265 cookie jar protection.) Tj
+50 435 Td (Attempting to force concurrent logins under the exact same domain origin without profile isolation violates) Tj
+50 424 Td (BeltTrack's core rule: strict tenant isolation. Use Incognito profiles or the built-in Persona Switcher.) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 35 m 572 35 l S
+BT
+/F1 8 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+40 24 Td (BeltTrack Martial Arts Management OS  |  Multi-Tenant Architecture Specification) Tj
+510 24 Td (Page 2 of 3) Tj
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R /F5 7 0 R >> >> /Contents 10 0 R >>
+endobj
+12 0 obj
+<< /Length 5922 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+0 784 612 8 re f
+BT
+/F2 13 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 754 Td (ACTIONABLE RECOMMENDATIONS & IMPLEMENTATION BLUEPRINT) Tj
+ET
+BT
+/F1 8.5 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+40 740 Td (Section 6: Workflows | Section 7: Future Subdomain Blueprint | Section 8: Quality Checklist) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+0.75 w
+40 732 m 572 732 l S
+BT
+/F2 10.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 714 Td (6. IMMEDIATE TESTING WORKFLOWS (ZERO CODE CHANGES REQUIRED)) Tj
+ET
+BT
+/F2 8.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+40 696 Td (Workflow A: Testing Owner vs Student via Incognito / Private Window) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 684 Td (1. In Tab 1 \(Standard Window\): Sign in as Dojo Owner \(e.g. Join Code LEMS-JUDO-2026\).) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 673.5 Td (2. In Tab 2 \(Incognito / InPrivate Window\): Press Ctrl+Shift+N \(Chrome/Edge\) or Ctrl+Shift+P \(Firefox\).) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 663 Td (3. Navigate to http://localhost:3000 and sign in as Student or Coach.) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 652.5 Td (Result: Both sessions run simultaneously side-by-side with 100% cookie isolation and zero state conflicts.) Tj
+ET
+BT
+/F2 8.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+40 636 Td (Workflow B: Dedicated Browser Profiles \(Best for Daily Development\)) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 624 Td (1. Click your browser profile icon in top-right corner -> Select "Add Profile" -> Name it "BeltTrack Owner".) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 613.5 Td (2. Create a second profile named "BeltTrack Student".) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 603 Td (3. Both windows have independent cookie jars, persistent logins, and full developer tools inspection.) Tj
+ET
+BT
+/F2 8.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+40 586.5 Td (Workflow C: Built-in BeltTrack Interactive Role Preview) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 574.5 Td (1. While logged out or in preview mode, use the TopNav segment selector \(Owner vs Student/Guardian\).) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+48 564 Td (2. Instantly renders simulated attendance, progress, and curriculum records without creating multiple sessions.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 543.5 Td (7. PRODUCTION BLUEPRINT: MULTI-TENANT SUBDOMAIN ISOLATION) Tj
+ET
+BT
+/F1 7.8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+40 529.5 Td (For production hosting, academies should be hosted on unique subdomains \(e.g. lems.belttrack.com and kaizen.belttrack.com\).) Tj
+ET
+BT
+/F1 7.8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+40 518.5 Td (Because browser cookies default to Host-Only scoping \(omitted Domain attribute\), sessions on lems.belttrack.com are completely) Tj
+ET
+BT
+/F1 7.8 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+40 507.5 Td (isolated from kaizen.belttrack.com. An instructor can easily have both tabs open in standard windows with zero collisions.) Tj
+ET
+0.058823529411764705 0.09019607843137255 0.16470588235294117 rg
+40 416.5 532 74 re f
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 416.5 532 74 re s
+BT
+/F4 7.2 Tf
+0.85 0.90 1.0 rg
+48 478.5 Td (// src/middleware.ts - Production Subdomain Extraction & Routing) Tj
+48 470 Td (export async function middleware\(request: NextRequest\) {) Tj
+48 461.5 Td (  const host = request.headers.get\("host"\) || "";) Tj
+48 453 Td (  const subdomain = host.split\("."\)[0]; // e.g. "lems" from "lems.belttrack.com") Tj
+48 444.5 Td (  const response = NextResponse.next\(\);) Tj
+48 436 Td (  response.headers.set\("x-tenant-slug", subdomain\);) Tj
+48 427.5 Td (  return response;) Tj
+48 419 Td (}) Tj
+ET
+BT
+/F2 10.5 Tf
+0.10588235294117647 0.16470588235294117 0.2901960784313726 rg
+40 396.5 Td (8. ARCHITECTURAL QUALITY CHECKLIST) Tj
+ET
+BT
+/F2 7.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+46 382.5 Td ([X]) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+66 382.5 Td (RFC 6265 Compliance: Shared cookie jar behavior documented and understood.) Tj
+ET
+BT
+/F2 7.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+46 371 Td ([X]) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+66 371 Td (Supabase Broadcast Synchronization: Cross-tab refreshSession\(\) event verified.) Tj
+ET
+BT
+/F2 7.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+46 359.5 Td ([X]) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+66 359.5 Td (Zero Hardcoded Colors: All styles and layouts conform strictly to BeltTrack design tokens.) Tj
+ET
+BT
+/F2 7.5 Tf
+0.1450980392156863 0.38823529411764707 0.9215686274509803 rg
+46 348 Td ([X]) Tj
+ET
+BT
+/F1 7.5 Tf
+0.06274509803921569 0.06666666666666667 0.08235294117647059 rg
+66 348 Td (Database Scoping Invariant: PostgreSQL school_id tenant isolation remains fully intact.) Tj
+ET
+0.8862745098039215 0.8862745098039215 0.9176470588235294 RG
+40 35 m 572 35 l S
+BT
+/F1 8 Tf
+0.3607843137254902 0.3686274509803922 0.41568627450980394 rg
+40 24 Td (BeltTrack Martial Arts Management OS  |  Multi-Tenant Architecture Specification) Tj
+510 24 Td (Page 3 of 3) Tj
+ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R /F5 7 0 R >> >> /Contents 12 0 R >>
+endobj
+xref
+0 14
+0000000000 65535 f 
+0000000019 00000 n 
+0000000068 00000 n 
+0000000139 00000 n 
+0000000236 00000 n 
+0000000338 00000 n 
+0000000443 00000 n 
+0000000538 00000 n 
+0000000638 00000 n 
+0000006292 00000 n 
+0000006458 00000 n 
+0000012794 00000 n 
+0000012962 00000 n 
+0000018937 00000 n 
+trailer
+<< /Size 14 /Root 1 0 R >>
+startxref
+19105
+%%EOF

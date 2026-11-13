@@ -8,7 +8,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import type { UserRole, SchoolMember } from '@/types/domain';
+import type { UserRole, SchoolMember, AuthSessionRow } from '@/types/domain';
 import { createClient } from '@/lib/supabase/client';
 import { useTenant, DEFAULT_DEMO_SCHOOL } from '@/context/tenant-context';
 
@@ -30,6 +30,7 @@ export interface LoginCredentials {
 
 export interface AuthContextType {
   user: AuthUser | null;
+  session: AuthSessionRow | null;
   currentMember: SchoolMember | null;
   isAuthenticated: boolean;
   isRealSession: boolean;
@@ -78,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(DEMO_USER);
   const [currentMember, setCurrentMember] = useState<SchoolMember | null>(DEMO_MEMBER);
   const [activeRole, setActiveRole] = useState<UserRole>('owner');
+  const [session, setSession] = useState<AuthSessionRow | null>(null);
   const [isRealSession, setIsRealSession] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(true);
@@ -90,6 +92,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data.authenticated && data.user) {
           const verified = data.user.email_verified !== undefined ? Boolean(data.user.email_verified) : true;
           setIsEmailVerified(verified);
+          if (data.session) {
+            setSession(data.session);
+          }
 
           const authUser: AuthUser = {
             id: data.user.id,
@@ -148,6 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           refreshSession();
         } else if (event === 'SIGNED_OUT') {
           setUser(DEMO_USER);
+          setSession(null);
           setCurrentMember(DEMO_MEMBER);
           setActiveRole('owner');
           setIsRealSession(false);
@@ -291,6 +297,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: data.error || 'Authentication failed' };
       }
 
+      if (data.session) {
+        setSession(data.session);
+      }
+
       if (data.user) {
         const verified = data.user.email_verified !== undefined ? Boolean(data.user.email_verified) : true;
         setIsEmailVerified(verified);
@@ -349,6 +359,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Ignore network errors during logout
     } finally {
       setUser(DEMO_USER);
+      setSession(null);
       setCurrentMember(DEMO_MEMBER);
       setActiveRole('owner');
       setIsRealSession(false);
@@ -362,6 +373,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        session,
         currentMember,
         isAuthenticated: Boolean(user),
         isRealSession,

@@ -208,3 +208,16 @@ export interface InAppNotification {
   created_at: string;
 }
 
+/**
+ * 9. AUTH SESSION RECORD (PostgreSQL auth.sessions)
+ */
+export interface AuthSessionRow {
+  id: string;
+  user_id: string;
+  created_at: string;
+  updated_at?: string;
+  ip: string | null;
+  user_agent: string | null;
+  aal?: string | null;
+}
+

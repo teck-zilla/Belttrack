@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import type { DisciplineType } from '@/types/domain';
 import { isEmailVerified } from '@/lib/email-verification';
+import { getLatestAuthSession } from '@/lib/session-security';
 
 function formatSchool(school: {
   id: string;
@@ -106,8 +107,11 @@ export async function GET() {
       });
     }
 
+    const sessionRow = await getLatestAuthSession(authUser.id);
+
     return NextResponse.json({
       authenticated: true,
+      session: sessionRow,
       user: {
         id: dbUser.id,
         supabase_uid: authUser.id,
