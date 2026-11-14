@@ -1,0 +1,842 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [7 0 R 9 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Length 7568 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.106 0.165 0.29 rg
+0 780 612 12 re f
+BT
+/F2 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 54.00 758.00 Tm
+(BELTTRACK) Tj
+ET
+BT
+/F1 9 Tf
+0.45 0.48 0.55 rg
+1 0 0 1 114.22 758.00 Tm
+(Martial Arts School Management Platform) Tj
+ET
+BT
+/F1 7.5 Tf
+0.45 0.48 0.55 rg
+1 0 0 1 410.63 758.00 Tm
+(SCAFFOLDING -> PRESENTABLE ROADMAP) Tj
+ET
+0.85 0.87 0.9 RG
+0.7 w
+54 748 m 558 748 l s
+BT
+/F2 15 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 54.00 718.00 Tm
+(Roadmap: Auth Scaffolding to Presentable) Tj
+ET
+BT
+/F3 9.5 Tf
+0.45 0.48 0.55 rg
+1 0 0 1 54.00 696.00 Tm
+(Prioritized execution plan to move BeltTrack from its current auth-scaffolding and interactive-preview stage to) Tj
+ET
+BT
+/F3 9.5 Tf
+0.45 0.48 0.55 rg
+1 0 0 1 54.00 683.00 Tm
+(a demo-safe, presentable application.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 54.00 666.00 Tm
+(Scope: current working tree at commit 19de146 | Audit date: November 2026 | Status: Planning \(no files changed\)) Tj
+ET
+0.106 0.165 0.29 rg
+54 640 4 15 re f
+BT
+/F2 12 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 66.00 643.00 Tm
+(Definition of Presentable) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 54.00 623.00 Tm
+(Presentable means safe to demonstrate to a real dojo owner: core workflows persist to the database, tenant) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 54.00 610.00 Tm
+(boundaries are enforced server-side, and there are no exploitable or fake-success paths. It does not require full) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 54.00 597.00 Tm
+(production launch.) Tj
+ET
+0.106 0.165 0.29 rg
+54 573 4 15 re f
+BT
+/F2 12 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 66.00 576.00 Tm
+(Current Verification Snapshot) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 556.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 556.00 Tm
+(npm run audit: PASS - 45 files, 0 hardcoded color violations.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 539.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 539.50 Tm
+(npx tsc --noEmit: PASS - no type errors.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 523.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 523.00 Tm
+(npm run build: PASS - 15 routes compiled, with warnings \(React 18 deprecated in Next 16, middleware convention) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 510.50 Tm
+(deprecated, Turbopack root warning\).) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 494.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 494.00 Tm
+(Functional rating: 6/10 overall; 8/10 as an interactive demo; 3.5/10 as a production multi-tenant system.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 477.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 477.50 Tm
+(Core domain features \(attendance, technique sign-off, ledger, inactivity alerts\) are UI-only and not persisted. RLS) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 465.00 Tm
+(is documented but not enforced.) Tj
+ET
+0.106 0.165 0.29 rg
+54 441.5 4 15 re f
+BT
+/F2 12 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 66.00 444.50 Tm
+(Phase 0 - Security Blockers \(must do first, ~1-2 days\)) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 424.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 424.50 Tm
+(Remove the hardcoded fallback password and all managed-auth-preview writes: login/route.ts:125,) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 412.00 Tm
+(register/route.ts:157, join/route.ts:128,161, reset-password/route.ts:186. Fail closed with HTTP 503 when Supabase) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 399.50 Tm
+(is unconfigured.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 383.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 383.00 Tm
+(Authorize the approvals route: require a session, verify OWNER or COACH, and derive schoolId from the DB user.) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 370.50 Tm
+(Never trust a request body schoolId \(approvals/route.ts:5-16, 69-117\).) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 354.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 354.00 Tm
+(Reduce the public directory to PRD fields only: name, slug, city, discipline. Remove joinCode and id) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 341.50 Tm
+(\(directory/route.ts:10-17\).) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 325.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 325.00 Tm
+(Fix the reset flow: remove the targetEmail echo, return generic responses, enforce the 15-128 character policy, and) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 312.50 Tm
+(add strict per-email and per-IP limits \(reset-password/route.ts:106-141\).) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 296.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 296.00 Tm
+(Add a server-side route guard and block PENDING_APPROVAL accounts from rosters, techniques, and the dashboard.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 279.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 279.50 Tm
+(Move verification and password-reset codes into PostgreSQL: hashed code, expiry, attempt counter, used flag,) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 267.00 Tm
+(single-use. In-memory maps cannot work on serverless \(email-verification.ts:29-34\).) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 250.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 250.50 Tm
+(Rotate Supabase service-role and SMTP credentials, confirm .env is not in git history, and add boot-time environment) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 238.00 Tm
+(validation.) Tj
+ET
+0.106 0.165 0.29 rg
+54 214.5 4 15 re f
+BT
+/F2 12 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 66.00 217.50 Tm
+(Phase 1 - Make the Demo Honest \(persistence, ~3-5 days\)) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 197.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 197.50 Tm
+(Wire tenant enforcement with a withTenantContext helper that sets app.current_school_id and app.current_user_id, or) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 185.00 Tm
+(implement a real Prisma $extends. Ship rls_policies.sql as a migration \(fixes.md Steps 3-4\).) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 168.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 168.50 Tm
+(Attendance: add POST /api/attendance and persist dashboard check-ins. Coach-only, idempotency key, no backdating.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 152.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 152.00 Tm
+(Technique sign-off: add POST /api/techniques/verify with a server role check and persist TechniqueProgress.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 135.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 135.50 Tm
+(Ledger: add POST /api/ledger with a server-generated REC-YYYY-DISCIPLINE-N slug, append-only rows, and) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 123.00 Tm
+(offsetting reversal entries \(manual-ledger-modal.tsx:125-142\).) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 106.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 106.50 Tm
+(Inactivity alerts: run a real query for 10 or more absent days and remove the hardcoded Elena Rostova / 13 days block) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 94.00 Tm
+(\(preview-dashboard.tsx:686-693\).) Tj
+ET
+0.85 0.87 0.9 RG
+0.6 w
+54 54 m 558 54 l s
+BT
+/F1 7.5 Tf
+0.45 0.48 0.55 rg
+1 0 0 1 54.00 40.00 Tm
+(BeltTrack - Roadmap: Auth Scaffolding to Presentable  |  Planning Document  |  Local-only until approved) Tj
+ET
+BT
+/F2 7.5 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 519.00 40.00 Tm
+(Page 1 of 2) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 7117 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.106 0.165 0.29 rg
+0 780 612 12 re f
+BT
+/F2 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 54.00 758.00 Tm
+(BELTTRACK) Tj
+ET
+BT
+/F1 9 Tf
+0.45 0.48 0.55 rg
+1 0 0 1 114.22 758.00 Tm
+(Martial Arts School Management Platform) Tj
+ET
+BT
+/F1 7.5 Tf
+0.45 0.48 0.55 rg
+1 0 0 1 410.63 758.00 Tm
+(SCAFFOLDING -> PRESENTABLE ROADMAP) Tj
+ET
+0.85 0.87 0.9 RG
+0.7 w
+54 748 m 558 748 l s
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 718.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 718.00 Tm
+(Derive rank metrics \(classes, days-in-rank, techniques\) from the database per tenant. Keep 42/50, 142/120, and 8/10) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 705.50 Tm
+(only for the demo tenant.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 689.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 689.00 Tm
+(Persist country, drop or properly collect date of birth, and validate that guardian and student belong to the same) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 676.50 Tm
+(tenant \(join/route.ts:141-154\).) Tj
+ET
+0.106 0.165 0.29 rg
+54 653 4 15 re f
+BT
+/F2 12 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 66.00 656.00 Tm
+(Phase 2 - Presentability Polish \(~2-3 days\)) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 636.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 636.00 Tm
+(Split Demo and Real modes with a visible banner. Remove simulated success toasts and fake data whenever a real) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 623.50 Tm
+(session is active.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 607.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 607.00 Tm
+(Add a deterministic seed script for the demo tenant: school, belt ladder, techniques, class schedules, students, and) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 594.50 Tm
+(ledger entries.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 578.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 578.00 Tm
+(Close UX gaps: loading, empty, and error states; mobile pass; no raw error.message in 500 responses.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 561.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 561.50 Tm
+(Housekeeping: move the inline head metadata into metadata exports \(page.tsx:516-521\), install ESLint and make npm) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 549.00 Tm
+(run lint actually lint, and strip PII and session console logs.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 532.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 532.50 Tm
+(Upgrade to React 19, migrate middleware.ts to proxy, and set turbopack.root to remove build warnings.) Tj
+ET
+0.106 0.165 0.29 rg
+54 509 4 15 re f
+BT
+/F2 12 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 66.00 512.00 Tm
+(Phase 3 - Production Hardening \(if presentable means launchable\)) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 492.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 492.00 Tm
+(Replace the in-memory rate limiter with Redis or Upstash \(requires package approval\) and configure trusted proxy IP) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 479.50 Tm
+(extraction.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 463.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 463.00 Tm
+(Add tests: Zod schema units, tenant-isolation integration tests, and e2e coverage for register -> join -> approve ->) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 450.50 Tm
+(attendance -> sign-off -> ledger.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 434.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 434.00 Tm
+(Add security headers and CSP, CSRF tokens or strict same-origin enforcement, and an audit log for approvals and) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 421.50 Tm
+(ledger mutations.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 405.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 405.00 Tm
+(Update the README to reflect actual status and add a deploy runbook plus environment checklist.) Tj
+ET
+0.96 0.97 0.99 rg
+0.82 0.86 0.94 RG
+0.8 w
+54 337 504 67.5 re B
+BT
+/F2 8.5 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 70.00 388.50 Tm
+(MINIMUM VIABLE PRESENTABLE SLICE) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 70.00 374.50 Tm
+(Ship Phase 0 plus one vertical slice \(attendance + technique sign-off + ledger for a single real tenant\) plus the) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 70.00 362.00 Tm
+(demo seed and an honest demo banner. This converts the app from a mock dashboard into a credible working product) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 70.00 349.50 Tm
+(without building everything.) Tj
+ET
+0.106 0.165 0.29 rg
+54 304 4 15 re f
+BT
+/F2 12 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 66.00 307.00 Tm
+(Suggested Order) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 54.00 287.00 Tm
+(0 -> 8 -> 9/10/11 \(vertical slice\) -> 15/16 -> 12/13/14 -> 18/19 -> Phase 3 hardening.) Tj
+ET
+0.106 0.165 0.29 rg
+54 267 4 15 re f
+BT
+/F2 12 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 66.00 270.00 Tm
+(Acceptance Gates Per Phase) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 250.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 250.00 Tm
+(npm run audit reports 0 violations.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 233.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 233.50 Tm
+(npx tsc --noEmit is clean.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 217.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 217.00 Tm
+(npm run build is clean \(no new warnings\).) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 200.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 200.50 Tm
+(Manual tenant-isolation test passes with two separate schools.) Tj
+ET
+0.106 0.165 0.29 rg
+54 177 4 15 re f
+BT
+/F2 12 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 66.00 180.00 Tm
+(Assumptions) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 160.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 160.00 Tm
+(Work is local only; no migrations, pushes, or commits without explicit instruction \(AGENTS.md\).) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 143.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 143.50 Tm
+(Adding Redis or a test framework requires user approval first.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 127.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 127.00 Tm
+(Presentable targets a stakeholder or dojo-owner demo, not an open production launch.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 110.50 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 110.50 Tm
+(Estimates assume one developer familiar with the codebase.) Tj
+ET
+BT
+/F1 9 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 55.00 94.00 Tm
+(-) Tj
+ET
+BT
+/F1 9 Tf
+0.1 0.12 0.18 rg
+1 0 0 1 66.00 94.00 Tm
+(This document is a plan only; no application files were changed.) Tj
+ET
+0.85 0.87 0.9 RG
+0.6 w
+54 54 m 558 54 l s
+BT
+/F1 7.5 Tf
+0.45 0.48 0.55 rg
+1 0 0 1 54.00 40.00 Tm
+(BeltTrack - Roadmap: Auth Scaffolding to Presentable  |  Planning Document  |  Local-only until approved) Tj
+ET
+BT
+/F2 7.5 Tf
+0.106 0.165 0.29 rg
+1 0 0 1 519.00 40.00 Tm
+(Page 2 of 2) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 8 0 R >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000127 00000 n 
+0000000224 00000 n 
+0000000326 00000 n 
+0000000431 00000 n 
+0000008051 00000 n 
+0000008197 00000 n 
+0000015366 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+15512
+%%EOF
