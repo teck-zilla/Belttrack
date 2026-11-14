@@ -18,6 +18,9 @@
     "simulate:failures": "node scripts/simulate-verification-failures.mjs",
     "generate:contrast-pdf": "node scripts/generate-contrast-pdf.mjs",
     "benchmark:registration": "node scripts/benchmark-registration.mjs",
+    "profile:owner": "node scripts/launch-browser-profiles.mjs --role=owner",
+    "profile:student": "node scripts/launch-browser-profiles.mjs --role=student",
+    "profile:both": "node scripts/launch-browser-profiles.mjs --role=both",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy"

@@ -24,3 +24,7 @@ Thumbs.db
 .vscode/
 tsconfig.tsbuildinfo
 
+# Dedicated Browser Profiles
+.browser-profiles/
+
+
