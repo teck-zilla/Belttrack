@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getAdminClient } from '@/lib/supabase/admin';
+import { getAdminClient, isSupabaseAdminConfigured } from '@/lib/supabase/admin';
 import { schoolRegistrationSchema } from '@/lib/validation/schemas';
 import { checkPredictablePassword } from '@/lib/validation/password';
 import { checkPwnedPassword } from '@/lib/validation/pwned-check';
@@ -45,6 +45,14 @@ export async function POST(request: Request) {
       customCode,
       password
     } = validated.data;
+
+    // Fail closed: managed auth is mandatory. Never provision a tenant without a real auth identity.
+    if (!isSupabaseAdminConfigured()) {
+      return NextResponse.json(
+        { error: 'Authentication service is not configured. Registration is temporarily unavailable.' },
+        { status: 503 }
+      );
+    }
 
     // Check for predictable or personal info patterns
     const predictability = checkPredictablePassword(password, {
@@ -112,26 +120,27 @@ export async function POST(request: Request) {
       );
     }
 
-    // Provision owner account in Supabase Auth if service role client is available
-    let supabaseUid: string | null = null;
-    try {
-      const admin = getAdminClient();
-      const authEmail = ownerEmail.toLowerCase().trim();
-      const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
-        email: authEmail,
-        password: password,
-        email_confirm: true,
-        user_metadata: {
-          role: 'OWNER',
-          status: 'ACTIVE'
-        }
-      });
-      if (!authErr && authUser?.user) {
-        supabaseUid = authUser.user.id;
+    // Provision the owner auth identity. If this fails, abort before any DB write.
+    const admin = getAdminClient();
+    const authEmail = ownerEmail.toLowerCase().trim();
+    const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
+      email: authEmail,
+      password: password,
+      email_confirm: true,
+      user_metadata: {
+        role: 'OWNER',
+        status: 'ACTIVE'
       }
-    } catch {
-      // Graceful fallback if admin client is unconfigured or in offline environment
+    });
+
+    if (authErr || !authUser?.user) {
+      return NextResponse.json(
+        { error: 'Authentication service unavailable. Please try again later.' },
+        { status: 503 }
+      );
     }
+
+    const supabaseUid: string = authUser.user.id;
 
     // Persist School and Owner User atomically
     const dbStart = performance.now();
@@ -154,7 +163,6 @@ export async function POST(request: Request) {
           schoolId: school.id,
           email: ownerEmail.toLowerCase(),
           supabaseUid,
-          hashedPassword: 'managed-auth-preview',
           role: 'OWNER',
           status: 'ACTIVE'
         }

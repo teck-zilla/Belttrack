@@ -102,7 +102,7 @@ export async function GET() {
           role: null,
           status: 'pending_approval',
           school_id: null,
-          email_verified: isEmailVerified(authUser.email)
+          email_verified: await isEmailVerified(authUser.email)
         }
       });
     }
@@ -123,13 +123,15 @@ export async function GET() {
         school_slug: dbUser.school?.slug || null,
         first_name: dbUser.profile?.firstName || null,
         last_name: dbUser.profile?.lastName || null,
-        email_verified: Boolean(dbUser.isEmailVerified || isEmailVerified(dbUser.email))
+        email_verified: Boolean(dbUser.isEmailVerified)
       },
       school: dbUser.school ? formatSchool(dbUser.school) : null
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Failed to retrieve active session';
     console.error('[BELTTRACK AUTH /api/auth/me] Unexpected server error:', error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Unable to retrieve the active session. Please try again later.' },
+      { status: 500 }
+    );
   }
 }

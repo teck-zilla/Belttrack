@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { emailSchema } from '@/lib/validation/schemas';
 import { verifyCode, isEmailVerified } from '@/lib/email-verification';
-import { prisma } from '@/lib/prisma';
 
 const verifyPayloadSchema = z.object({
   email: emailSchema,
@@ -32,54 +31,13 @@ export async function POST(request: Request) {
 
     const { email, code } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
-    const result = verifyCode(normalizedEmail, code);
+    const result = await verifyCode(normalizedEmail, code);
 
-    let isVerified = result.success;
-    let failureReason = result.error;
-
-    // If memory store doesn't verify (e.g. server restart or DB-seeded code), check PostgreSQL User table
-    if (!isVerified) {
-      try {
-        const dbUser = await prisma.user.findUnique({
-          where: { email: normalizedEmail },
-          select: { verificationCode: true, verificationExpiresAt: true, isEmailVerified: true }
-        });
-
-        if (dbUser?.isEmailVerified) {
-          failureReason = 'This email is already verified. The verification code has already been consumed.';
-        } else if (dbUser?.verificationCode && dbUser.verificationCode === code) {
-          if (dbUser.verificationExpiresAt && new Date() > dbUser.verificationExpiresAt) {
-            failureReason = 'Verification code has expired. Please request a new code.';
-          } else {
-            isVerified = true;
-          }
-        } else if (dbUser?.verificationCode && dbUser.verificationCode !== code) {
-          failureReason = 'Incorrect verification code. Please check the code and try again.';
-        }
-      } catch (dbErr) {
-        console.warn('[BELTTRACK AUTH /api/auth/verify-email] DB fallback verification error:', dbErr);
-      }
-    }
-
-    if (!isVerified) {
+    if (!result.success) {
       return NextResponse.json(
-        { error: failureReason || 'Failed to verify email code' },
+        { error: result.error || 'Failed to verify email code' },
         { status: 400 }
       );
-    }
-
-    // Persist verified status to PostgreSQL User table and consume the one-time code
-    try {
-      await prisma.user.updateMany({
-        where: { email: normalizedEmail },
-        data: {
-          isEmailVerified: true,
-          verificationCode: null,
-          verificationExpiresAt: null
-        }
-      });
-    } catch (dbErr) {
-      console.warn('[BELTTRACK AUTH /api/auth/verify-email] Database update warning:', dbErr);
     }
 
     return NextResponse.json(
@@ -90,9 +48,11 @@ export async function POST(request: Request) {
       { status: 200 }
     );
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Internal error processing verification';
     console.error('[BELTTRACK AUTH /api/auth/verify-email] POST error:', error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Unable to verify the email code. Please try again later.' },
+      { status: 500 }
+    );
   }
 }
 
@@ -118,30 +78,17 @@ export async function GET(request: Request) {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
-    let verified = isEmailVerified(normalizedEmail);
-
-    // Fall back to database lookup if in-memory store doesn't indicate verified
-    if (!verified) {
-      try {
-        const user = await prisma.user.findUnique({
-          where: { email: normalizedEmail },
-          select: { isEmailVerified: true }
-        });
-        if (user?.isEmailVerified) {
-          verified = true;
-        }
-      } catch (dbErr) {
-        console.warn('[BELTTRACK AUTH /api/auth/verify-email] DB lookup fallback:', dbErr);
-      }
-    }
+    const verified = await isEmailVerified(normalizedEmail);
 
     return NextResponse.json({
       email: normalizedEmail,
       verified
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Internal error checking status';
     console.error('[BELTTRACK AUTH /api/auth/verify-email] GET error:', error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Unable to check verification status. Please try again later.' },
+      { status: 500 }
+    );
   }
 }

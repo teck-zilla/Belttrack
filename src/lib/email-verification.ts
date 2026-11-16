@@ -11,6 +11,7 @@ import fs from 'fs';
 import path from 'path';
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
+import { prisma } from '@/lib/prisma';
 
 export interface VerificationRecord {
   email: string;
@@ -21,22 +22,48 @@ export interface VerificationRecord {
   lastSentAt: number;  // Timestamp (ms) for cooldown rate-limiting
 }
 
-// Global store to persist verification state across hot module reloads in development
-const globalForVerification = globalThis as unknown as {
-  _belttrackVerificationStore?: Map<string, VerificationRecord>;
-};
-
-const verificationStore =
-  globalForVerification._belttrackVerificationStore ?? new Map<string, VerificationRecord>();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForVerification._belttrackVerificationStore = verificationStore;
-}
-
 // Constants
 export const CODE_EXPIRY_MS = 6 * 60 * 1000;  // 6 minutes
 export const RESEND_COOLDOWN_MS = 60 * 1000;  // 60 seconds
 export const MAX_VERIFICATION_ATTEMPTS = 3;
+
+type CodePurpose = 'EMAIL_VERIFICATION' | 'PASSWORD_RESET';
+
+/**
+ * HMAC-SHA256 (peppered) hashing for 6-digit codes. A plain hash is trivially
+ * reversible over a 900,000-value keyspace; the secret pepper prevents that.
+ */
+function hashCode(code: string): string {
+  const secret =
+    process.env.VERIFICATION_CODE_SECRET ||
+    process.env.COOKIE_SECRET ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    'belttrack-verification-code-development-secret';
+  return crypto.createHmac('sha256', secret).update(code).digest('hex');
+}
+
+function hashCodeMatches(storedHash: string, inputCode: string): boolean {
+  const candidate = Buffer.from(hashCode(inputCode), 'utf8');
+  const stored = Buffer.from(storedHash, 'utf8');
+  if (candidate.length !== stored.length) return false;
+  return crypto.timingSafeEqual(candidate, stored);
+}
+
+/**
+ * Best-effort tenant binding: resolves the school_id when the email already
+ * belongs to a provisioned user.
+ */
+async function resolveSchoolId(email: string): Promise<string | null> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { schoolId: true }
+    });
+    return user?.schoolId ?? null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Safely normalizes an email address without throwing TypeErrors.
@@ -373,6 +400,65 @@ export async function sendVerificationEmail(email: string, code: string): Promis
 /**
  * Creates and dispatches a new verification code for the specified email.
  */
+async function getLatestCode(email: string, purpose: CodePurpose) {
+  return prisma.verificationCode.findFirst({
+    where: { email, purpose, used: false },
+    orderBy: { createdAt: 'desc' }
+  });
+}
+
+/**
+ * Issues a fresh single-use code in PostgreSQL.
+ * Marks any prior unused codes for the same email+purpose as used so only one
+ * code can ever be valid at a time. Enforces the resend cooldown.
+ */
+async function issueCode(
+  email: string,
+  purpose: CodePurpose
+): Promise<{ success: boolean; error?: string; expiresAt?: number; retryAfter?: number; code?: string }> {
+  const now = Date.now();
+
+  const latest = await prisma.verificationCode.findFirst({
+    where: { email, purpose },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  if (latest && !latest.used) {
+    const elapsed = now - latest.lastSentAt.getTime();
+    if (elapsed < RESEND_COOLDOWN_MS) {
+      const retryAfter = Math.ceil((RESEND_COOLDOWN_MS - elapsed) / 1000);
+      return {
+        success: false,
+        error: `Please wait ${retryAfter} seconds before requesting a new code.`,
+        retryAfter
+      };
+    }
+  }
+
+  const code = generateVerificationCode();
+  const expiresAt = now + CODE_EXPIRY_MS;
+  const schoolId = await resolveSchoolId(email);
+
+  await prisma.$transaction([
+    prisma.verificationCode.updateMany({
+      where: { email, purpose, used: false },
+      data: { used: true }
+    }),
+    prisma.verificationCode.create({
+      data: {
+        email,
+        schoolId,
+        purpose,
+        codeHash: hashCode(code),
+        expiresAt: new Date(expiresAt),
+        lastSentAt: new Date(now)
+      }
+    })
+  ]);
+
+  return { success: true, expiresAt, code };
+}
+
 export async function createAndSendVerificationCode(
   email: string
 ): Promise<{ success: boolean; error?: string; expiresAt?: number; code?: string }> {
@@ -381,65 +467,28 @@ export async function createAndSendVerificationCode(
     return { success: false, error: 'A valid email address is required.' };
   }
 
-  const now = Date.now();
-  const existing = verificationStore.get(normalizedEmail);
-
-  // Check cooldown if existing record was sent recently
-  if (existing && !existing.verified && now - existing.lastSentAt < RESEND_COOLDOWN_MS) {
-    const retryAfterSeconds = Math.ceil((RESEND_COOLDOWN_MS - (now - existing.lastSentAt)) / 1000);
-    return {
-      success: false,
-      error: `Please wait ${retryAfterSeconds} seconds before requesting a new code.`
-    };
+  const issued = await issueCode(normalizedEmail, 'EMAIL_VERIFICATION');
+  if (!issued.success || !issued.code) {
+    return { success: false, error: issued.error };
   }
 
-  const code = generateVerificationCode();
-  const expiresAt = now + CODE_EXPIRY_MS;
-
-  const record: VerificationRecord = {
-    email: normalizedEmail,
-    code,
-    expiresAt,
-    attempts: 0,
-    verified: false,
-    lastSentAt: now
-  };
-
-  verificationStore.set(normalizedEmail, record);
-
-  // Sync verification code and expiry to PostgreSQL User table for testing and persistence
-  try {
-    const globalPrisma = (globalThis as unknown as { prisma?: import('@prisma/client').PrismaClient }).prisma;
-    const client = globalPrisma ?? (await import('@prisma/client').then((m) => new m.PrismaClient()));
-    if (client) {
-      await client.user.updateMany({
-        where: { email: normalizedEmail },
-        data: {
-          verificationCode: code,
-          verificationExpiresAt: new Date(expiresAt)
-        }
-      });
-    }
-  } catch (dbErr) {
-    // Non-blocking in offline or isolated environments without active DB connection
-  }
-
-  await sendVerificationEmail(normalizedEmail, code);
+  await sendVerificationEmail(normalizedEmail, issued.code);
 
   return {
     success: true,
-    expiresAt,
-    code // Exposed in dev/test for easy verification inspection
+    expiresAt: issued.expiresAt,
+    code: issued.code // Returned for local test inspection only; never persisted in plaintext
   };
 }
 
 /**
  * Verifies a 6-digit code submitted for an email address.
+ * DB-backed, single-use, with an attempt counter and 6-minute expiry.
  */
-export function verifyCode(
+export async function verifyCode(
   email: string,
   inputCode: string
-): { success: boolean; error?: string } {
+): Promise<{ success: boolean; error?: string }> {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) {
     return {
@@ -456,8 +505,7 @@ export function verifyCode(
     };
   }
 
-  const now = Date.now();
-  const record = verificationStore.get(normalizedEmail);
+  const record = await getLatestCode(normalizedEmail, 'EMAIL_VERIFICATION');
 
   if (!record) {
     return {
@@ -466,14 +514,7 @@ export function verifyCode(
     };
   }
 
-  if (record.verified) {
-    return {
-      success: false,
-      error: 'This verification code has already been used. Email is already verified.'
-    };
-  }
-
-  if (now > record.expiresAt) {
+  if (Date.now() > record.expiresAt.getTime()) {
     return {
       success: false,
       error: 'Verification code has expired. Please request a new code.'
@@ -487,9 +528,12 @@ export function verifyCode(
     };
   }
 
-  if (record.code !== cleanedCode) {
-    record.attempts += 1;
-    const remaining = MAX_VERIFICATION_ATTEMPTS - record.attempts;
+  if (!hashCodeMatches(record.codeHash, cleanedCode)) {
+    const updated = await prisma.verificationCode.update({
+      where: { id: record.id },
+      data: { attempts: { increment: 1 } }
+    });
+    const remaining = MAX_VERIFICATION_ATTEMPTS - updated.attempts;
     return {
       success: false,
       error: remaining > 0
@@ -498,11 +542,22 @@ export function verifyCode(
     };
   }
 
-  // Mark record as verified
-  record.verified = true;
-  verificationStore.set(normalizedEmail, record);
+  await prisma.$transaction([
+    prisma.verificationCode.update({
+      where: { id: record.id },
+      data: { used: true }
+    }),
+    prisma.user.updateMany({
+      where: { email: normalizedEmail },
+      data: {
+        isEmailVerified: true,
+        verificationCode: null,
+        verificationExpiresAt: null
+      }
+    })
+  ]);
 
-  console.log(`[BELTTRACK AUTH] Email verified successfully: ${normalizedEmail}`);
+  console.log('[BELTTRACK AUTH] Email verified successfully.');
 
   return {
     success: true
@@ -510,34 +565,37 @@ export function verifyCode(
 }
 
 /**
- * Checks whether an email address is verified.
+ * Checks whether an email address is verified (persisted User column).
  */
-export function isEmailVerified(email?: string | null): boolean {
+export async function isEmailVerified(email?: string | null): Promise<boolean> {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) return false;
-  const record = verificationStore.get(normalizedEmail);
-  return record ? record.verified : false;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+      select: { isEmailVerified: true }
+    });
+    return Boolean(user?.isEmailVerified);
+  } catch {
+    return false;
+  }
 }
 
 /**
  * Manually marks an email as verified or unverified.
  */
-export function setEmailVerified(email: string, verified: boolean): void {
+export async function setEmailVerified(email: string, verified: boolean): Promise<void> {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) return;
 
-  const existing = verificationStore.get(normalizedEmail);
-  if (existing) {
-    existing.verified = verified;
-  } else {
-    verificationStore.set(normalizedEmail, {
-      email: normalizedEmail,
-      code: '',
-      expiresAt: 0,
-      attempts: 0,
-      verified,
-      lastSentAt: 0
+  try {
+    await prisma.user.updateMany({
+      where: { email: normalizedEmail },
+      data: { isEmailVerified: verified }
     });
+  } catch {
+    // Non-fatal: verification flag updates are best-effort for diagnostics.
   }
 }
 
@@ -555,41 +613,48 @@ export async function resendVerificationCode(
     };
   }
 
-  const now = Date.now();
-  const record = verificationStore.get(normalizedEmail);
-
-  if (record && !record.verified) {
-    const elapsed = now - record.lastSentAt;
-    if (elapsed < RESEND_COOLDOWN_MS) {
-      const retryAfter = Math.ceil((RESEND_COOLDOWN_MS - elapsed) / 1000);
-      return {
-        success: false,
-        error: `Please wait ${retryAfter} seconds before requesting a new code.`,
-        retryAfter
-      };
-    }
-  }
-
-  const result = await createAndSendVerificationCode(normalizedEmail);
-  return result;
+  return createAndSendVerificationCode(normalizedEmail);
 }
 
 /**
  * Retrieves the current verification record (for diagnostic/test inspection).
  */
-export function getVerificationRecord(email: string): VerificationRecord | undefined {
+export async function getVerificationRecord(
+  email: string
+): Promise<VerificationRecord | undefined> {
   const normalized = normalizeEmail(email);
   if (!normalized) return undefined;
-  return verificationStore.get(normalized);
+
+  const record = await prisma.verificationCode.findFirst({
+    where: { email: normalized, purpose: 'EMAIL_VERIFICATION' },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  if (!record) return undefined;
+
+  return {
+    email: record.email,
+    code: '',
+    expiresAt: record.expiresAt.getTime(),
+    attempts: record.attempts,
+    verified: record.used,
+    lastSentAt: record.lastSentAt.getTime()
+  };
 }
 
 /**
  * Clears verification state for an email (useful for test resets).
  */
-export function clearVerificationState(email: string): void {
+export async function clearVerificationState(email: string): Promise<void> {
   const normalized = normalizeEmail(email);
-  if (normalized) {
-    verificationStore.delete(normalized);
+  if (!normalized) return;
+
+  try {
+    await prisma.verificationCode.deleteMany({
+      where: { email: normalized, purpose: 'EMAIL_VERIFICATION' }
+    });
+  } catch {
+    // Non-fatal: diagnostics cleanup only.
   }
 }
 
@@ -614,17 +679,6 @@ export interface PasswordResetCodeResult {
   expiresAt?: number;
   retryAfter?: number;
   code?: string;
-}
-
-const globalForReset = globalThis as unknown as {
-  _belttrackPasswordResetStore?: Map<string, PasswordResetRecord>;
-};
-
-const passwordResetStore =
-  globalForReset._belttrackPasswordResetStore ?? new Map<string, PasswordResetRecord>();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForReset._belttrackPasswordResetStore = passwordResetStore;
 }
 
 /**
@@ -790,48 +844,28 @@ export async function createAndSendPasswordResetCode(
     return { success: false, error: 'A valid email address is required.' };
   }
 
-  const now = Date.now();
-  const existing = passwordResetStore.get(normalizedEmail);
-
-  if (existing && !existing.used && now - existing.lastSentAt < RESEND_COOLDOWN_MS) {
-    const retryAfter = Math.ceil((RESEND_COOLDOWN_MS - (now - existing.lastSentAt)) / 1000);
-    return {
-      success: false,
-      error: `Please wait ${retryAfter} seconds before requesting a new code.`,
-      expiresAt: existing.expiresAt
-    };
+  const issued = await issueCode(normalizedEmail, 'PASSWORD_RESET');
+  if (!issued.success || !issued.code) {
+    return { success: false, error: issued.error, retryAfter: issued.retryAfter };
   }
 
-  const code = generateVerificationCode();
-  const expiresAt = now + CODE_EXPIRY_MS;
-
-  const record: PasswordResetRecord = {
-    email: normalizedEmail,
-    code,
-    expiresAt,
-    attempts: 0,
-    used: false,
-    lastSentAt: now
-  };
-
-  passwordResetStore.set(normalizedEmail, record);
-
-  await sendPasswordResetEmail(normalizedEmail, code);
+  await sendPasswordResetEmail(normalizedEmail, issued.code);
 
   return {
     success: true,
-    expiresAt,
-    code
+    expiresAt: issued.expiresAt,
+    code: issued.code
   };
 }
 
 /**
  * Verifies a submitted 6-digit password reset code.
+ * DB-backed, single-use, with an attempt counter and 6-minute expiry.
  */
-export function verifyPasswordResetCode(
+export async function verifyPasswordResetCode(
   email: string,
   inputCode: string
-): { success: boolean; error?: string } {
+): Promise<{ success: boolean; error?: string }> {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) {
     return { success: false, error: 'Invalid or missing email address.' };
@@ -842,8 +876,7 @@ export function verifyPasswordResetCode(
     return { success: false, error: 'Verification code is required.' };
   }
 
-  const now = Date.now();
-  const record = passwordResetStore.get(normalizedEmail);
+  const record = await getLatestCode(normalizedEmail, 'PASSWORD_RESET');
 
   if (!record) {
     return {
@@ -852,14 +885,7 @@ export function verifyPasswordResetCode(
     };
   }
 
-  if (record.used) {
-    return {
-      success: false,
-      error: 'This reset code has already been used. Please request a new code.'
-    };
-  }
-
-  if (now > record.expiresAt) {
+  if (Date.now() > record.expiresAt.getTime()) {
     return {
       success: false,
       error: 'Reset code has expired. Please request a new code.'
@@ -873,9 +899,12 @@ export function verifyPasswordResetCode(
     };
   }
 
-  if (record.code !== cleanedCode) {
-    record.attempts += 1;
-    const remaining = MAX_VERIFICATION_ATTEMPTS - record.attempts;
+  if (!hashCodeMatches(record.codeHash, cleanedCode)) {
+    const updated = await prisma.verificationCode.update({
+      where: { id: record.id },
+      data: { attempts: { increment: 1 } }
+    });
+    const remaining = MAX_VERIFICATION_ATTEMPTS - updated.attempts;
     return {
       success: false,
       error: remaining > 0
@@ -888,16 +917,19 @@ export function verifyPasswordResetCode(
 }
 
 /**
- * Marks a password reset code as used.
+ * Marks a password reset code as used (single-use enforcement).
  */
-export function markPasswordResetCodeUsed(email: string): void {
+export async function markPasswordResetCodeUsed(email: string): Promise<void> {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) return;
 
-  const record = passwordResetStore.get(normalizedEmail);
-  if (record) {
-    record.used = true;
-    passwordResetStore.set(normalizedEmail, record);
+  try {
+    await prisma.verificationCode.updateMany({
+      where: { email: normalizedEmail, purpose: 'PASSWORD_RESET', used: false },
+      data: { used: true }
+    });
+  } catch {
+    // Non-fatal: the code will expire on its own.
   }
 }
 
@@ -912,20 +944,5 @@ export async function resendPasswordResetCode(
     return { success: false, error: 'A valid email address is required.' };
   }
 
-  const now = Date.now();
-  const record = passwordResetStore.get(normalizedEmail);
-
-  if (record && !record.used) {
-    const elapsed = now - record.lastSentAt;
-    if (elapsed < RESEND_COOLDOWN_MS) {
-      const retryAfter = Math.ceil((RESEND_COOLDOWN_MS - elapsed) / 1000);
-      return {
-        success: false,
-        error: `Please wait ${retryAfter} seconds before requesting a new code.`,
-        retryAfter
-      };
-    }
-  }
-
-  return await createAndSendPasswordResetCode(normalizedEmail);
+  return createAndSendPasswordResetCode(normalizedEmail);
 }

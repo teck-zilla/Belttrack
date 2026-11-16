@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getAdminClient } from '@/lib/supabase/admin';
+import { getAdminClient, isSupabaseAdminConfigured } from '@/lib/supabase/admin';
 import { studentJoinCodeSchema } from '@/lib/validation/schemas';
 import { checkPredictablePassword } from '@/lib/validation/password';
 import { checkPwnedPassword } from '@/lib/validation/pwned-check';
@@ -43,6 +43,14 @@ export async function POST(request: Request) {
       guardianFullName,
       guardianEmail
     } = validated.data;
+
+    // Fail closed: managed auth is mandatory. Never provision a member without a real auth identity.
+    if (!isSupabaseAdminConfigured()) {
+      return NextResponse.json(
+        { error: 'Authentication service is not configured. Registration is temporarily unavailable.' },
+        { status: 503 }
+      );
+    }
 
     // Reject predictable sequences, excessive repetition, or user info
     const predictability = checkPredictablePassword(password, {
@@ -94,27 +102,28 @@ export async function POST(request: Request) {
     const firstName = parts[0] || studentFullName;
     const lastName = parts.slice(1).join(' ') || 'Student';
 
-    // Provision account in Supabase Auth if service role client is available
-    let supabaseUid: string | null = null;
-    try {
-      const admin = getAdminClient();
-      const authEmail = studentEmail.toLowerCase().trim();
-      const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
-        email: authEmail,
-        password,
-        email_confirm: true,
-        user_metadata: {
-          school_id: school.id,
-          role: 'STUDENT',
-          status: 'PENDING_APPROVAL'
-        }
-      });
-      if (!authErr && authUser?.user) {
-        supabaseUid = authUser.user.id;
+    // Provision the student auth identity. If this fails, abort before any DB write.
+    const admin = getAdminClient();
+    const authEmail = studentEmail.toLowerCase().trim();
+    const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
+      email: authEmail,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        school_id: school.id,
+        role: 'STUDENT',
+        status: 'PENDING_APPROVAL'
       }
-    } catch {
-      // Graceful fallback if admin client is unconfigured or in offline environment
+    });
+
+    if (authErr || !authUser?.user) {
+      return NextResponse.json(
+        { error: 'Authentication service unavailable. Please try again later.' },
+        { status: 503 }
+      );
     }
+
+    const supabaseUid: string = authUser.user.id;
 
     // Atomic transaction for Student User, StudentProfile, and optional Guardian link
     const dbStart = performance.now();
@@ -125,7 +134,6 @@ export async function POST(request: Request) {
           schoolId: school.id,
           email: studentEmail.toLowerCase(),
           supabaseUid,
-          hashedPassword: 'managed-auth-preview',
           role: 'STUDENT',
           status: 'PENDING_APPROVAL' // strictly locked until coach verification
         }
@@ -158,7 +166,6 @@ export async function POST(request: Request) {
             data: {
               schoolId: school.id,
               email: gEmail,
-              hashedPassword: 'managed-auth-preview',
               role: 'GUARDIAN',
               status: 'PENDING_APPROVAL'
             }

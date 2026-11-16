@@ -41,17 +41,45 @@ enum TechniqueStatus {
   VERIFIED
 }
 
+enum VerificationPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+/**
+ * Single-use, hashed verification and password-reset codes.
+ * Auth infrastructure (like auth.sessions): looked up by normalized email because
+ * codes are issued before/around tenant user provisioning. schoolId is populated
+ * when the email already resolves to a tenant user so the record stays tenant-bound.
+ */
+model VerificationCode {
+  id         String              @id @default(uuid())
+  email      String
+  schoolId   String?             @map("school_id")
+  purpose    VerificationPurpose
+  codeHash   String              @map("code_hash")
+  expiresAt  DateTime            @map("expires_at")
+  attempts   Int                 @default(0)
+  used       Boolean             @default(false)
+  lastSentAt DateTime            @default(now()) @map("last_sent_at")
+  createdAt  DateTime            @default(now())
+
+  @@index([email, purpose, used])
+  @@index([schoolId])
+  @@index([expiresAt])
+}
+
 model School {
-  id           String        @id @default(uuid())
+  id           String   @id @default(uuid())
   name         String
-  slug         String        @unique
+  slug         String   @unique
   discipline   String
   city         String
-  timezone     String        @default("UTC")
-  joinCode     String        @unique
-  isCodeActive Boolean       @default(true)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  timezone     String   @default("UTC")
+  joinCode     String   @unique
+  isCodeActive Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   users             User[]
   studentProfiles   StudentProfile[]
@@ -70,105 +98,105 @@ model School {
 }
 
 model User {
-  id               String            @id @default(uuid())
-  supabaseUid      String?           @unique @map("supabase_uid")
-  schoolId         String            @map("school_id")
-  email            String            @unique
-  hashedPassword   String?
-  role             Role              @default(STUDENT)
-  status           MembershipStatus  @default(PENDING_APPROVAL)
-  isEmailVerified       Boolean           @default(false) @map("email_verified")
-  verificationCode      String?           @map("verification_code")
-  verificationExpiresAt DateTime?         @map("verification_expires_at")
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  id                    String           @id @default(uuid())
+  supabaseUid           String?          @unique @map("supabase_uid")
+  schoolId              String           @map("school_id")
+  email                 String           @unique
+  hashedPassword        String?
+  role                  Role             @default(STUDENT)
+  status                MembershipStatus @default(PENDING_APPROVAL)
+  isEmailVerified       Boolean          @default(false) @map("email_verified")
+  verificationCode      String?          @map("verification_code")
+  verificationExpiresAt DateTime?        @map("verification_expires_at")
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
 
-  school           School            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  profile          StudentProfile?
-  guardianLinks    GuardianStudent[] @relation("GuardianRelation")
-  studentOf        GuardianStudent[] @relation("StudentRelation")
+  school        School            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  profile       StudentProfile?
+  guardianLinks GuardianStudent[] @relation("GuardianRelation")
+  studentOf     GuardianStudent[] @relation("StudentRelation")
 
   @@index([schoolId, role])
   @@index([schoolId, status])
 }
 
 model StudentProfile {
-  id                 String              @id @default(uuid())
-  schoolId           String              @map("school_id")
-  userId             String              @unique
-  firstName          String
-  lastName           String
-  dateOfBirth        DateTime
-  isMinor            Boolean             @default(false)
-  currentRankId      String?
-  lastPromotionDate  DateTime            @default(now())
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  id                String   @id @default(uuid())
+  schoolId          String   @map("school_id")
+  userId            String   @unique
+  firstName         String
+  lastName          String
+  dateOfBirth       DateTime
+  isMinor           Boolean  @default(false)
+  currentRankId     String?
+  lastPromotionDate DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  school             School              @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  currentRank        Rank?               @relation(fields: [currentRankId], references: [id])
-  attendances        Attendance[]
-  techniqueProgress  TechniqueProgress[]
+  school            School              @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentRank       Rank?               @relation(fields: [currentRankId], references: [id])
+  attendances       Attendance[]
+  techniqueProgress TechniqueProgress[]
 
   @@index([schoolId])
 }
 
 model GuardianStudent {
-  id          String   @id @default(uuid())
-  schoolId    String   @map("school_id")
-  guardianId  String
-  studentId   String
-  isApproved  Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  schoolId   String   @map("school_id")
+  guardianId String
+  studentId  String
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
 
-  school      School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  guardian    User     @relation("GuardianRelation", fields: [guardianId], references: [id], onDelete: Cascade)
-  student     User     @relation("StudentRelation", fields: [studentId], references: [id], onDelete: Cascade)
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  guardian User   @relation("GuardianRelation", fields: [guardianId], references: [id], onDelete: Cascade)
+  student  User   @relation("StudentRelation", fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([guardianId, studentId])
   @@index([schoolId])
 }
 
 model RankTrack {
-  id          String   @id @default(uuid())
-  schoolId    String   @map("school_id")
-  name        String
-  ranks       Rank[]
-  school      School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  schoolId String @map("school_id")
+  name     String
+  ranks    Rank[]
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
 
   @@index([schoolId])
 }
 
 model Rank {
-  id                 String           @id @default(uuid())
-  schoolId           String           @map("school_id")
+  id                 String @id @default(uuid())
+  schoolId           String @map("school_id")
   rankTrackId        String
   orderIndex         Int
   title              String
   beltColorHex       String
   requiredClasses    Int
   requiredActiveDays Int
-  
-  school             School           @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  rankTrack          RankTrack        @relation(fields: [rankTrackId], references: [id], onDelete: Cascade)
-  techniques         Technique[]
-  profilesAtRank     StudentProfile[]
+
+  school         School           @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  rankTrack      RankTrack        @relation(fields: [rankTrackId], references: [id], onDelete: Cascade)
+  techniques     Technique[]
+  profilesAtRank StudentProfile[]
 
   @@unique([rankTrackId, orderIndex])
   @@index([schoolId])
 }
 
 model Technique {
-  id          String              @id @default(uuid())
-  schoolId    String              @map("school_id")
+  id          String  @id @default(uuid())
+  schoolId    String  @map("school_id")
   rankId      String
   name        String
   description String?
 
-  school      School              @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  rank        Rank                @relation(fields: [rankId], references: [id], onDelete: Cascade)
-  progress    TechniqueProgress[]
+  school   School              @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  rank     Rank                @relation(fields: [rankId], references: [id], onDelete: Cascade)
+  progress TechniqueProgress[]
 
   @@index([schoolId])
 }
@@ -182,21 +210,21 @@ model TechniqueProgress {
   verifiedAt  DateTime?
   verifiedBy  String?
 
-  school      School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  profile     StudentProfile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  technique   Technique       @relation(fields: [techniqueId], references: [id], onDelete: Cascade)
+  school    School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  profile   StudentProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  technique Technique      @relation(fields: [techniqueId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, techniqueId])
   @@index([schoolId])
 }
 
 model ClassSchedule {
-  id          String       @id @default(uuid())
-  schoolId    String       @map("school_id")
-  title       String
-  weekday     Int
-  startTime   String
-  endTime     String
+  id        String @id @default(uuid())
+  schoolId  String @map("school_id")
+  title     String
+  weekday   Int
+  startTime String
+  endTime   String
 
   school      School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   attendances Attendance[]
@@ -205,49 +233,49 @@ model ClassSchedule {
 }
 
 model Attendance {
-  id             String         @id @default(uuid())
-  schoolId       String         @map("school_id")
-  idempotencyKey String         @unique
+  id             String   @id @default(uuid())
+  schoolId       String   @map("school_id")
+  idempotencyKey String   @unique
   profileId      String
   classId        String?
-  attendedAt     DateTime       @default(now())
+  attendedAt     DateTime @default(now())
 
-  school         School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  profile        StudentProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  classSchedule  ClassSchedule? @relation(fields: [classId], references: [id], onDelete: SetNull)
+  school        School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  profile       StudentProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  classSchedule ClassSchedule? @relation(fields: [classId], references: [id], onDelete: SetNull)
 
   @@index([schoolId])
   @@index([profileId, attendedAt])
 }
 
 model LedgerEntry {
-  id               String          @id @default(uuid())
-  schoolId         String          @map("school_id")
-  userId           String
-  receiptSlug      String          @unique
-  amountCents      Int
-  currency         String          @default("USD")
-  paymentMethod    PaymentMethod
-  transactionType  TransactionType
-  reversalRefSlug  String?
-  note             String?
-  createdAt        DateTime        @default(now())
+  id              String          @id @default(uuid())
+  schoolId        String          @map("school_id")
+  userId          String
+  receiptSlug     String          @unique
+  amountCents     Int
+  currency        String          @default("USD")
+  paymentMethod   PaymentMethod
+  transactionType TransactionType
+  reversalRefSlug String?
+  note            String?
+  createdAt       DateTime        @default(now())
 
-  school           School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
 
   @@index([schoolId, userId])
   @@index([receiptSlug])
 }
 
 model InactivityAlert {
-  id             String   @id @default(uuid())
-  schoolId       String   @map("school_id")
-  profileId      String
-  daysInactive   Int
-  isResolved     Boolean  @default(false)
-  createdAt      DateTime @default(now())
+  id           String   @id @default(uuid())
+  schoolId     String   @map("school_id")
+  profileId    String
+  daysInactive Int
+  isResolved   Boolean  @default(false)
+  createdAt    DateTime @default(now())
 
-  school         School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
 
   @@index([schoolId, isResolved])
 }
