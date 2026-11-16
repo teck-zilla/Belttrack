@@ -1,20 +1,19 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminClient } from '@/lib/supabase/admin';
+import { requireActiveStaff } from '@/lib/auth-guard';
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const schoolId = searchParams.get('schoolId');
-
-    if (!schoolId) {
-      return NextResponse.json(
-        { error: 'Tenant isolation violation: schoolId query parameter is required.' },
-        { status: 400 }
-      );
+    // Session required. Tenant school_id is derived from the DB user, never the request.
+    const guard = await requireActiveStaff();
+    if (!guard.ok) {
+      return NextResponse.json({ error: guard.error }, { status: guard.status });
     }
 
-    // Query pending users strictly isolated by schoolId
+    const schoolId = guard.user.schoolId;
+
+    // Query pending users strictly isolated by the session-derived schoolId
     const pendingUsers = await prisma.user.findMany({
       where: {
         schoolId,
@@ -61,14 +60,25 @@ export async function GET(request: Request) {
       pendingMembers: formattedPending
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Database error fetching approvals';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('[BELTTRACK AUTH /api/schools/approvals] GET error:', err);
+    return NextResponse.json(
+      { error: 'Unable to load approvals. Please try again later.' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
-    let body: any;
+    // Session required. Tenant school_id is derived from the DB user, never the request.
+    const guard = await requireActiveStaff();
+    if (!guard.ok) {
+      return NextResponse.json({ error: guard.error }, { status: guard.status });
+    }
+
+    const schoolId = guard.user.schoolId;
+
+    let body: Record<string, unknown>;
     try {
       body = await request.json();
     } catch {
@@ -77,11 +87,13 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    const { schoolId, userId, action } = body;
 
-    if (!schoolId || !userId || !action) {
+    const userId = typeof body.userId === 'string' ? body.userId : '';
+    const action = typeof body.action === 'string' ? body.action : '';
+
+    if (!userId || !action) {
       return NextResponse.json(
-        { error: 'Missing required parameters: schoolId, userId, and action are required.' },
+        { error: 'Missing required parameters: userId and action are required.' },
         { status: 400 }
       );
     }
@@ -93,7 +105,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify user belongs strictly to the active schoolId
+    // Never trust a body-supplied schoolId: scope the lookup to the session tenant.
     const user = await prisma.user.findFirst({
       where: {
         id: userId,
@@ -110,9 +122,9 @@ export async function POST(request: Request) {
 
     const nextStatus = action === 'APPROVE' ? 'ACTIVE' : 'SUSPENDED';
 
-    // Update status in database
+    // Update status in database, scoped to the same tenant.
     const updatedUser = await prisma.user.update({
-      where: { id: userId },
+      where: { id: user.id },
       data: { status: nextStatus }
     });
 
@@ -126,7 +138,7 @@ export async function POST(request: Request) {
           }
         });
       } catch {
-        // Fallback for mock/preview environment
+        // Metadata sync is best-effort; the DB status is the source of truth.
       }
     }
 
@@ -136,7 +148,10 @@ export async function POST(request: Request) {
       userId: updatedUser.id
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Database error processing approval';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('[BELTTRACK AUTH /api/schools/approvals] POST error:', err);
+    return NextResponse.json(
+      { error: 'Unable to process the approval. Please try again later.' },
+      { status: 500 }
+    );
   }
 }

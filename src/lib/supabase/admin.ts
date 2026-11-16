@@ -2,6 +2,18 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 let adminClientInstance: SupabaseClient | null = null;
 
+/**
+ * Returns true only when BOTH the Supabase URL and service-role key are present.
+ * Routes use this to fail closed (HTTP 503) instead of falling back to insecure
+ * preview behavior when managed auth is unavailable.
+ */
+export function isSupabaseAdminConfigured(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() &&
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
+  );
+}
+
 export function getAdminClient(): SupabaseClient {
   if (adminClientInstance) {
     return adminClientInstance;

@@ -15,12 +15,10 @@ import { calculatePasswordStrength } from '@/lib/validation/password';
 import type { DisciplineType } from '@/types/domain';
 
 interface DirectorySchool {
-  id: string;
   name: string;
   slug: string;
   city: string;
   discipline: string;
-  joinCode: string;
 }
 
 const DISCIPLINE_LABELS: Record<DisciplineType, string> = {
@@ -1224,7 +1222,7 @@ export default function HomePage() {
               ) : directorySchools.length > 0 ? (
                 directorySchools.map((s) => (
                   <div
-                    key={s.id}
+                    key={s.slug}
                     className="p-3 rounded-[10px] bg-surface-container-low border border-outline-variant flex flex-wrap justify-between items-center gap-2"
                   >
                     <div className="min-w-0">
@@ -1233,9 +1231,6 @@ export default function HomePage() {
                         {s.city} • {s.discipline.replace(/_/g, ' ')}
                       </span>
                     </div>
-                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded flex-shrink-0">
-                      {s.joinCode}
-                    </span>
                   </div>
                 ))
               ) : (
@@ -1245,9 +1240,6 @@ export default function HomePage() {
                       <span className="font-title font-semibold text-primary block break-words">Kaizen BJJ Academy</span>
                       <span className="text-surface-on-variant break-words">London, United Kingdom • Brazilian Jiu-Jitsu</span>
                     </div>
-                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded flex-shrink-0">
-                      KAIZEN-2026
-                    </span>
                   </div>
 
                   <div className="p-3 rounded-[10px] bg-surface-container-low border border-outline-variant flex flex-wrap justify-between items-center gap-2">
@@ -1255,9 +1247,6 @@ export default function HomePage() {
                       <span className="font-title font-semibold text-primary block break-words">Kodokan Judo Institute Hub</span>
                       <span className="text-surface-on-variant break-words">Tokyo, Japan • Traditional Judo</span>
                     </div>
-                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded flex-shrink-0">
-                      KODOKAN-77
-                    </span>
                   </div>
 
                   <div className="p-3 rounded-[10px] bg-surface-container-low border border-outline-variant flex flex-wrap justify-between items-center gap-2">
@@ -1265,9 +1254,6 @@ export default function HomePage() {
                       <span className="font-title font-semibold text-primary block break-words">Apex Taekwondo Academy</span>
                       <span className="text-surface-on-variant break-words">Seoul, South Korea • WT Taekwondo</span>
                     </div>
-                    <span className="font-label text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded flex-shrink-0">
-                      APEX-TKD
-                    </span>
                   </div>
                 </>
               )}

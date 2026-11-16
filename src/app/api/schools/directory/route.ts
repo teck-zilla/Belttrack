@@ -3,25 +3,25 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Only expose public accredited schools: name, slug, city, discipline, joinCode
-    // All private records (rosters, techniques, ledgers) are excluded
+    // PRD public directory fields only: name, slug, city, discipline.
+    // Join codes, tenant IDs, and all private records are never exposed.
     const schools = await prisma.school.findMany({
       where: { isCodeActive: true },
       select: {
-        id: true,
         name: true,
         slug: true,
         city: true,
-        discipline: true,
-        joinCode: true
+        discipline: true
       },
       orderBy: { createdAt: 'desc' }
     });
 
     return NextResponse.json({ success: true, schools });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Database error fetching public directory';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('[BELTTRACK AUTH /api/schools/directory] GET error:', error);
+    return NextResponse.json(
+      { error: 'Unable to load the public directory. Please try again later.' },
+      { status: 500 }
+    );
   }
 }
-

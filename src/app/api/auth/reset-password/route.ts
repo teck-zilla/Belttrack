@@ -8,8 +8,10 @@
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getAdminClient } from '@/lib/supabase/admin';
+import { getAdminClient, isSupabaseAdminConfigured } from '@/lib/supabase/admin';
 import { checkPredictablePassword } from '@/lib/validation/password';
+import { passwordCreationSchema } from '@/lib/validation/schemas';
+import { checkRateLimit } from '@/lib/rate-limit';
 import {
   createAndSendPasswordResetCode,
   verifyPasswordResetCode,
@@ -38,6 +40,32 @@ export async function POST(request: Request) {
       const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
       const schoolCode = typeof body.schoolCode === 'string' ? body.schoolCode.trim().toUpperCase() : '';
 
+      if (!email && !schoolCode) {
+        return NextResponse.json(
+          { error: 'Please enter your account email or school join code.' },
+          { status: 400 }
+        );
+      }
+
+      // Strict per-email rate limit in addition to the per-IP middleware limit.
+      const perEmailKey = `reset_request:${email || schoolCode}`;
+      const perEmailLimit = checkRateLimit(perEmailKey, {
+        key: 'reset_request_email',
+        limit: 3,
+        windowSeconds: 15 * 60,
+        description: 'password reset requests'
+      });
+
+      if (!perEmailLimit.success) {
+        return NextResponse.json(
+          { error: perEmailLimit.message, retryAfter: perEmailLimit.retryAfter },
+          {
+            status: 429,
+            headers: { 'Retry-After': perEmailLimit.retryAfter.toString() }
+          }
+        );
+      }
+
       let targetEmail = '';
 
       // Path A: School Join Code entered by Dojo Owner
@@ -51,14 +79,9 @@ export async function POST(request: Request) {
           }
         });
 
-        if (!school || !school.users || school.users.length === 0) {
-          return NextResponse.json(
-            { error: `No registered school found with join code "${schoolCode}".` },
-            { status: 404 }
-          );
+        if (school?.users?.[0]) {
+          targetEmail = school.users[0].email;
         }
-
-        targetEmail = school.users[0].email;
       }
       // Path B: Direct Email entered by Student or Owner
       else if (email) {
@@ -66,45 +89,27 @@ export async function POST(request: Request) {
           where: { email }
         });
 
-        if (!user) {
-          return NextResponse.json(
-            { error: `No account found with email "${email}".` },
-            { status: 404 }
-          );
+        if (user) {
+          targetEmail = user.email;
         }
-
-        targetEmail = user.email;
-      } else {
-        return NextResponse.json(
-          { error: 'Please enter your account email or school join code.' },
-          { status: 400 }
-        );
       }
 
-      const result = action === 'resend'
-        ? await resendPasswordResetCode(targetEmail)
-        : await createAndSendPasswordResetCode(targetEmail);
-
-      if (!result.success) {
-        return NextResponse.json(
-          { error: result.error || 'Failed to dispatch reset code.', retryAfter: result.retryAfter },
-          { status: 429 }
-        );
+      // Enumeration-safe: always return the same response whether or not an account exists.
+      if (targetEmail) {
+        try {
+          if (action === 'resend') {
+            await resendPasswordResetCode(targetEmail);
+          } else {
+            await createAndSendPasswordResetCode(targetEmail);
+          }
+        } catch (dispatchErr) {
+          console.error('[BELTTRACK AUTH /api/auth/reset-password] Reset code dispatch failed:', dispatchErr);
+        }
       }
-
-      // Mask email for user privacy in response (e.g. ma***@kaizenbjj.org)
-      const parts = targetEmail.split('@');
-      const name = parts[0] || '';
-      const domain = parts[1] || '';
-      const maskedName = name.length > 2 ? `${name.slice(0, 2)}***` : `${name}***`;
-      const maskedEmail = `${maskedName}@${domain}`;
 
       return NextResponse.json({
         success: true,
-        message: 'A 6-digit password reset code has been sent.',
-        maskedEmail,
-        targetEmail,
-        expiresAt: result.expiresAt
+        message: 'If an account matches the details provided, a 6-digit reset code has been sent.'
       });
     }
 
@@ -123,19 +128,38 @@ export async function POST(request: Request) {
         );
       }
 
-      // 1. Verify 6-digit reset code
-      const verifyResult = verifyPasswordResetCode(email, code);
+      // Strict per-email confirmation limiter in addition to the per-IP middleware limit.
+      const confirmLimit = checkRateLimit(`reset_confirm:${email}`, {
+        key: 'reset_confirm_email',
+        limit: 5,
+        windowSeconds: 15 * 60,
+        description: 'password reset confirmations'
+      });
+
+      if (!confirmLimit.success) {
+        return NextResponse.json(
+          { error: confirmLimit.message, retryAfter: confirmLimit.retryAfter },
+          {
+            status: 429,
+            headers: { 'Retry-After': confirmLimit.retryAfter.toString() }
+          }
+        );
+      }
+
+      // 1. Verify 6-digit reset code (DB-backed, single-use, attempt limited)
+      const verifyResult = await verifyPasswordResetCode(email, code);
       if (!verifyResult.success) {
         return NextResponse.json(
-          { error: verifyResult.error || 'Invalid or expired verification code.' },
+          { error: 'Invalid or expired verification code.' },
           { status: 400 }
         );
       }
 
-      // 2. Validate password strength
-      if (newPassword.length < 6) {
+      // 2. Enforce the 15-128 character password policy
+      const policy = passwordCreationSchema.safeParse(newPassword);
+      if (!policy.success) {
         return NextResponse.json(
-          { error: 'Password must be at least 6 characters long.' },
+          { error: policy.error.issues[0]?.message || 'Password does not meet the required policy.' },
           { status: 400 }
         );
       }
@@ -147,8 +171,8 @@ export async function POST(request: Request) {
 
       if (!user) {
         return NextResponse.json(
-          { error: 'User account not found.' },
-          { status: 404 }
+          { error: 'Invalid or expired verification code.' },
+          { status: 400 }
         );
       }
 
@@ -164,33 +188,37 @@ export async function POST(request: Request) {
         );
       }
 
-      // 3. Update in Supabase Auth if supabaseUid exists
-      if (user.supabaseUid) {
-        try {
-          const admin = getAdminClient();
-          const { error: updateErr } = await admin.auth.admin.updateUserById(user.supabaseUid, {
-            password: newPassword
-          });
-          if (updateErr) {
-            console.warn('[BELTTRACK AUTH] Supabase admin password update note:', updateErr.message);
-          }
-        } catch (adminErr) {
-          console.warn('[BELTTRACK AUTH] Supabase admin unavailable, updating database record directly:', adminErr);
-        }
+      // 3. Fail closed unless the managed auth identity is available and updates cleanly.
+      if (!user.supabaseUid || !isSupabaseAdminConfigured()) {
+        return NextResponse.json(
+          { error: 'Authentication service unavailable. Please try again later.' },
+          { status: 503 }
+        );
       }
 
-      // 4. Update in PostgreSQL
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          hashedPassword: 'managed-auth-preview'
+      try {
+        const admin = getAdminClient();
+        const { error: updateErr } = await admin.auth.admin.updateUserById(user.supabaseUid, {
+          password: newPassword
+        });
+        if (updateErr) {
+          return NextResponse.json(
+            { error: 'Authentication service unavailable. Please try again later.' },
+            { status: 503 }
+          );
         }
-      });
+      } catch (adminErr) {
+        console.warn('[BELTTRACK AUTH /api/auth/reset-password] Supabase admin unavailable:', adminErr);
+        return NextResponse.json(
+          { error: 'Authentication service unavailable. Please try again later.' },
+          { status: 503 }
+        );
+      }
 
-      // 5. Mark code as used
-      markPasswordResetCodeUsed(email);
+      // 4. Mark the one-time reset code as consumed
+      await markPasswordResetCodeUsed(email);
 
-      console.log(`[BELTTRACK AUTH /api/auth/reset-password] Password reset successfully for: ${email}`);
+      console.log('[BELTTRACK AUTH /api/auth/reset-password] Password reset completed.');
 
       return NextResponse.json({
         success: true,
@@ -203,9 +231,11 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Internal error during password reset';
     console.error('[BELTTRACK AUTH /api/auth/reset-password] Unexpected error:', err);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Unable to process the password reset request. Please try again later.' },
+      { status: 500 }
+    );
   }
 }
 

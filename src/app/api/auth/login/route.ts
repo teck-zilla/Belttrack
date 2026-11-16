@@ -99,6 +99,7 @@ export async function POST(request: Request) {
 
     let authData: { user: { id: string } | null } | null = null;
     let authError: { message?: string } | null = null;
+    let authUnavailable = false;
 
     try {
       const supabase = await createClient();
@@ -109,65 +110,20 @@ export async function POST(request: Request) {
       authData = res.data;
       authError = res.error;
     } catch {
-      // Supabase is unconfigured or offline - proceed directly to fallback preview check
+      // Fail closed: managed auth must be available, never fall back to a shared preview password.
+      authUnavailable = true;
+    }
+
+    if (authUnavailable) {
+      return NextResponse.json(
+        { error: 'Authentication service unavailable. Please try again later.' },
+        { status: 503 }
+      );
     }
 
     if (authError || !authData?.user) {
-      // Fallback for demo/preview environment if Supabase Auth is offline
-      const fallbackUser = await prisma.user.findFirst({
-        where: { email: targetEmail },
-        include: {
-          school: true,
-          profile: true
-        }
-      });
-
-      if (fallbackUser && fallbackUser.hashedPassword === 'managed-auth-preview' && password === 'Kaizen2026!') {
-        const sessionRow = fallbackUser.supabaseUid
-          ? await getLatestAuthSession(fallbackUser.supabaseUid)
-          : null;
-
-        const effectiveSession = sessionRow || {
-          id: `sess_preview_${fallbackUser.id.slice(0, 8)}`,
-          user_id: fallbackUser.id,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          ip: '127.0.0.1',
-          user_agent: request.headers.get('user-agent') || 'BeltTrack Preview Mode',
-          aal: 'aal1'
-        };
-
-        console.log(`[BELTTRACK AUTH /api/auth/login] Captured session row for ${fallbackUser.email}:`, {
-          sessionId: effectiveSession.id,
-          userId: effectiveSession.user_id,
-          createdAt: effectiveSession.created_at,
-          ip: effectiveSession.ip,
-          userAgent: effectiveSession.user_agent,
-        });
-
-        return NextResponse.json({
-          success: true,
-          authenticated: true,
-          session: effectiveSession,
-          user: {
-            id: fallbackUser.id,
-            supabase_uid: fallbackUser.supabaseUid || fallbackUser.id,
-            email: fallbackUser.email,
-            role: fallbackUser.role.toLowerCase(),
-            status: fallbackUser.status.toLowerCase(),
-            school_id: fallbackUser.schoolId,
-            school_name: fallbackUser.school?.name || null,
-            school_slug: fallbackUser.school?.slug || null,
-            first_name: fallbackUser.profile?.firstName || null,
-            last_name: fallbackUser.profile?.lastName || null,
-            email_verified: Boolean(fallbackUser.isEmailVerified || isEmailVerified(fallbackUser.email))
-          },
-          school: fallbackUser.school ? formatSchool(fallbackUser.school) : null
-        });
-      }
-
       return NextResponse.json(
-        { error: authError?.message || 'Invalid credentials or password' },
+        { error: 'Invalid credentials or password' },
         { status: 401 }
       );
     }
@@ -209,7 +165,7 @@ export async function POST(request: Request) {
           role: null,
           status: 'pending_approval',
           school_id: null,
-          email_verified: isEmailVerified(targetEmail)
+          email_verified: await isEmailVerified(targetEmail)
         }
       });
     }
@@ -240,13 +196,15 @@ export async function POST(request: Request) {
         school_slug: dbUser.school?.slug || null,
         first_name: dbUser.profile?.firstName || null,
         last_name: dbUser.profile?.lastName || null,
-        email_verified: Boolean(dbUser.isEmailVerified || isEmailVerified(dbUser.email))
+        email_verified: Boolean(dbUser.isEmailVerified)
       },
       school: dbUser.school ? formatSchool(dbUser.school) : null
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Internal authentication error';
     console.error('[BELTTRACK AUTH /api/auth/login] Unexpected error:', error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Unable to process authentication. Please try again later.' },
+      { status: 500 }
+    );
   }
 }
