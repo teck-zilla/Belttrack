@@ -34,6 +34,7 @@ export function StudentJoinModal({
   const [inputCode, setInputCode] = useState('');
   const [studentName, setStudentName] = useState('');
   const [studentEmail, setStudentEmail] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [studentPassword, setStudentPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -59,6 +60,24 @@ export function StudentJoinModal({
   // Strict 6-4-4 Join Code Validation Pattern
   const isValidSchoolJoinCode = (code: string) =>
     /^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$/.test(code.trim());
+
+  const isValidDateOfBirth = (value: string) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const date = new Date(`${value}T00:00:00.000Z`);
+    return !Number.isNaN(date.getTime()) && date <= new Date();
+  };
+
+  const calculateIsMinor = (value: string) => {
+    if (!isValidDateOfBirth(value)) return false;
+    const dob = new Date(`${value}T00:00:00.000Z`);
+    const now = new Date();
+    let age = now.getUTCFullYear() - dob.getUTCFullYear();
+    const monthDiff = now.getUTCMonth() - dob.getUTCMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && now.getUTCDate() < dob.getUTCDate())) {
+      age -= 1;
+    }
+    return age < 18;
+  };
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let raw = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
@@ -119,6 +138,13 @@ export function StudentJoinModal({
       }
     }
 
+    if (field === 'dateOfBirth') {
+      if (!isValidDateOfBirth(trimmed)) {
+        setFieldErrors((prev) => ({ ...prev, dateOfBirth: 'Enter a valid date of birth' }));
+        return;
+      }
+    }
+
     if (field === 'studentPassword') {
       if (trimmed.length < 15 || trimmed.length > 128) {
         setFieldErrors((prev) => ({
@@ -168,6 +194,8 @@ export function StudentJoinModal({
     studentName.trim().length >= 3 &&
     studentName.trim().split(/\s+/).filter(Boolean).length >= 2 &&
     /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(studentEmail.trim()) &&
+    isValidDateOfBirth(dateOfBirth) &&
+    isMinor === calculateIsMinor(dateOfBirth) &&
     studentPassword.length >= 15 &&
     studentPassword.length <= 128 &&
     confirmPassword &&
@@ -189,6 +217,7 @@ export function StudentJoinModal({
       studentEmail: normalizedStudentEmail,
       password: studentPassword,
       confirmPassword,
+      dateOfBirth,
       isMinor,
       guardianFullName: isMinor ? guardianName.trim() : undefined,
       guardianEmail: normalizedGuardianEmail
@@ -259,6 +288,7 @@ export function StudentJoinModal({
     setInputCode('');
     setStudentName('');
     setStudentEmail('');
+    setDateOfBirth('');
     setStudentPassword('');
     setShowPassword(false);
     setIsMinor(false);
@@ -418,6 +448,59 @@ export function StudentJoinModal({
                     {fieldErrors['studentName']}
                   </p>
                 )}
+              </div>
+
+              {/* DATE OF BIRTH */}
+              <div>
+                <label htmlFor="join-date-of-birth" className="font-title text-xs font-semibold text-surface-foreground block mb-1">
+                  Date of Birth <span aria-hidden="true" className="text-error ml-0.5">*</span>
+                  <span className="sr-only"> (required)</span>
+                </label>
+                <input
+                  type="date"
+                  id="join-date-of-birth"
+                  name="dateOfBirth"
+                  required
+                  aria-required="true"
+                  aria-invalid={Boolean(fieldErrors['dateOfBirth'])}
+                  max={new Date().toISOString().split('T')[0]}
+                  value={dateOfBirth}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const minor = calculateIsMinor(value);
+                    setDateOfBirth(value);
+                    setIsMinor(minor);
+                    if (!minor) {
+                      setGuardianName('');
+                      setGuardianEmail('');
+                      setFieldErrors((prev) => {
+                        const next = { ...prev };
+                        delete next['guardianName'];
+                        delete next['guardianEmail'];
+                        return next;
+                      });
+                    }
+                    if (fieldErrors['dateOfBirth'] && isValidDateOfBirth(value)) {
+                      setFieldErrors((prev) => {
+                        const next = { ...prev };
+                        delete next['dateOfBirth'];
+                        return next;
+                      });
+                    }
+                  }}
+                  onBlur={() => handleBlur('dateOfBirth', dateOfBirth)}
+                  className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-low ${
+                    fieldErrors['dateOfBirth'] ? 'border-error' : 'border-outline-variant'
+                  }`}
+                />
+                {fieldErrors['dateOfBirth'] && (
+                  <p role="alert" className="font-body text-xs text-error mt-1">
+                    {fieldErrors['dateOfBirth']}
+                  </p>
+                )}
+                <span className="font-body text-xs text-surface-on-variant mt-1 block">
+                  Used to enforce minor and guardian enrollment rules.
+                </span>
               </div>
 
               {/* STUDENT EMAIL */}
@@ -618,21 +701,17 @@ export function StudentJoinModal({
                     id="checkbox-is-minor"
                     name="isMinor"
                     checked={isMinor}
-                    onChange={(e) => {
-                      setIsMinor(e.target.checked);
-                      if (!e.target.checked) {
-                        setFieldErrors((prev) => {
-                          const next = { ...prev };
-                          delete next['guardianName'];
-                          delete next['guardianEmail'];
-                          return next;
-                        });
-                      }
-                    }}
-                    className="h-4 w-4 rounded border-outline-variant bg-surface-container-low text-primary accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary"
+                    disabled={!isValidDateOfBirth(dateOfBirth)}
+                    readOnly
+                    className="h-4 w-4 rounded border-outline-variant bg-surface-container-low text-primary accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary disabled:opacity-60"
                   />
-                  <label htmlFor="checkbox-is-minor" className="font-title text-xs font-semibold text-surface-foreground cursor-pointer">
+                  <label htmlFor="checkbox-is-minor" className="font-title text-xs font-semibold text-surface-foreground cursor-default">
                     Student is under 18 years old (Minor enrollment)
+                    {!isValidDateOfBirth(dateOfBirth) && (
+                      <span className="font-body font-normal text-surface-on-variant block">
+                        Enter date of birth to determine minor status.
+                      </span>
+                    )}
                   </label>
                 </div>
               </div>

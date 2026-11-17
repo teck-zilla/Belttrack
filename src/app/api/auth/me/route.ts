@@ -11,6 +11,7 @@ function formatSchool(school: {
   slug: string;
   discipline: string;
   city: string;
+  country?: string | null;
   timezone?: string | null;
   joinCode: string;
   createdAt: Date;
@@ -27,7 +28,7 @@ function formatSchool(school: {
     join_code: school.joinCode,
     discipline: school.discipline as DisciplineType,
     city: school.city,
-    country: 'United Kingdom',
+    country: school.country ?? '',
     timezone: school.timezone || 'UTC',
     is_public: true,
     created_at: safeCreated,

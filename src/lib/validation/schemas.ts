@@ -104,6 +104,24 @@ export type SchoolRegistrationInput = z.infer<typeof schoolRegistrationSchema>;
 /**
  * 2. STUDENT / GUARDIAN JOIN CODE SCHEMA
  */
+export const dateOfBirthSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Enter date of birth as YYYY-MM-DD')
+  .refine((value) => {
+    const date = new Date(`${value}T00:00:00.000Z`);
+    return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
+  }, { message: 'Enter a valid date of birth' })
+  .refine((value) => {
+    const date = new Date(`${value}T00:00:00.000Z`);
+    return date <= new Date();
+  }, { message: 'Date of birth cannot be in the future' })
+  .refine((value) => {
+    const date = new Date(`${value}T00:00:00.000Z`);
+    const oldest = new Date();
+    oldest.setFullYear(oldest.getFullYear() - 120);
+    return date >= oldest;
+  }, { message: 'Date of birth is too far in the past' });
+
 export const studentJoinCodeSchema = z.object({
   registrationCode: z
     .string()
@@ -118,6 +136,7 @@ export const studentJoinCodeSchema = z.object({
   studentEmail: emailSchema,
   password: passwordCreationSchema,
   confirmPassword: z.string().min(1, 'Please confirm your password'),
+  dateOfBirth: dateOfBirthSchema,
   isMinor: z
     .boolean()
     .default(false),
@@ -140,6 +159,18 @@ export const studentJoinCodeSchema = z.object({
 }, {
   message: 'Guardian full name is required for minor students',
   path: ['guardianFullName']
+}).refine((data) => {
+  const dob = new Date(`${data.dateOfBirth}T00:00:00.000Z`);
+  const now = new Date();
+  let age = now.getUTCFullYear() - dob.getUTCFullYear();
+  const monthDiff = now.getUTCMonth() - dob.getUTCMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && now.getUTCDate() < dob.getUTCDate())) {
+    age -= 1;
+  }
+  return data.isMinor === (age < 18);
+}, {
+  message: 'Minor status does not match date of birth',
+  path: ['isMinor']
 });
 
 export type StudentJoinCodeInput = z.infer<typeof studentJoinCodeSchema>;
@@ -148,43 +179,40 @@ export type StudentJoinCodeInput = z.infer<typeof studentJoinCodeSchema>;
  * 3. TECHNIQUE SIGNOFF SCHEMA
  */
 export const techniqueSignoffSchema = z.object({
-  schoolId: z.string().uuid('Valid tenant school ID required'),
-  studentId: z.string().uuid('Valid student ID required'),
+  profileId: z.string().uuid('Valid student profile ID required').optional(),
   techniqueId: z.string().uuid('Valid technique ID required'),
-  coachNotes: z.string().max(500, 'Notes must be under 500 characters').optional()
+  status: z.enum(['VERIFIED', 'IN_PROGRESS', 'NOT_STARTED']).default('VERIFIED')
 });
 
 /**
  * 4. ROLL-CALL ATTENDANCE SCHEMA
  */
 export const attendanceCheckInSchema = z.object({
-  schoolId: z.string().uuid('Valid tenant school ID required'),
-  studentId: z.string().uuid('Valid student ID required'),
-  className: z.string().min(2, 'Class identifier required'),
-  idempotencyKey: z.string().optional(),
-  isSparringLogged: z.boolean().default(false)
+  idempotencyKey: z.string().uuid('A valid idempotency key is required'),
+  profileId: z.string().uuid('Valid student profile ID required').optional(),
+  classId: z.string().uuid('Valid class ID required').optional(),
+  attendedAt: z.string().datetime().optional()
 });
 
 /**
  * 5. INTERNAL LEDGER ENTRY SCHEMA (ZERO-MONETIZATION BOOKKEEPING)
  */
 export const ledgerEntrySchema = z.object({
-  schoolId: z.string().uuid('Valid tenant school ID required'),
-  studentId: z.string().uuid('Valid student ID required'),
+  memberUserId: z.string().uuid('Valid member user ID required').optional(),
   amountCents: z.number().int().positive('Amount must be positive'),
   currency: z.string().length(3, '3-letter currency code required').default('USD'),
-  category: z.enum([
-    'tuition', 
-    'testing_fee', 
-    'uniform_equipment', 
-    'correction_reversal', 
-    'gear', 
-    'seminar'
+  transactionType: z.enum([
+    'TUITION',
+    'TESTING_FEE',
+    'UNIFORM_EQUIPMENT',
+    'CORRECTION_REVERSAL'
   ]),
-  paymentMethod: z.enum(['cash', 'bank_transfer', 'manual_card', 'other']),
-  receiptSlug: z.string().regex(/^REC-\d{4}-[A-Z0-9]+-\d+$/, 'Receipt slug must match REC-[YEAR]-[DISCIPLINE]-[INCREMENT]').optional(),
+  paymentMethod: z.enum(['CASH', 'BANK_TRANSFER', 'MANUAL_CARD']).default('CASH'),
   reversalRefSlug: z.string().regex(/^REC-\d{4}-[A-Z0-9]+-\d+$/, 'Reversal reference slug must match receipt format').optional(),
-  notes: z.string().max(250).optional()
+  note: z.string().max(250).optional()
+}).refine((data) => data.transactionType !== 'CORRECTION_REVERSAL' || Boolean(data.reversalRefSlug), {
+  message: 'A reversal must reference the original receipt.',
+  path: ['reversalRefSlug']
 });
 
 /**

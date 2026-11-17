@@ -5,10 +5,97 @@ import { MemberApprovalModal } from './member-approval-modal';
 import { EmailVerificationBanner } from './email-verification-banner';
 import { TechniqueCurriculumModal } from './technique-curriculum-modal';
 
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { useTenant } from '@/context/tenant-context';
 import type { DisciplineType } from '@/types/domain';
+
+interface DashboardLedgerEntry {
+  id: string;
+  receiptSlug: string;
+  amountCents: number;
+  currency: string;
+  paymentMethod: string;
+  transactionType: string;
+  reversalRefSlug: string | null;
+  note: string | null;
+  userId: string;
+  createdAt: string;
+}
+
+interface DashboardMember {
+  profileId: string;
+  userId: string;
+  fullName: string;
+}
+
+interface DashboardData {
+  school: {
+    id: string;
+    name: string;
+    slug: string;
+    discipline: string;
+    city: string;
+    country: string | null;
+    timezone: string;
+    isDemo: boolean;
+  };
+  profile: {
+    id: string;
+    userId: string;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+    dateOfBirth: string;
+    isMinor: boolean;
+    currentRankId: string | null;
+    lastPromotionDate: string;
+    createdAt: string;
+  } | null;
+  rank: {
+    id: string;
+    title: string;
+    beltColorHex: string;
+    requiredClasses: number;
+    requiredActiveDays: number;
+  } | null;
+  attendance: {
+    totalClasses: number;
+    daysInRank: number;
+    lastAttendedAt: string | null;
+  };
+  techniques: {
+    verifiedCount: number;
+    requiredCount: number;
+  };
+  inactivity: {
+    daysInactive: number;
+    isInactive: boolean;
+    alertId: string | null;
+  };
+  retention: Array<{
+    profileId: string;
+    fullName: string;
+    daysInactive: number;
+    lastAttendedAt: string | null;
+    isInactive: boolean;
+  }>;
+  members: DashboardMember[];
+  ledger: DashboardLedgerEntry[];
+}
+
+const LEDGER_TYPE_LABELS: Record<string, string> = {
+  TUITION: 'Monthly Tuition',
+  TESTING_FEE: 'Belt Testing & Promotion Fee',
+  UNIFORM_EQUIPMENT: 'Dojo Gi & Mat Equipment',
+  CORRECTION_REVERSAL: 'Correction Reversal'
+};
+
+const formatCurrency = (cents: number, currency: string) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'USD' }).format(cents / 100);
+
+const formatDate = (value: string | null) =>
+  value ? new Date(value).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Never';
 
 interface DisciplineDashboardConfig {
   discipline: DisciplineType;
@@ -412,21 +499,96 @@ export const DISCIPLINE_DASHBOARD_CONFIG: Record<DisciplineType, DisciplineDashb
 export function PreviewDashboard() {
   const { activeRole, isRealSession, logout } = useAuth();
   const { pendingMembers, activeSchool } = useTenant();
-  const [attendedClasses, setAttendedClasses] = useState(42);
-  const totalRequired = 50;
-  const isEligible = attendedClasses >= totalRequired;
   const isOwnerGroup = activeRole === 'owner' || activeRole === 'coach';
   const [isManualLedgerOpen, setIsManualLedgerOpen] = useState(false);
   const [isApprovalsModalOpen, setIsApprovalsModalOpen] = useState(false);
   const [isCurriculumModalOpen, setIsCurriculumModalOpen] = useState(false);
-  const [verifiedTechniques, setVerifiedTechniques] = useState(8);
   const [previewDisciplineOverride, setPreviewDisciplineOverride] = useState<DisciplineType | null>(null);
-  const [manualEntries, setManualEntries] = useState<Array<{
-    title: string;
-    amount: string;
-    subtext: string;
-    slug: string;
-  }>>([]);
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  const [isLoadingDashboard, setIsLoadingDashboard] = useState(false);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
+  const [isCheckingIn, setIsCheckingIn] = useState(false);
+
+  const loadDashboard = useCallback(async () => {
+    if (!isRealSession) return;
+
+    setIsLoadingDashboard(true);
+    setDashboardError(null);
+
+    try {
+      const res = await fetch('/api/dashboard', { cache: 'no-store' });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Unable to load dashboard data.');
+      }
+
+      setDashboard(data as DashboardData);
+    } catch (error) {
+      setDashboardError(error instanceof Error ? error.message : 'Unable to load dashboard data.');
+    } finally {
+      setIsLoadingDashboard(false);
+    }
+  }, [isRealSession]);
+
+  useEffect(() => {
+    void loadDashboard();
+  }, [loadDashboard]);
+
+  const profile = dashboard?.profile ?? null;
+  const rank = dashboard?.rank ?? null;
+  const requiredClasses = rank?.requiredClasses ?? 0;
+  const attendedClasses = dashboard?.attendance.totalClasses ?? 0;
+  const totalRequired = Math.max(requiredClasses, 1);
+  const isEligible = requiredClasses > 0 && attendedClasses >= requiredClasses;
+  const verifiedTechniques = dashboard?.techniques.verifiedCount ?? 0;
+  const totalTechniquesRequired = dashboard?.techniques.requiredCount ?? 0;
+  const daysInRank = dashboard?.attendance.daysInRank ?? 0;
+  const requiredDays = rank?.requiredActiveDays ?? 0;
+  const studentDisplay = profile?.fullName ?? 'No active student profile';
+  const recentLedger = dashboard?.ledger ?? [];
+  const recentTotalCents = recentLedger.reduce((sum, entry) => sum + entry.amountCents, 0);
+  const currency = recentLedger[0]?.currency ?? 'USD';
+  const primaryRetentionRisk = dashboard?.retention[0] ?? null;
+  const rankSummary = isOwnerGroup
+    ? `Student: ${studentDisplay} • Current: ${rank?.title ?? 'Unranked'}`
+    : `Self: ${studentDisplay}${profile?.isMinor ? ' (Minor)' : ' (Adult)'}`;
+
+  const handleRecordedLedgerEntry = () => {
+    void loadDashboard();
+  };
+
+  const handleCheckIn = async () => {
+    if (!profile?.id) {
+      setDashboardError('No active student profile is available for check-in.');
+      return;
+    }
+
+    setIsCheckingIn(true);
+    setDashboardError(null);
+
+    try {
+      const res = await fetch('/api/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idempotencyKey: crypto.randomUUID(),
+          profileId: profile.id
+        })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Unable to record attendance.');
+      }
+
+      await loadDashboard();
+    } catch (error) {
+      setDashboardError(error instanceof Error ? error.message : 'Unable to record attendance.');
+    } finally {
+      setIsCheckingIn(false);
+    }
+  };
 
   // Resolve active discipline: real signed-in school discipline takes precedence;
   // in preview demo mode, allows interactive switching across all 6 martial arts.
@@ -482,7 +644,7 @@ export function PreviewDashboard() {
             </svg>
             <span>Curriculum</span>
             <span className="px-1.5 py-0.2 rounded-full font-bold text-[10px] bg-tertiary-container text-tertiary-on-container">
-              {verifiedTechniques}/10
+              {verifiedTechniques}/{totalTechniquesRequired}
             </span>
           </button>
           {isOwnerGroup && (
@@ -532,6 +694,19 @@ export function PreviewDashboard() {
       {/* EMAIL VERIFICATION BANNER */}
       <EmailVerificationBanner />
 
+      {(dashboardError || isLoadingDashboard) && (
+        <div
+          className={`mb-4 p-3 rounded-[10px] border font-body text-xs ${
+            dashboardError
+              ? 'bg-error-container text-error-on-container border-error'
+              : 'bg-surface-container text-surface-on-variant border-outline-variant'
+          }`}
+          role={dashboardError ? 'alert' : 'status'}
+        >
+          {dashboardError || 'Loading live dashboard data...'}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* CARD 1: DYNAMIC RANK PROGRESSION & GRADING READINESS */}
         <div className="p-5 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-soft-2 flex flex-col justify-between">
@@ -550,15 +725,13 @@ export function PreviewDashboard() {
               {config.card1.trackTitle}
             </h3>
             <p className="font-body text-xs text-surface-on-variant mb-4 break-words">
-              {isOwnerGroup
-                ? config.card1.studentRank.ownerView
-                : config.card1.studentRank.studentView}
+              {rankSummary}
             </p>
 
             {/* Visual Martial Arts Belt */}
             <div
               className="relative w-full h-8 rounded-sm bg-surface-container-lowest border-2 border-outline mb-4 flex items-center justify-between overflow-hidden shadow-soft-2"
-              aria-label={config.card1.beltVisual.ariaLabel}
+              aria-label={rank?.title ?? config.card1.beltVisual.ariaLabel}
             >
               {/* Belt Body */}
               <div className={`w-3/4 h-full border-r-2 border-outline relative ${config.card1.beltVisual.bodyClass}`}>
@@ -593,7 +766,9 @@ export function PreviewDashboard() {
               <div>
                 <div className="flex flex-wrap justify-between gap-1 text-surface-on-variant mb-1 font-medium">
                   <span>Class Attendance</span>
-                  <span className="font-label font-bold text-primary">{attendedClasses} / {totalRequired} classes</span>
+                  <span className="font-label font-bold text-primary">
+                    {attendedClasses} / {rank ? requiredClasses : '—'} classes
+                  </span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
                   <div
@@ -621,19 +796,23 @@ export function PreviewDashboard() {
                     <span>Mandatory Technique Sign-Offs</span>
                     <span className="text-[10px] font-mono text-tertiary group-hover:underline">View Syllabus ↗</span>
                   </span>
-                  <span className="font-label font-bold text-primary">{verifiedTechniques} / 10 Verified</span>
+                  <span className="font-label font-bold text-primary">
+                    {verifiedTechniques} / {totalTechniquesRequired} Verified
+                  </span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
                   <div
                     className="h-full bg-primary rounded-full transition-all duration-300"
-                    style={{ width: `${(verifiedTechniques / 10) * 100}%` }}
+                    style={{ width: `${totalTechniquesRequired > 0 ? (verifiedTechniques / totalTechniquesRequired) * 100 : 0}%` }}
                   />
                 </div>
               </div>
 
               <div className="pt-2 border-t border-outline-variant flex flex-wrap justify-between gap-1 text-xs text-surface-on-variant">
                 <span>Time-in-Rank:</span>
-                <span className="font-label font-bold text-primary">{config.card1.timeInRank}</span>
+                <span className="font-label font-bold text-primary">
+                  {rank ? `${daysInRank} Days (Min: ${requiredDays} Days)` : 'No rank assigned'}
+                </span>
               </div>
             </div>
           </div>
@@ -641,10 +820,11 @@ export function PreviewDashboard() {
           <div className="mt-4 pt-3 border-t border-outline-variant">
             <button
               type="button"
-              onClick={() => setAttendedClasses(prev => prev < totalRequired ? prev + 1 : 42)}
-              className="w-full py-1.5 px-3 rounded-[10px] text-xs font-label font-medium bg-surface-container hover:bg-surface-container-high hover:shadow-soft text-surface-foreground transition-all duration-[600ms]"
+              onClick={() => void handleCheckIn()}
+              disabled={isCheckingIn || !profile?.id}
+              className="w-full py-1.5 px-3 rounded-[10px] text-xs font-label font-medium bg-surface-container hover:bg-surface-container-high hover:shadow-soft text-surface-foreground transition-all duration-[600ms] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isOwnerGroup ? '+ Simulate Check-in & Sign-off' : '+ Simulate Check-in (Adult)'}
+              {isCheckingIn ? 'Recording attendance...' : isOwnerGroup ? '+ Record Roll-Call Check-in' : '+ Record My Check-in'}
             </button>
           </div>
         </div>
@@ -677,19 +857,29 @@ export function PreviewDashboard() {
             <div className="p-3 rounded-[10px] bg-surface-container border border-outline-variant mb-4 flex items-start gap-2.5">
               <div
                 className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                  isOwnerGroup ? 'bg-warning animate-pulse' : 'bg-tertiary'
+                  (isOwnerGroup ? primaryRetentionRisk : dashboard?.inactivity.isInactive)
+                    ? 'bg-warning animate-pulse'
+                    : 'bg-tertiary'
                 }`}
               />
               <div className="font-body text-xs">
                 <span className="font-title font-semibold text-primary block">
                   {isOwnerGroup
-                    ? 'Dropout Risk Flagged: Elena Rostova'
-                    : 'Guardian Supervision & Attendance Status'}
+                    ? primaryRetentionRisk
+                      ? `Dropout Risk Flagged: ${primaryRetentionRisk.fullName}`
+                      : 'No dropout risks detected'
+                    : dashboard?.inactivity.isInactive
+                      ? 'Inactivity flag raised'
+                      : 'Attendance current'}
                 </span>
                 <span className="text-surface-on-variant">
                   {isOwnerGroup
-                    ? 'Absent for 13 consecutive days. Automated coach retention check triggered.'
-                    : `${config.card3.studentName} is in good standing (42/50 classes). Minor dependent ${config.card3.dependentName} is supervised strictly under guardian read-only controls.`}
+                    ? primaryRetentionRisk
+                      ? `Absent for ${primaryRetentionRisk.daysInactive} consecutive days. Automated coach retention check triggered.`
+                      : 'All active students have attended within the last 10 days.'
+                    : dashboard?.inactivity.isInactive
+                      ? `No attendance recorded for ${dashboard.inactivity.daysInactive} days.`
+                      : `Last attendance: ${formatDate(dashboard?.attendance.lastAttendedAt ?? null)}.`}
                 </span>
               </div>
             </div>
@@ -698,47 +888,48 @@ export function PreviewDashboard() {
             <div className="space-y-2 font-body text-xs">
               {isOwnerGroup ? (
                 <>
-                  {manualEntries.map((entry, idx) => (
-                    <div key={idx} className="p-2.5 rounded-[10px] bg-surface-container-low border border-tertiary shadow-soft">
-                      <div className="flex flex-wrap justify-between items-center gap-1 mb-1">
-                        <span className="font-title font-semibold text-primary break-words">{entry.title}</span>
-                        <span className="font-label font-bold text-tertiary flex-shrink-0">{entry.amount}</span>
+                  {dashboard?.retention.length ? (
+                    dashboard.retention.map((risk) => (
+                      <div key={risk.profileId} className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-[10px] bg-surface-container-low border border-outline-variant">
+                        <div className="min-w-0">
+                          <span className="font-title font-semibold text-primary block break-words">{risk.fullName}</span>
+                          <span className="text-surface-on-variant break-words">
+                            Last attended: {formatDate(risk.lastAttendedAt)}
+                          </span>
+                        </div>
+                        <span className="font-label font-bold px-2 py-0.5 rounded flex-shrink-0 text-tertiary bg-tertiary-container text-tertiary-on-container">
+                          {risk.daysInactive} days
+                        </span>
                       </div>
-                      <div className="flex flex-wrap justify-between gap-1 text-surface-on-variant text-xs font-label">
-                        <span className="break-words">{entry.subtext}</span>
-                        <span className="text-tertiary font-bold break-all">{entry.slug}</span>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="p-2.5 rounded-[10px] bg-surface-container-low border border-outline-variant text-surface-on-variant">
+                      No inactive students are currently flagged.
                     </div>
-                  ))}
-                  {config.card2.ownerSchedule.map((sched, idx) => (
-                    <div key={idx} className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-[10px] bg-surface-container-low border border-outline-variant">
-                      <div className="min-w-0">
-                        <span className="font-title font-semibold text-primary block break-words">{sched.name}</span>
-                        <span className="text-surface-on-variant break-words">{sched.details}</span>
-                      </div>
-                      <span className={`font-label font-bold px-2 py-0.5 rounded flex-shrink-0 ${
-                        sched.isHighlight
-                          ? 'text-tertiary bg-tertiary-container text-tertiary-on-container'
-                          : 'text-primary bg-primary-container text-primary-on-container'
-                      }`}>
-                        {sched.count}
-                      </span>
-                    </div>
-                  ))}
+                  )}
                 </>
               ) : (
                 <>
-                  {config.card2.studentSchedule.map((sched, idx) => (
-                    <div key={idx} className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-[10px] bg-surface-container-low border border-outline-variant">
-                      <div className="min-w-0">
-                        <span className="font-title font-semibold text-primary block break-words">{sched.name}</span>
-                        <span className="text-surface-on-variant break-words">{sched.time}</span>
-                      </div>
-                      <span className="font-label font-bold text-tertiary bg-tertiary-container text-tertiary-on-container px-2 py-0.5 rounded flex-shrink-0">
-                        {sched.attendee}
+                  <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-[10px] bg-surface-container-low border border-outline-variant">
+                    <div className="min-w-0">
+                      <span className="font-title font-semibold text-primary block break-words">Last recorded attendance</span>
+                      <span className="text-surface-on-variant break-words">
+                        {formatDate(dashboard?.attendance.lastAttendedAt ?? null)}
                       </span>
                     </div>
-                  ))}
+                    <span className="font-label font-bold text-tertiary bg-tertiary-container text-tertiary-on-container px-2 py-0.5 rounded flex-shrink-0">
+                      {attendedClasses} classes
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-[10px] bg-surface-container-low border border-outline-variant">
+                    <div className="min-w-0">
+                      <span className="font-title font-semibold text-primary block break-words">Current rank</span>
+                      <span className="text-surface-on-variant break-words">{rank?.title ?? 'No rank assigned'}</span>
+                    </div>
+                    <span className="font-label font-bold text-tertiary bg-tertiary-container text-tertiary-on-container px-2 py-0.5 rounded flex-shrink-0">
+                      {rank ? `${daysInRank} days` : '—'}
+                    </span>
+                  </div>
                 </>
               )}
             </div>
@@ -746,10 +937,14 @@ export function PreviewDashboard() {
 
           <div className="mt-4 pt-3 border-t border-outline-variant flex flex-wrap justify-between items-center gap-1 text-xs text-surface-on-variant font-medium">
             <span>
-              {isOwnerGroup ? `${config.card2.floorType} Attendance:` : 'Attendance Status:'}
+              {isOwnerGroup ? 'Retention risks:' : 'Attendance Status:'}
             </span>
             <span className="font-label font-bold text-primary">
-              {isOwnerGroup ? '94.2% Retention' : 'Current & Verified'}
+              {isOwnerGroup
+                ? `${dashboard?.retention.length ?? 0} flagged`
+                : dashboard?.inactivity.isInactive
+                  ? 'Inactive'
+                  : 'Current'}
             </span>
           </div>
         </div>
@@ -793,52 +988,29 @@ export function PreviewDashboard() {
 
             {/* Dynamic Items */}
             <div className="space-y-2 font-body text-xs mb-4">
-              {isOwnerGroup ? (
-                <>
-                  <div className="p-2.5 rounded-[10px] bg-surface-container-low border border-outline-variant">
+              {recentLedger.length > 0 ? (
+                recentLedger.map((entry) => (
+                  <div key={entry.id} className="p-2.5 rounded-[10px] bg-surface-container-low border border-outline-variant">
                     <div className="flex flex-wrap justify-between items-center gap-1 mb-1">
-                      <span className="font-title font-semibold text-primary break-words">Monthly Tuition (Cash Settlement)</span>
-                      <span className="font-label font-bold text-primary flex-shrink-0">{config.card3.tuitionAmount}</span>
+                      <span className="font-title font-semibold text-primary break-words">
+                        {LEDGER_TYPE_LABELS[entry.transactionType] || entry.transactionType}
+                      </span>
+                      <span className="font-label font-bold text-primary flex-shrink-0">
+                        {formatCurrency(entry.amountCents, entry.currency)}
+                      </span>
                     </div>
                     <div className="flex flex-wrap justify-between gap-1 text-surface-on-variant text-xs font-label">
-                      <span className="break-words">Student: Mateo Diaz</span>
-                      <span className="text-tertiary break-all">REC-2026-{config.card3.receiptPrefix}-084</span>
+                      <span className="break-words">
+                        {entry.note || formatDate(entry.createdAt)}
+                      </span>
+                      <span className="text-tertiary break-all">{entry.receiptSlug}</span>
                     </div>
                   </div>
-                  <div className="p-2.5 rounded-[10px] bg-surface-container-low border border-outline-variant">
-                    <div className="flex flex-wrap justify-between items-center gap-1 mb-1">
-                      <span className="font-title font-semibold text-primary break-words">{config.card3.techniqueVerificationTitle}</span>
-                      <span className="font-label font-bold text-primary flex-shrink-0">Verified</span>
-                    </div>
-                    <div className="flex flex-wrap justify-between gap-1 text-surface-on-variant text-xs font-label">
-                      <span className="break-words">{config.card3.studentName} • Mat Sign-off</span>
-                      <span className="text-tertiary break-all">{config.card3.techniqueCode}</span>
-                    </div>
-                  </div>
-                </>
+                ))
               ) : (
-                <>
-                  <div className="p-2.5 rounded-[10px] bg-surface-container-low border border-outline-variant">
-                    <div className="flex flex-wrap justify-between items-center gap-1 mb-1">
-                      <span className="font-title font-semibold text-primary break-words">Monthly Tuition ({config.card3.trackShortName})</span>
-                      <span className="font-label font-bold text-primary flex-shrink-0">{config.card3.tuitionAmount}</span>
-                    </div>
-                    <div className="flex flex-wrap justify-between gap-1 text-surface-on-variant text-xs font-label">
-                      <span className="break-words">{config.card3.studentName} (Self)</span>
-                      <span className="text-tertiary break-all">REC-2026-{config.card3.receiptPrefix}-084</span>
-                    </div>
-                  </div>
-                  <div className="p-2.5 rounded-[10px] bg-surface-container-low border border-outline-variant">
-                    <div className="flex flex-wrap justify-between items-center gap-1 mb-1">
-                      <span className="font-title font-semibold text-primary break-words">Junior Monthly Tuition (Kids)</span>
-                      <span className="font-label font-bold text-primary flex-shrink-0">{config.card3.juniorTuitionAmount}</span>
-                    </div>
-                    <div className="flex flex-wrap justify-between gap-1 text-surface-on-variant text-xs font-label">
-                      <span className="break-words">{config.card3.dependentName} (Minor) • Guardian Settled</span>
-                      <span className="text-tertiary break-all">REC-2026-{config.card3.receiptPrefix}-092</span>
-                    </div>
-                  </div>
-                </>
+                <div className="p-2.5 rounded-[10px] bg-surface-container-low border border-outline-variant text-surface-on-variant">
+                  No ledger entries have been recorded for this account.
+                </div>
               )}
             </div>
 
@@ -855,10 +1027,14 @@ export function PreviewDashboard() {
 
           <div className="mt-4 pt-3 border-t border-outline-variant flex flex-wrap justify-between items-center gap-1 text-xs text-surface-on-variant font-medium">
             <span>
-              {isOwnerGroup ? 'Settled This Month:' : 'Receipt Status:'}
+              {isOwnerGroup ? 'Recent settled total:' : 'Receipt Status:'}
             </span>
             <span className="font-label font-bold text-primary">
-              {isOwnerGroup ? '$4,860.00 (Offline)' : 'All Dues Settled (Offline)'}
+              {isOwnerGroup
+                ? `${formatCurrency(recentTotalCents, currency)} (last ${recentLedger.length})`
+                : recentLedger.length > 0
+                  ? `${recentLedger.length} receipt(s) on file`
+                  : 'No receipts on file'}
             </span>
           </div>
         </div>
@@ -867,7 +1043,8 @@ export function PreviewDashboard() {
       <ManualLedgerModal
         isOpen={isManualLedgerOpen}
         onClose={() => setIsManualLedgerOpen(false)}
-        onRecordCreated={(rec) => setManualEntries((prev) => [rec, ...prev])}
+        members={dashboard?.members ?? []}
+        onRecordCreated={handleRecordedLedgerEntry}
       />
       <MemberApprovalModal
         isOpen={isApprovalsModalOpen}
@@ -876,8 +1053,9 @@ export function PreviewDashboard() {
       <TechniqueCurriculumModal
         isOpen={isCurriculumModalOpen}
         onClose={() => setIsCurriculumModalOpen(false)}
+        profileId={profile?.id}
         verifiedTechniquesCount={verifiedTechniques}
-        onTechniqueVerified={(newCount) => setVerifiedTechniques(newCount)}
+        onTechniqueVerified={() => void loadDashboard()}
       />
     </section>
   );

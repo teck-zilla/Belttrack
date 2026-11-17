@@ -225,3 +225,12 @@ CREATE POLICY inactivity_alert_mutation_policy ON "InactivityAlert"
   FOR ALL
   USING (school_id = current_setting('app.current_school_id', true))
   WITH CHECK (school_id = current_setting('app.current_school_id', true));
+
+-- 11. PER-SCHOOL RECEIPT NUMBERING COUNTERS
+ALTER TABLE "ReceiptCounter" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "ReceiptCounter" FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY receipt_counter_tenant_isolation_policy ON "ReceiptCounter"
+  FOR ALL
+  USING (school_id = current_setting('app.current_school_id', true))
+  WITH CHECK (school_id = current_setting('app.current_school_id', true));
