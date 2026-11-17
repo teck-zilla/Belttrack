@@ -1,0 +1,1125 @@
+%PDF-1.4
+%BT
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [8 0 R 10 0 R 12 0 R 14 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Length 5293 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 9 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK ACCOUNT DELETION) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+472 762 Td
+(Simulation Examples) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Four personas, guardian variant, and API examples) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F2 22 Tf
+0.1059 0.1647 0.2902 rg
+52 720 Td
+(Account Deletion Simulation Examples) Tj
+ET
+BT
+/F1 11 Tf
+0.1451 0.3882 0.9216 rg
+52 700 Td
+(Four personas, guardian variant, and API examples) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 676 Td
+(Document date:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+163 676 Td
+(17 November 2026) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 663.5 Td
+(Application:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+163 663.5 Td
+(https://belttrack.vercel.app) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 651 Td
+(Grace period:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+163 651 Td
+(14 days) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 638.5 Td
+(Environment:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+163 638.5 Td
+(Use a disposable test school) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 562.5 508 59.5 re f
+0.6039 0.4039 0.0000 RG
+2 w
+52 562.5 m 52 622 l s
+BT
+/F2 8.5 Tf
+0.6039 0.4039 0.0000 rg
+64 609 Td
+(SAFE SIMULATION NOTICE) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 597 Td
+(Use disposable test accounts, preferably in local development or staging. Production purges are) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 585.5 Td
+(irreversible after the 14-day grace period. Do not schedule deletion for a real owner, coach, student, or) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 574 Td
+(guardian unless permanent deletion is intended.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.1059 0.1647 0.2902 rg
+52 546.5 Td
+(EXAMPLE 1: ADULT STUDENT REQUESTS DELETION, THEN CANCELS) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 539.5 m 560 539.5 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 525.5 Td
+(This example verifies the member request, staff approval, account lock, and cancellation path.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 509.5 Td
+(Steps) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 496.5 Td
+(- Sign in as the student.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 481 Td
+(- Click Account in the top-right.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 465.5 Td
+(- Enter an optional reason and click Request Account Deletion.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 450 Td
+(- Sign in as the owner or coach and open Deletion Requests.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 434.5 Td
+(- Click Approve Deletion.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 419 Td
+(- Sign back in as the student and open Account.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 403.5 Td
+(- Click Cancel Scheduled Deletion.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 388 Td
+(Expected results) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 375 Td
+(- Initial request status is PENDING and the student can still access private data.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 359.5 Td
+(- After approval, the student status becomes DELETION_PENDING.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 344 Td
+(- Dashboard and private API requests return HTTP 403.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 328.5 Td
+(- The student can still reach Account to cancel during the grace period.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 313 Td
+(- Cancellation sets the request to CANCELLED and restores ACTIVE status.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 297.5 Td
+(- No purge occurs.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.1059 0.1647 0.2902 rg
+52 276 Td
+(EXAMPLE 2: STUDENT DELETION COMPLETES AFTER 14 DAYS) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 269 m 560 269 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 255 Td
+(This example verifies the full grace period and irreversible user purge.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 239 Td
+(Steps) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 226 Td
+(- Student requests deletion.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 210.5 Td
+(- Owner or coach approves the request.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 195 Td
+(- Wait until the scheduled_for timestamp passes.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 179.5 Td
+(- The scheduler calls the protected purge endpoint.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 164 Td
+(- The request is marked COMPLETED.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 148.5 Td
+(Expected results) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 135.5 Td
+(- The Supabase auth identity is deleted first.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 120 Td
+(- The User row, profile, attendance, technique progress, and guardian links are deleted.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 104.5 Td
+(- Existing LedgerEntry rows remain because they are not foreign-keyed to User.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 89 Td
+(- The student can no longer sign in.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 73.5 Td
+(- The deletion audit request remains COMPLETED.) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Account Deletion Simulation Examples  |  Page 1 of 4) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 5144 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 9 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK ACCOUNT DELETION) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+472 762 Td
+(Simulation Examples) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Four personas, guardian variant, and API examples) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 720 Td
+(Fast local or staging test) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 707 Td
+(Create a disposable student, approve deletion, set that request scheduled_for to a past time in the test) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 694 Td
+(database, then trigger the purge endpoint.) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 620 508 58 re f
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 665 Td
+(Invoke-RestMethod -Method Post `) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 654.5 Td
+(  -Uri "http://localhost:3000/api/internal/deletions/purge" `) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 644 Td
+(  -Headers @{ Authorization = "Bearer $env:DELETION_PURGE_SECRET" } `) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 633.5 Td
+(  -ContentType "application/json" -Body "{}") Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 611 Td
+(Expected response:) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 568.5 508 26.5 re f
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 582 Td
+({"success":true,"processed":1,"results":[...]}) Tj
+ET
+BT
+/F2 10.5 Tf
+0.1059 0.1647 0.2902 rg
+52 553.5 Td
+(EXAMPLE 3: COACH REQUESTS DELETION; ANOTHER STAFF MEMBER APPROVES) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 546.5 m 560 546.5 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 532.5 Td
+(This example verifies self-review prevention and the staff review workflow.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 516.5 Td
+(Steps) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 503.5 Td
+(- Sign in as a coach.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 488 Td
+(- Open Account and submit a personal deletion request.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 472.5 Td
+(- Open Deletion Requests and attempt to approve your own request.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 457 Td
+(- Sign in as the owner or another coach and approve the request.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 441.5 Td
+(- Sign back in as the coach during the grace period.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 426 Td
+(Expected results) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 413 Td
+(- Self-approval returns HTTP 409; another owner or coach must review the request.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 397.5 Td
+(- Approval changes the coach status to DELETION_PENDING.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 382 Td
+(- The coach is locked out of private school data.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 366.5 Td
+(- The coach can cancel from Account during the grace period.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 351 Td
+(Owner personal deletion is different: the owner cannot request personal deletion through the member) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 338 Td
+(workflow. The owner must use School Account Deletion.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.1059 0.1647 0.2902 rg
+52 316 Td
+(EXAMPLE 4: OWNER DELETES THE WHOLE SCHOOL) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 309 m 560 309 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 295 Td
+(This example verifies immediate tenant lockout, owner cancellation, and tombstone purge.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 279 Td
+(Steps) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 266 Td
+(- Sign in as the owner.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 250.5 Td
+(- Open Account and use the School tenant section.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 235 Td
+(- Enter a reason and click Request School Deletion.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 219.5 Td
+(- Verify that all tenant access is blocked.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 204 Td
+(- During the grace period, click Cancel School Deletion to test restoration.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 188.5 Td
+(- Repeat the request and allow the 14-day schedule to expire.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 173 Td
+(Expected results immediately after request) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 160 Td
+(- School.isCodeActive becomes false.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 144.5 Td
+(- Owner, coach, student, and guardian access returns HTTP 403.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 129 Td
+(- The school disappears from the public directory.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 113.5 Td
+(- The school request is APPROVED with a 14-day schedule.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 98 Td
+(Expected results after cancellation) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 85 Td
+(- The request becomes CANCELLED.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 69.5 Td
+(- Deletion schedule fields are cleared.) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Account Deletion Simulation Examples  |  Page 2 of 4) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 5190 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 9 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK ACCOUNT DELETION) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+472 762 Td
+(Simulation Examples) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Four personas, guardian variant, and API examples) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 720 Td
+(- Tenant access and the join code are restored.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 704.5 Td
+(Expected results after purge) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 691.5 Td
+(- All managed school auth identities are deleted.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 676 Td
+(- Users, profiles, attendance, classes, rank tracks, techniques, and receipt counters are removed.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 660.5 Td
+(- The School row is anonymized as a tombstone.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 645 Td
+(- The immutable ledger remains as the permanent accounting anchor.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.1059 0.1647 0.2902 rg
+52 623.5 Td
+(GUARDIAN VARIANT) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 616.5 m 560 616.5 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 602.5 Td
+(A guardian follows the same member flow as a student, but the dependent relationship changes the) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 589.5 Td
+(expected purge result.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 573.5 Td
+(- Guardian submits a personal deletion request through Account.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 558 Td
+(- Owner or coach approves it through Deletion Requests.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 542.5 Td
+(- The guardian is locked for 14 days and can cancel during the grace period.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 527 Td
+(- Purge deletes the guardian user and guardian-student links.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 511.5 Td
+(- The dependent student account and student profile remain intact.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 496 Td
+(- Any ledger entries associated with the guardian remain because the ledger is immutable.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.1059 0.1647 0.2902 rg
+52 474.5 Td
+(USEFUL API EXAMPLES) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 467.5 m 560 467.5 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 453.5 Td
+(All account and school endpoints require an authenticated session cookie.) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 316.5 508 121 re f
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 424.5 Td
+(GET    /api/account/deletion) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 414 Td
+(POST   /api/account/deletion) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 403.5 Td
+(DELETE /api/account/deletion) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 393 Td
+(GET    /api/schools/deletion-requests) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 382.5 Td
+(POST   /api/schools/deletion-requests) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 372 Td
+(PATCH  /api/schools/deletion-requests) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 361.5 Td
+(GET    /api/schools/deletion) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 351 Td
+(POST   /api/schools/deletion) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 340.5 Td
+(DELETE /api/schools/deletion) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 330 Td
+(POST   /api/internal/deletions/purge) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 307.5 Td
+(Expected status codes) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 294.5 Td
+(- Member request created: HTTP 201.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 279 Td
+(- Duplicate open request: HTTP 409.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 263.5 Td
+(- Owner personal deletion request: HTTP 409.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 248 Td
+(- Locked account or school access: HTTP 403.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 232.5 Td
+(- Approve, reject, or cancel: HTTP 200.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 217 Td
+(- Missing or incorrect purge secret: HTTP 401.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 201.5 Td
+(- Successful purge: HTTP 200 with processed count and results.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 186 Td
+(Protected purge request) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 104.5 508 68.5 re f
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 160 Td
+(POST /api/internal/deletions/purge) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 149.5 Td
+(Authorization: Bearer <DELETION_PURGE_SECRET>) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 139 Td
+(Content-Type: application/json) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 128.5 Td
+() Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 118 Td
+({}) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 95.5 Td
+(Manual GitHub Actions run) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 82.5 Td
+(- Open the repository Actions tab and select Purge Scheduled Account Deletions.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 67 Td
+(- Click Run workflow and choose the branch containing the workflow.) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Account Deletion Simulation Examples  |  Page 3 of 4) Tj
+ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 2636 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 9 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK ACCOUNT DELETION) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+472 762 Td
+(Simulation Examples) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Four personas, guardian variant, and API examples) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 720 Td
+(- A successful run returns {"success":true,"processed":0,"results":[]} when nothing is due.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 704.5 Td
+(- The workflow is configured for hourly runs at minute 0 UTC.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 689 Td
+(- Scheduled runs require the workflow to exist on the default branch.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.1059 0.1647 0.2902 rg
+52 667.5 Td
+(SIMULATION CHECKLIST) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 660.5 m 560 660.5 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 646.5 Td
+(- Use a test school with disposable owner, coach, student, and guardian accounts.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 631 Td
+(- Confirm the member request appears for staff in the correct tenant only.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 615.5 Td
+(- Confirm approved accounts are locked but can still cancel.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 600 Td
+(- Confirm a cancelled request does not purge.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 584.5 Td
+(- Confirm school deletion blocks all four personas immediately.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 569 Td
+(- Confirm a completed user purge retains ledger entries.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 553.5 Td
+(- Confirm a completed school purge retains the tombstone and ledger anchor.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 538 Td
+(- Check application logs for lockout, approval, cancellation, and purge events.) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 463 508 59.5 re f
+0.0902 0.4196 0.2275 RG
+2 w
+52 463 m 52 522.5 l s
+BT
+/F2 8.5 Tf
+0.0902 0.4196 0.2275 rg
+64 509.5 Td
+(FINAL REMINDER) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 497.5 Td
+(The safest production test is request, approval, and cancellation without allowing the schedule to expire.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 486 Td
+(Only run the purge against disposable accounts. The immutable ledger is intentionally retained in every) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 474.5 Td
+(deletion path.) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Account Deletion Simulation Examples  |  Page 4 of 4) Tj
+ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 13 0 R >>
+endobj
+xref
+0 15
+0000000000 65535 f 
+0000000013 00000 n 
+0000000062 00000 n 
+0000000140 00000 n 
+0000000237 00000 n 
+0000000339 00000 n 
+0000000444 00000 n 
+0000000539 00000 n 
+0000005884 00000 n 
+0000006040 00000 n 
+0000011236 00000 n 
+0000011393 00000 n 
+0000016636 00000 n 
+0000016794 00000 n 
+0000019483 00000 n 
+trailer
+<< /Size 15 /Root 1 0 R >>
+startxref
+19641
+%%EOF
