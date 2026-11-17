@@ -27,7 +27,8 @@ export const membershipStatusEnum = z.enum([
   'pending_approval',
   'active',
   'inactive',
-  'suspended'
+  'suspended',
+  'deletion_pending'
 ]);
 
 /**
@@ -229,3 +230,22 @@ export const loginSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 
+/**
+ * 7. ACCOUNT / SCHOOL DELETION WORKFLOW
+ */
+export const deletionRequestSchema = z.object({
+  reason: z.string().trim().max(500, 'Reason must be under 500 characters').optional()
+});
+
+export const deletionDecisionSchema = z.object({
+  requestId: z.string().uuid('Valid deletion request ID required'),
+  action: z.enum(['APPROVE', 'REJECT']),
+  decisionNote: z.string().trim().max(500, 'Decision note must be under 500 characters').optional()
+});
+
+export const staffUserDeletionSchema = z.object({
+  targetUserId: z.string().uuid('Valid member user ID required'),
+  reason: z.string().trim().max(500, 'Reason must be under 500 characters').optional()
+});
+
+export const schoolDeletionRequestSchema = deletionRequestSchema;

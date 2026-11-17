@@ -20,6 +20,20 @@ enum MembershipStatus {
   ACTIVE
   INACTIVE
   SUSPENDED
+  DELETION_PENDING
+}
+
+enum DeletionTargetType {
+  USER
+  SCHOOL
+}
+
+enum DeletionRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  COMPLETED
 }
 
 enum PaymentMethod {
@@ -70,17 +84,20 @@ model VerificationCode {
 }
 
 model School {
-  id           String   @id @default(uuid())
-  name         String
-  slug         String   @unique
-  discipline   String
-  city         String
-  country      String?
-  timezone     String   @default("UTC")
-  joinCode     String   @unique
-  isCodeActive Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                   String    @id @default(uuid())
+  name                 String
+  slug                 String    @unique
+  discipline           String
+  city                 String
+  country              String?
+  timezone             String    @default("UTC")
+  joinCode             String    @unique
+  isCodeActive         Boolean   @default(true)
+  deletionRequestedAt  DateTime? @map("deletion_requested_at")
+  deletionScheduledFor DateTime? @map("deletion_scheduled_for")
+  deletedAt            DateTime? @map("deleted_at")
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   users             User[]
   studentProfiles   StudentProfile[]
@@ -97,6 +114,7 @@ model School {
 
   @@index([joinCode])
   @@index([slug, city])
+  @@index([deletionScheduledFor])
 }
 
 model User {
@@ -110,6 +128,8 @@ model User {
   isEmailVerified       Boolean          @default(false) @map("email_verified")
   verificationCode      String?          @map("verification_code")
   verificationExpiresAt DateTime?        @map("verification_expires_at")
+  deletionRequestedAt   DateTime?        @map("deletion_requested_at")
+  deletionScheduledFor  DateTime?        @map("deletion_scheduled_for")
   createdAt             DateTime         @default(now())
   updatedAt             DateTime         @updatedAt
 
@@ -120,6 +140,7 @@ model User {
 
   @@index([schoolId, role])
   @@index([schoolId, status])
+  @@index([status, deletionScheduledFor])
 }
 
 model StudentProfile {
@@ -303,4 +324,31 @@ model ReceiptCounter {
 
   @@unique([schoolId, year, discipline])
   @@index([schoolId])
+}
+
+/**
+ * Account deletion workflow. Requests are deliberately not relation-cascaded so
+ * the audit row survives the user or school purge. school_id remains the tenant
+ * boundary; target_user_id is nullable for whole-school deletion requests.
+ */
+model DeletionRequest {
+  id            String                @id @default(uuid())
+  schoolId      String                @map("school_id")
+  targetType    DeletionTargetType    @map("target_type")
+  targetUserId  String?               @map("target_user_id")
+  requestedById String?               @map("requested_by_id")
+  reviewedById  String?               @map("reviewed_by_id")
+  status        DeletionRequestStatus @default(PENDING)
+  reason        String?
+  decisionNote  String?               @map("decision_note")
+  requestedAt   DateTime              @default(now()) @map("requested_at")
+  reviewedAt    DateTime?             @map("reviewed_at")
+  scheduledFor  DateTime?             @map("scheduled_for")
+  completedAt   DateTime?             @map("completed_at")
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@index([schoolId, status, createdAt])
+  @@index([status, scheduledFor])
+  @@index([targetType, targetUserId])
 }

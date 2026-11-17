@@ -2,6 +2,8 @@
 
 import { ManualLedgerModal } from './manual-ledger-modal';
 import { MemberApprovalModal } from './member-approval-modal';
+import { AccountDeletionModal } from './account-deletion-modal';
+import { DeletionRequestsModal } from './deletion-requests-modal';
 import { EmailVerificationBanner } from './email-verification-banner';
 import { TechniqueCurriculumModal } from './technique-curriculum-modal';
 
@@ -503,6 +505,8 @@ export function PreviewDashboard() {
   const [isManualLedgerOpen, setIsManualLedgerOpen] = useState(false);
   const [isApprovalsModalOpen, setIsApprovalsModalOpen] = useState(false);
   const [isCurriculumModalOpen, setIsCurriculumModalOpen] = useState(false);
+  const [isAccountDeletionOpen, setIsAccountDeletionOpen] = useState(false);
+  const [isDeletionRequestsOpen, setIsDeletionRequestsOpen] = useState(false);
   const [previewDisciplineOverride, setPreviewDisciplineOverride] = useState<DisciplineType | null>(null);
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [isLoadingDashboard, setIsLoadingDashboard] = useState(false);
@@ -672,6 +676,34 @@ export function PreviewDashboard() {
           <div className="font-label text-xs font-medium text-surface-on-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant">
             Viewing as: <strong className="text-primary capitalize">{isOwnerGroup ? 'Owner / Head Coach' : 'Student / Guardian'}</strong>
           </div>
+
+          {isRealSession && isOwnerGroup && (
+            <button
+              type="button"
+              id="btn-open-deletion-requests"
+              onClick={() => setIsDeletionRequestsOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-surface-container hover:bg-surface-container-high text-surface-foreground font-label text-xs font-semibold border border-outline-variant hover:shadow-soft transition-all duration-[300ms] cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>
+              <span>Deletion Requests</span>
+            </button>
+          )}
+
+          {isRealSession && (
+            <button
+              type="button"
+              id="btn-open-account-deletion"
+              onClick={() => setIsAccountDeletionOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-surface-container hover:bg-surface-container-high text-surface-foreground font-label text-xs font-semibold border border-outline-variant hover:shadow-soft transition-all duration-[300ms] cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5 text-surface-on-variant" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Account</span>
+            </button>
+          )}
 
           {/* Sign Out button: only appears after either role has signed in */}
           {isRealSession && (
@@ -1049,6 +1081,14 @@ export function PreviewDashboard() {
       <MemberApprovalModal
         isOpen={isApprovalsModalOpen}
         onClose={() => setIsApprovalsModalOpen(false)}
+      />
+      <AccountDeletionModal
+        isOpen={isAccountDeletionOpen}
+        onClose={() => setIsAccountDeletionOpen(false)}
+      />
+      <DeletionRequestsModal
+        isOpen={isDeletionRequestsOpen}
+        onClose={() => setIsDeletionRequestsOpen(false)}
       />
       <TechniqueCurriculumModal
         isOpen={isCurriculumModalOpen}

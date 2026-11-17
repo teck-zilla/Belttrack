@@ -1,0 +1,1233 @@
+%PDF-1.4
+%BT
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [7 0 R 9 0 R 11 0 R 13 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Length 6209 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 9 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK ACCOUNT DELETION LIFECYCLE) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+455 762 Td
+(Implementation Report) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Private multi-tenant martial arts management platform) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F2 22 Tf
+0.1059 0.1647 0.2902 rg
+52 720 Td
+(BeltTrack Account Deletion Lifecycle) Tj
+ET
+BT
+/F1 12 Tf
+0.1451 0.3882 0.9216 rg
+52 700 Td
+(Implementation and Operations Report) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 676 Td
+(Document date:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+170 676 Td
+(17 November 2026) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 663.5 Td
+(Repository:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+170 663.5 Td
+(teck-zilla/Belttrack) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 651 Td
+(Working branch:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+170 651 Td
+(second-branch) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 638.5 Td
+(Migration:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+170 638.5 Td
+(20261117160000_account_deletion_lifecycle) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 626 Td
+(Status:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+170 626 Td
+(Implemented, migrated, and locally verified) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 550 508 59.5 re f
+0.0902 0.4196 0.2275 RG
+2 w
+52 550 m 52 609.5 l s
+BT
+/F2 8.5 Tf
+0.0902 0.4196 0.2275 rg
+64 596.5 Td
+(DELIVERY SUMMARY) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 584.5 Td
+(BeltTrack now supports a reversible 14-day deletion grace period for individual members and whole-school) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 573 Td
+(tenants. Members submit deletion requests, owners and coaches review them, owners can close a school) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 561.5 Td
+(tenant, and a protected internal endpoint performs the irreversible purge after the grace period.) Tj
+ET
+BT
+/F2 11 Tf
+0.1059 0.1647 0.2902 rg
+52 534 Td
+(1. SCOPE AND PRODUCT DECISIONS) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 527 m 560 527 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 513 Td
+(The implementation applies to both user accounts and school accounts. The grace period is 14 days from) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 500 Td
+(approval or owner scheduling. Approved accounts are locked immediately so private records cannot be read) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 487 Td
+(or changed while the purge is pending.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 471 Td
+(- Members submit their own deletion request with an optional reason.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 455.5 Td
+(- Owners and coaches can approve, reject, or directly schedule deletion for active members.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 440 Td
+(- Owners cannot request personal deletion through the member workflow; they must use school deletion.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 424.5 Td
+(- School deletion is owner-only and immediately disables tenant access and the public join code.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 409 Td
+(- Owners and members can cancel a scheduled deletion during the grace period.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 393.5 Td
+(- The immutable ledger is never deleted. School purge uses a tombstone instead of a cascade delete.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 378 Td
+(- A protected internal endpoint performs due purges; scheduling is external to the application process.) Tj
+ET
+BT
+/F2 11 Tf
+0.1059 0.1647 0.2902 rg
+52 356.5 Td
+(2. DATA MODEL CHANGES) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 349.5 m 560 349.5 l s
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 335.5 Td
+(2.1 Enumerations) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 322.5 Td
+(MembershipStatus now includes DELETION_PENDING. Two new enums define the workflow: DeletionTargetType) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 309.5 Td
+(\(USER, SCHOOL\) and DeletionRequestStatus \(PENDING, APPROVED, REJECTED, CANCELLED, COMPLETED\).) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 293.5 Td
+(2.2 User and School fields) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 280.5 Td
+(- User.deletionRequestedAt stores when deletion was requested.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 265 Td
+(- User.deletionScheduledFor stores the purge deadline and supports the status/schedule index.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 249.5 Td
+(- School.deletionRequestedAt stores owner request time.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 234 Td
+(- School.deletionScheduledFor stores the tenant purge deadline.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 218.5 Td
+(- School.deletedAt marks the anonymized tombstone after purge.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 203 Td
+(2.3 DeletionRequest table) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 190 Td
+(DeletionRequest is the durable workflow and audit record. It stores schoolId, targetType, optional) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 177 Td
+(targetUserId, requestedById, reviewedById, status, reason, decisionNote, requestedAt, reviewedAt,) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 164 Td
+(scheduledFor, completedAt, and timestamps. It deliberately has no cascading foreign keys so the audit) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 151 Td
+(row survives a user or school purge.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 135 Td
+(Indexes support open-request lookups by school and status, due-purge scans by status and scheduled time,) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 122 Td
+(and target lookup by type and user. RLS policy deletion_request_tenant_isolation_policy binds every row) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 109 Td
+(to app.current_school_id for both reads and writes.) Tj
+ET
+BT
+/F2 11 Tf
+0.1059 0.1647 0.2902 rg
+52 87 Td
+(3. MEMBER DELETION WORKFLOW) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 80 m 560 80 l s
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Account Deletion Lifecycle  |  Implementation Report  |  Page 1 of 4) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 6681 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 9 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK ACCOUNT DELETION LIFECYCLE) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+455 762 Td
+(Implementation Report) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Private multi-tenant martial arts management platform) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 720 Td
+(3.1 Request) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 707 Td
+(An authenticated ACTIVE member calls POST /api/account/deletion. The schoolId is derived from the) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 694 Td
+(database session, never from the request body. Owners are rejected with HTTP 409 and directed to school) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 681 Td
+(deletion. The request is created with status PENDING and requestedById set to the member.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 665 Td
+(3.2 Review) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 652 Td
+(Owners and coaches call GET /api/schools/deletion-requests to list open requests scoped to their school.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 639 Td
+(PATCH approves or rejects a PENDING request. A reviewer cannot approve their own request. On approval,) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 626 Td
+(the target user status changes to DELETION_PENDING and deletionScheduledFor is set to 14 days later.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 610 Td
+(3.3 Direct staff scheduling) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 597 Td
+(POST /api/schools/deletion-requests allows staff to schedule an active member directly. The request is) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 584 Td
+(created as APPROVED by the acting staff member and the target is locked in the same transaction.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 568 Td
+(3.4 Cancellation) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 555 Td
+(DELETE /api/account/deletion cancels the caller's open request. A PENDING request becomes CANCELLED. An) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 542 Td
+(APPROVED request also clears the user deletion fields and restores ACTIVE status, provided the account) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 529 Td
+(has not changed to another non-deletion state. Staff-initiated scheduled deletions can be cancelled by) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 516 Td
+(the affected active member during the grace period.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 500 Td
+(3.5 Purge) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 487 Td
+(A due USER request verifies that the target still belongs to the request school. The Supabase auth) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 474 Td
+(identity is deleted first. A database transaction then removes inactivity alerts, verification codes,) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 461 Td
+(and the User row; profile, attendance, technique progress, and guardian links cascade from User.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 448 Td
+(LedgerEntry rows are retained because they have no foreign key to User.) Tj
+ET
+BT
+/F2 11 Tf
+0.1059 0.1647 0.2902 rg
+52 426 Td
+(4. SCHOOL DELETION WORKFLOW) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 419 m 560 419 l s
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 405 Td
+(4.1 Owner request) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 392 Td
+(An OWNER calls POST /api/schools/deletion. The school row is updated in the same transaction with) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 379 Td
+(deletionRequestedAt, deletionScheduledFor, and isCodeActive=false. A SCHOOL DeletionRequest is created) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 366 Td
+(as APPROVED with requestedById and reviewedById set to the owner. All tenant access is blocked) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 353 Td
+(immediately by the auth guard for the next 14 days.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 337 Td
+(4.2 Cancellation) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 324 Td
+(DELETE /api/schools/deletion is owner-only and available while the school is locked. It marks the) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 311 Td
+(request CANCELLED, clears the schedule fields, and restores isCodeActive=true.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 295 Td
+(4.3 Tombstone purge) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 282 Td
+(A due SCHOOL request deletes all managed auth identities first. A database transaction then removes) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 269 Td
+(inactivity alerts, verification codes, users, class schedules, rank tracks, and receipt counters. The) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 256 Td
+(School row is anonymized to Deleted School, renamed to deleted-{id}, assigned join code DELETED-{id},) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 243 Td
+(and marked deletedAt. LedgerEntry rows survive as the immutable ledger anchor.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 227 Td
+(This is intentionally a tombstone purge, not a cascade delete. Deleting the School row would cascade the) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 214 Td
+(ledger and violate the append-only accounting requirement.) Tj
+ET
+BT
+/F2 11 Tf
+0.1059 0.1647 0.2902 rg
+52 192 Td
+(5. AUTHORIZATION AND TENANT ISOLATION) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 185 m 560 185 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 171 Td
+(- ActiveSessionUser now carries the user deletion schedule, school deletion schedule, and school tombstone) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 158.5 Td
+(  timestamp.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 143 Td
+(- requireActiveStaff and requireActiveMember reject DELETION_PENDING accounts and any scheduled or) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 130.5 Td
+(  completed school deletion.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 115 Td
+(- requireSessionUser allows locked sessions to read status and cancel their own deletion workflows.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 99.5 Td
+(- The schoolId for every mutation comes from the database session, not request input.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 84 Td
+(- DeletionRequest joined the tenant model extension and has a dedicated RLS policy.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 68.5 Td
+(- The internal purge route is protected by a timing-safe bearer secret using DELETION_PURGE_SECRET or) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Account Deletion Lifecycle  |  Implementation Report  |  Page 2 of 4) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 6066 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 9 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK ACCOUNT DELETION LIFECYCLE) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+455 762 Td
+(Implementation Report) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Private multi-tenant martial arts management platform) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 720 Td
+(  CRON_SECRET.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 704.5 Td
+(- The purge handler processes at most 25 due requests per invocation. Failed requests remain APPROVED and) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 692 Td
+(  retry on the next run.) Tj
+ET
+BT
+/F2 11 Tf
+0.1059 0.1647 0.2902 rg
+52 670.5 Td
+(6. API SURFACE) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 663.5 m 560 663.5 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 649.5 Td
+(GET /api/account/deletion - returns the caller account status and open personal request.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 633.5 Td
+(POST /api/account/deletion - creates a PENDING member deletion request.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 617.5 Td
+(DELETE /api/account/deletion - cancels the caller open request or scheduled personal deletion.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 601.5 Td
+(GET /api/schools/deletion-requests - lists open USER requests for the staff tenant.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 585.5 Td
+(POST /api/schools/deletion-requests - directly schedules an active member for deletion.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 569.5 Td
+(PATCH /api/schools/deletion-requests - approves or rejects a PENDING member request.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 553.5 Td
+(GET /api/schools/deletion - owner-only school deletion status.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 537.5 Td
+(POST /api/schools/deletion - schedules owner-initiated school deletion.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 521.5 Td
+(DELETE /api/schools/deletion - owner cancels scheduled school deletion.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 505.5 Td
+(POST /api/internal/deletions/purge - protected scheduler endpoint for due purges.) Tj
+ET
+BT
+/F2 11 Tf
+0.1059 0.1647 0.2902 rg
+52 483.5 Td
+(7. USER INTERFACE) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 476.5 m 560 476.5 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 462.5 Td
+(PreviewDashboard now exposes an Account button for every real session and a Deletion Requests button for) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 449.5 Td
+(owners and coaches. AccountDeletionModal renders the member request, staff approval state, scheduled) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 436.5 Td
+(cancellation, and the owner school deletion workflow. DeletionRequestsModal lists open requests with) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 423.5 Td
+(target member details, requested date, reason, grace deadline, and approve/reject actions.) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 407.5 Td
+(All new components use the existing design-token utility classes. No hardcoded colors were introduced) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 394.5 Td
+(and the token audit remains at zero violations.) Tj
+ET
+BT
+/F2 11 Tf
+0.1059 0.1647 0.2902 rg
+52 372.5 Td
+(8. SCHEDULER CONFIGURATION) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 365.5 m 560 365.5 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 351.5 Td
+(The purge endpoint is intentionally not scheduled inside the Next.js process. A GitHub Actions workflow) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 338.5 Td
+(at .github/workflows/purge-deletions.yml calls the endpoint hourly at minute 0 UTC and also supports) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 325.5 Td
+(manual dispatch. The workflow validates that APP_BASE_URL starts with https:// and that) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 312.5 Td
+(DELETION_PURGE_SECRET is present before issuing the request.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 296.5 Td
+(- Repository secret: DELETION_PURGE_SECRET, identical to the application environment value.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 281 Td
+(- Repository variable: APP_BASE_URL, for example https://app.example.com.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 265.5 Td
+(- The workflow uses POST, bearer authentication, retry with backoff, a 60-second maximum request time, and) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 253 Td
+(  a concurrency lock.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 237.5 Td
+(- Scheduled GitHub workflows run from the default branch; this workflow must be on main before the hourly) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 225 Td
+(  schedule or manual dispatch is available.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 209.5 Td
+(- The app must be publicly reachable over HTTPS. Localhost cannot be called by GitHub Actions.) Tj
+ET
+BT
+/F2 11 Tf
+0.1059 0.1647 0.2902 rg
+52 188 Td
+(9. MIGRATION AND VERIFICATION) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 181 m 560 181 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 167 Td
+(Migration 20261117160000_account_deletion_lifecycle adds the new enum value, creates both deletion) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 154 Td
+(enums, adds User and School scheduling columns, creates DeletionRequest, adds indexes, and installs the) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 141 Td
+(RLS policy. It was applied with prisma migrate deploy.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 125 Td
+(- npx prisma validate: passed.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 109.5 Td
+(- npx prisma migrate status: database schema is up to date.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 94 Td
+(- npx tsc --noEmit --incremental false: passed.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 78.5 Td
+(- npm run audit: 0 hardcoded color violations.) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Account Deletion Lifecycle  |  Implementation Report  |  Page 3 of 4) Tj
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 10 0 R >>
+endobj
+12 0 obj
+<< /Length 4718 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 9 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK ACCOUNT DELETION LIFECYCLE) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+455 762 Td
+(Implementation Report) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Private multi-tenant martial arts management platform) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 720 Td
+(- npm run build: passed; all deletion routes compiled.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 704.5 Td
+(- Database verification: DeletionRequest queryable, DELETION_PENDING enum present, RLS policy present.) Tj
+ET
+BT
+/F2 11 Tf
+0.1059 0.1647 0.2902 rg
+52 683 Td
+(10. OPERATIONS RUNBOOK) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 676 m 560 676 l s
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 662 Td
+(10.1 Initial setup) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 649 Td
+(- Set DELETION_PURGE_SECRET in the deployed application environment.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 633.5 Td
+(- Add the same value as the GitHub Actions repository secret DELETION_PURGE_SECRET.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 618 Td
+(- Add the production HTTPS origin as repository variable APP_BASE_URL.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 602.5 Td
+(- Merge the workflow to the default branch before relying on the schedule.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 587 Td
+(10.2 Testing) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 574 Td
+(- Run the workflow manually with workflow_dispatch.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 558.5 Td
+(- A missing or wrong secret must return HTTP 401.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 543 Td
+(- A valid request returns HTTP 200 with processed count and per-request results.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 527.5 Td
+(- A failed purge remains APPROVED and is retried on the next hourly run.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 512 Td
+(10.3 Rotation and monitoring) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 499 Td
+(- Rotate the secret by updating the application environment and GitHub secret together.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 483.5 Td
+(- Monitor failed workflow runs and the "failed" entries in the purge response.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 468 Td
+(- Hourly runs handle roughly 600 purges per day at the current batch size of 25.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 452.5 Td
+(- The workflow never logs the bearer token; GitHub masks the configured secret.) Tj
+ET
+BT
+/F2 11 Tf
+0.1059 0.1647 0.2902 rg
+52 431 Td
+(11. ASSUMPTIONS AND LIMITATIONS) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 424 m 560 424 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 410 Td
+(- The 14-day grace period is measured in 24-hour periods from approval or owner scheduling.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 394.5 Td
+(- The school deletion tombstone is the permanent ledger anchor; the underlying School row is retained.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 379 Td
+(- Only active members can be scheduled for member deletion through staff routes.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 363.5 Td
+(- Owners cannot delete their personal account without closing the school tenant.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 348 Td
+(- No production cron is embedded in the application; an external scheduler is required.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 332.5 Td
+(- The GitHub Actions schedule will not run until the workflow exists on the repository default branch.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 317 Td
+(- The purge endpoint depends on the Supabase service-role key to delete managed auth identities.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 301.5 Td
+(- Billing, payment gateways, push notifications, and native mobile builds remain out of scope.) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 226.5 508 59.5 re f
+0.6039 0.4039 0.0000 RG
+2 w
+52 226.5 m 52 286 l s
+BT
+/F2 8.5 Tf
+0.6039 0.4039 0.0000 rg
+64 273 Td
+(FINAL STATE) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 261 Td
+(The deletion schema, APIs, guards, UI, migration, and scheduler workflow are implemented. The migration is) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 249.5 Td
+(applied. The remaining operational action is configuring the production APP_BASE_URL and) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 238 Td
+(DELETION_PURGE_SECRET in GitHub and merging the workflow to the default branch.) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Account Deletion Lifecycle  |  Implementation Report  |  Page 4 of 4) Tj
+ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 12 0 R >>
+endobj
+xref
+0 14
+0000000000 65535 f 
+0000000013 00000 n 
+0000000062 00000 n 
+0000000139 00000 n 
+0000000236 00000 n 
+0000000338 00000 n 
+0000000443 00000 n 
+0000006704 00000 n 
+0000006850 00000 n 
+0000013583 00000 n 
+0000013729 00000 n 
+0000019848 00000 n 
+0000019996 00000 n 
+0000024767 00000 n 
+trailer
+<< /Size 14 /Root 1 0 R >>
+startxref
+24915
+%%EOF

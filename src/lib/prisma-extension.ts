@@ -28,7 +28,8 @@ const TENANT_MODELS = new Set([
   'Attendance',
   'LedgerEntry',
   'InactivityAlert',
-  'ReceiptCounter'
+  'ReceiptCounter',
+  'DeletionRequest'
 ]);
 
 type OperationArgs = Record<string, unknown>;

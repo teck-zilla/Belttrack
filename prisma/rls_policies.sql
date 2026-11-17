@@ -234,3 +234,12 @@ CREATE POLICY receipt_counter_tenant_isolation_policy ON "ReceiptCounter"
   FOR ALL
   USING (school_id = current_setting('app.current_school_id', true))
   WITH CHECK (school_id = current_setting('app.current_school_id', true));
+
+-- 12. ACCOUNT / SCHOOL DELETION REQUESTS (AUDIT + WORKFLOW)
+ALTER TABLE "DeletionRequest" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "DeletionRequest" FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY deletion_request_tenant_isolation_policy ON "DeletionRequest"
+  FOR ALL
+  USING (school_id = current_setting('app.current_school_id', true))
+  WITH CHECK (school_id = current_setting('app.current_school_id', true));
