@@ -6,12 +6,12 @@ import { useAccessibleModal } from './use-accessible-modal';
 interface ManualLedgerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onRecordCreated?: (record: {
-    title: string;
-    amount: string;
-    subtext: string;
-    slug: string;
-  }) => void;
+  members?: Array<{
+    profileId: string;
+    userId: string;
+    fullName: string;
+  }>;
+  onRecordCreated?: () => void;
 }
 
 function InlineFieldError({ id, message }: { id: string; message?: string }) {
@@ -45,11 +45,12 @@ function InlineFieldError({ id, message }: { id: string; message?: string }) {
 export function ManualLedgerModal({
   isOpen,
   onClose,
+  members = [],
   onRecordCreated
 }: ManualLedgerModalProps) {
   const modalRef = useAccessibleModal(isOpen, onClose, '#btn-open-manual-ledger');
 
-  const [studentName, setStudentName] = useState('');
+  const [memberUserId, setMemberUserId] = useState('');
   const [category, setCategory] = useState<'tuition' | 'promotion_fee' | 'merchandise' | 'drop_in'>('tuition');
   const [amount, setAmount] = useState('120.00');
   const [notes, setNotes] = useState('Offline cash settlement verified on mat.');
@@ -62,13 +63,6 @@ export function ManualLedgerModal({
   const validateField = (fieldId: string, val: string): string | null => {
     const trimmed = (val || '').trim();
     if (!trimmed) return 'empty field error';
-
-    if (fieldId === 'studentName') {
-      const words = trimmed.split(/\s+/).filter(Boolean);
-      if (trimmed.length < 3 || words.length < 2) {
-        return 'structure error';
-      }
-    }
 
     if (fieldId === 'amount') {
       const num = parseFloat(trimmed);
@@ -94,52 +88,69 @@ export function ManualLedgerModal({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const errors: Record<string, string> = {};
 
-    const errName = validateField('studentName', studentName);
-    if (errName) errors['studentName'] = errName;
+    const errors: Record<string, string> = {};
 
     const errAmount = validateField('amount', amount);
     if (errAmount) errors['amount'] = errAmount;
 
+    if (!memberUserId) {
+      setFeedback('Select a student or member before recording a settlement.');
+      return;
+    }
+
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      const firstKey = Object.keys(errors)[0];
-      const targetId = firstKey === 'studentName' ? 'ledger-payer-name' : 'ledger-amount';
-      document.getElementById(targetId)?.focus();
+      document.getElementById('ledger-amount')?.focus();
       return;
     }
 
     setIsSubmitting(true);
     setFeedback('Recording immutable non-custodial receipt...');
 
-    const categoryLabels: Record<string, string> = {
-      tuition: 'Monthly Tuition (Cash Settlement)',
-      promotion_fee: 'Belt Testing & Promotion Fee',
-      merchandise: 'Dojo Gi & Mat Equipment',
-      drop_in: 'Mat Drop-In Fee'
-    };
+    const transactionType =
+      category === 'promotion_fee'
+        ? 'TESTING_FEE'
+        : category === 'merchandise'
+          ? 'UNIFORM_EQUIPMENT'
+          : 'TUITION';
 
-    const randomInc = String(Math.floor(Math.random() * 900) + 100);
-    const newSlug = `REC-2026-BJJ-${randomInc}`;
-
-    setTimeout(() => {
-      onRecordCreated?.({
-        title: categoryLabels[category] || 'Manual Tuition Record',
-        amount: `$${parseFloat(amount).toFixed(2)}`,
-        subtext: `Student: ${studentName.trim()}`,
-        slug: newSlug
+    try {
+      const res = await fetch('/api/ledger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          memberUserId,
+          amountCents: Math.round(parseFloat(amount) * 100),
+          currency: 'USD',
+          transactionType,
+          paymentMethod: 'CASH',
+          note: notes.trim() || undefined
+        })
       });
 
-      setFeedback(`Recorded! Receipt ${newSlug} logged to immutable offline ledger.`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setFeedback(data.error || 'Unable to record the ledger entry.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      setFeedback(`Recorded! Receipt ${data.entry.receiptSlug} logged to immutable offline ledger.`);
+      onRecordCreated?.();
+
       setTimeout(() => {
         setFeedback(null);
         setIsSubmitting(false);
         onClose();
       }, 1000);
-    }, 600);
+    } catch {
+      setFeedback('Network error while recording the ledger entry. Please try again.');
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -192,37 +203,26 @@ export function ManualLedgerModal({
               htmlFor="ledger-payer-name"
               className="font-title text-xs font-semibold text-surface-foreground block mb-1"
             >
-              Student / Member Full Name <span aria-hidden="true" className="text-tertiary font-bold">*</span>
+              Student / Member <span aria-hidden="true" className="text-tertiary font-bold">*</span>
               <span className="sr-only">(required)</span>
             </label>
-            <input
+            <select
               id="ledger-payer-name"
-              name="studentName"
-              type="text"
+              name="memberUserId"
               required
               aria-required="true"
-              aria-invalid={!!fieldErrors['studentName']}
-              aria-describedby={fieldErrors['studentName'] ? 'err-ledger-payer-name' : undefined}
-              value={studentName}
-              placeholder="e.g. Mateo Diaz"
-              onChange={(e) => {
-                setStudentName(e.target.value);
-                if (fieldErrors['studentName']) {
-                  setFieldErrors((prev) => {
-                    const next = { ...prev };
-                    delete next['studentName'];
-                    return next;
-                  });
-                }
-              }}
-              onBlur={() => handleBlur('studentName', studentName)}
-              className={`w-full px-3 py-2 rounded-[10px] bg-surface-container-low border font-body text-sm ${
-                fieldErrors['studentName'] ? 'border-error' : 'border-outline-variant'
-              } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest`}
-            />
-            {fieldErrors['studentName'] && (
-              <InlineFieldError id="err-ledger-payer-name" message={fieldErrors['studentName']} />
-            )}
+              value={memberUserId}
+              onChange={(e) => setMemberUserId(e.target.value)}
+              disabled={members.length === 0}
+              className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest disabled:opacity-60"
+            >
+              <option value="">{members.length === 0 ? 'No active student profiles' : 'Select a student'}</option>
+              {members.map((member) => (
+                <option key={member.userId} value={member.userId}>
+                  {member.fullName}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

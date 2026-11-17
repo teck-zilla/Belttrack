@@ -1,10 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAccessibleModal } from './use-accessible-modal';
 import { useTenant } from '@/context/tenant-context';
 import { useAuth } from '@/context/auth-context';
 import type { DisciplineType } from '@/types/domain';
+
+interface RemoteTechnique {
+  id: string;
+  name: string;
+  description: string;
+  rankTitle: string;
+  status: 'VERIFIED' | 'IN_PROGRESS' | 'NOT_STARTED' | string;
+  verifiedAt: string | null;
+  verifiedBy: string | null;
+}
 
 export interface CurriculumTechniqueItem {
   id: string;
@@ -851,77 +861,172 @@ const DISCIPLINE_LABELS: Record<DisciplineType, string> = {
 interface TechniqueCurriculumModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onTechniqueVerified?: (verifiedCount: number) => void;
+  profileId?: string;
+  onTechniqueVerified?: () => void;
   verifiedTechniquesCount?: number;
 }
 
 export function TechniqueCurriculumModal({
   isOpen,
   onClose,
-  onTechniqueVerified,
-  verifiedTechniquesCount: initialCount = 8
+  profileId,
+  onTechniqueVerified
 }: TechniqueCurriculumModalProps) {
   const modalRef = useAccessibleModal(isOpen, onClose, '#btn-open-curriculum');
   const { activeSchool } = useTenant();
-  const { activeRole, user } = useAuth();
+  const { activeRole } = useAuth();
 
   const isCoachOrOwner = activeRole === 'owner' || activeRole === 'coach';
-
-  // Current active discipline tab (defaults to active school discipline)
   const initialDiscipline = (activeSchool?.discipline as DisciplineType) || 'brazilian_jiu_jitsu';
+
   const [selectedDiscipline, setSelectedDiscipline] = useState<DisciplineType>(initialDiscipline);
   const [curriculaState, setCurriculaState] = useState(DEFAULT_CURRICULA);
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
+  const [isLoadingTechniques, setIsLoadingTechniques] = useState(false);
+  const [techniqueError, setTechniqueError] = useState<string | null>(null);
+  const [hasLoadedRemote, setHasLoadedRemote] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let cancelled = false;
+
+    const loadTechniques = async () => {
+      setIsLoadingTechniques(true);
+      setTechniqueError(null);
+
+      try {
+        const query = profileId ? `?profileId=${encodeURIComponent(profileId)}` : '';
+        const res = await fetch(`/api/techniques${query}`, { cache: 'no-store' });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Unable to load the technique curriculum.');
+        }
+
+        if (cancelled) return;
+
+        const mapped: CurriculumTechniqueItem[] = (data.techniques as RemoteTechnique[]).map((item) => ({
+          id: item.id,
+          name: item.name,
+          category: 'Curriculum',
+          discipline: initialDiscipline,
+          beltRank: item.rankTitle,
+          description: item.description,
+          isMandatory: true,
+          status:
+            item.status === 'VERIFIED'
+              ? 'verified'
+              : item.status === 'IN_PROGRESS'
+                ? 'in_progress'
+                : 'not_started',
+          verifiedBy: item.verifiedBy ?? undefined,
+          verifiedAt: item.verifiedAt ? item.verifiedAt.split('T')[0] : undefined
+        }));
+
+        setCurriculaState((prev) => ({
+          ...prev,
+          [initialDiscipline]: {
+            trackName: `${DISCIPLINE_LABELS[initialDiscipline]} Curriculum`,
+            beltName: mapped[0]?.beltRank
+              ? `${mapped[0].beltRank} Requirements`
+              : 'No rank assigned',
+            techniques: mapped
+          }
+        }));
+        setHasLoadedRemote(true);
+      } catch (error) {
+        if (!cancelled) {
+          setTechniqueError(error instanceof Error ? error.message : 'Unable to load the technique curriculum.');
+          setHasLoadedRemote(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingTechniques(false);
+        }
+      }
+    };
+
+    void loadTechniques();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, profileId, initialDiscipline]);
 
   if (!isOpen) return null;
 
-  const activeCurriculum = curriculaState[selectedDiscipline] || DEFAULT_CURRICULA.brazilian_jiu_jitsu;
+  const fallbackCurriculum = curriculaState[selectedDiscipline] || DEFAULT_CURRICULA.brazilian_jiu_jitsu;
+  const activeCurriculum = techniqueError
+    ? {
+        trackName: 'Live curriculum unavailable',
+        beltName: '',
+        techniques: [] as CurriculumTechniqueItem[]
+      }
+    : hasLoadedRemote
+      ? fallbackCurriculum
+      : {
+          trackName: 'Loading live curriculum...',
+          beltName: '',
+          techniques: [] as CurriculumTechniqueItem[]
+        };
   const verifiedCount = activeCurriculum.techniques.filter((t) => t.status === 'verified').length;
   const totalCount = activeCurriculum.techniques.length;
-  const progressPercent = Math.round((verifiedCount / totalCount) * 100);
+  const progressPercent = totalCount > 0 ? Math.round((verifiedCount / totalCount) * 100) : 0;
 
-  const handleToggleVerification = (techniqueId: string) => {
+  const handleToggleVerification = async (technique: CurriculumTechniqueItem) => {
     if (!isCoachOrOwner) return;
 
-    setCurriculaState((prev) => {
-      const currentList = prev[selectedDiscipline].techniques;
-      const updatedList = currentList.map((t) => {
-        if (t.id === techniqueId) {
-          const nextStatus: 'verified' | 'in_progress' = t.status === 'verified' ? 'in_progress' : 'verified';
-          const verifiedBy = nextStatus === 'verified' ? (user?.fullName || 'Head Coach') : undefined;
-          const verifiedAt = nextStatus === 'verified' ? new Date().toISOString().split('T')[0] : undefined;
+    const nextStatus = technique.status === 'verified' ? 'IN_PROGRESS' : 'VERIFIED';
 
-          if (nextStatus === 'verified') {
-            setActionFeedback(`Verified "${t.name}" for live grading criteria.`);
-          } else {
-            setActionFeedback(`Reopened "${t.name}" for student practice.`);
-          }
-
-          setTimeout(() => setActionFeedback(null), 3000);
-
-          return {
-            ...t,
-            status: nextStatus,
-            verifiedBy,
-            verifiedAt
-          };
-        }
-        return t;
+    try {
+      const res = await fetch('/api/techniques/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profileId,
+          techniqueId: technique.id,
+          status: nextStatus
+        })
       });
+      const data = await res.json();
 
-      const newVerifiedCount = updatedList.filter((t) => t.status === 'verified').length;
-      if (onTechniqueVerified && selectedDiscipline === initialDiscipline) {
-        onTechniqueVerified(newVerifiedCount);
+      if (!res.ok) {
+        setActionFeedback(data.error || 'Unable to record the technique sign-off.');
+        setTimeout(() => setActionFeedback(null), 3000);
+        return;
       }
 
-      return {
+      setCurriculaState((prev) => ({
         ...prev,
         [selectedDiscipline]: {
           ...prev[selectedDiscipline],
-          techniques: updatedList
+          techniques: prev[selectedDiscipline].techniques.map((item) =>
+            item.id === technique.id
+              ? {
+                  ...item,
+                  status: nextStatus === 'VERIFIED' ? 'verified' : 'in_progress',
+                  verifiedBy: data.progress?.verifiedBy ?? undefined,
+                  verifiedAt: data.progress?.verifiedAt
+                    ? String(data.progress.verifiedAt).split('T')[0]
+                    : undefined
+                }
+              : item
+          )
         }
-      };
-    });
+      }));
+
+      setActionFeedback(
+        nextStatus === 'VERIFIED'
+          ? `Verified "${technique.name}" for live grading criteria.`
+          : `Reopened "${technique.name}" for student practice.`
+      );
+      setTimeout(() => setActionFeedback(null), 3000);
+      onTechniqueVerified?.();
+    } catch {
+      setActionFeedback('Network error while recording the technique sign-off.');
+      setTimeout(() => setActionFeedback(null), 3000);
+    }
   };
 
   return (
@@ -947,7 +1052,7 @@ export function TechniqueCurriculumModal({
                 Strict Multi-Tenant Scoping
               </span>
               <span className="font-label text-[10px] font-bold px-2 py-0.5 rounded bg-surface-container text-surface-on-variant">
-                Tenant: {activeSchool?.name || 'Kaizen BJJ'}
+                Tenant: {activeSchool?.name || 'Unknown school'}
               </span>
             </div>
             <h2 id="curriculum-modal-title" className="font-headline text-lg sm:text-xl font-bold text-primary">
@@ -978,11 +1083,12 @@ export function TechniqueCurriculumModal({
                 key={disc}
                 type="button"
                 onClick={() => setSelectedDiscipline(disc)}
-                className={`px-3 py-1.5 rounded-[10px] text-xs font-label font-medium whitespace-nowrap transition-all duration-[200ms] cursor-pointer ${
+                disabled={!isSchoolNative}
+                className={`px-3 py-1.5 rounded-[10px] text-xs font-label font-medium whitespace-nowrap transition-all duration-[200ms] ${
                   isSelected
                     ? 'bg-primary text-primary-foreground shadow-soft-2 font-bold'
                     : 'bg-surface-container text-surface-on-variant hover:bg-surface-container-high hover:text-surface-foreground'
-                }`}
+                } disabled:opacity-40 disabled:cursor-not-allowed`}
               >
                 {DISCIPLINE_LABELS[disc]}
                 {isSchoolNative && (
@@ -1033,7 +1139,22 @@ export function TechniqueCurriculumModal({
 
         {/* Technique List Items */}
         <div className="p-4 sm:p-6 space-y-3 overflow-y-auto flex-1">
-          {activeCurriculum.techniques.map((item, idx) => {
+          {isLoadingTechniques && (
+            <div className="p-3 rounded-[10px] bg-surface-container text-surface-on-variant font-body text-xs">
+              Loading live curriculum from your school...
+            </div>
+          )}
+          {techniqueError && (
+            <div role="alert" className="p-3 rounded-[10px] bg-error-container text-error-on-container font-body text-xs">
+              {techniqueError}
+            </div>
+          )}
+          {!isLoadingTechniques && !techniqueError && activeCurriculum.techniques.length === 0 && (
+            <div className="p-3 rounded-[10px] bg-surface-container text-surface-on-variant font-body text-xs">
+              No techniques have been added to this school&apos;s curriculum yet.
+            </div>
+          )}
+          {!techniqueError && activeCurriculum.techniques.map((item, idx) => {
             const isVerified = item.status === 'verified';
             const isInProgress = item.status === 'in_progress';
 
@@ -1088,7 +1209,7 @@ export function TechniqueCurriculumModal({
                   {isCoachOrOwner && (
                     <button
                       type="button"
-                      onClick={() => handleToggleVerification(item.id)}
+                      onClick={() => void handleToggleVerification(item)}
                       className={`px-3 py-1 rounded-[8px] text-xs font-label font-semibold transition-all duration-[200ms] cursor-pointer ${
                         isVerified
                           ? 'bg-surface-container hover:bg-surface-container-high text-surface-on-variant'

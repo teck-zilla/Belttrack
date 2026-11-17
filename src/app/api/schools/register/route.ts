@@ -151,6 +151,7 @@ export async function POST(request: Request) {
           slug,
           discipline,
           city,
+          country,
           timezone: timezone || 'UTC',
           joinCode,
           isCodeActive: true

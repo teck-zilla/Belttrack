@@ -39,6 +39,7 @@ export async function POST(request: Request) {
       studentFullName,
       studentEmail,
       password,
+      dateOfBirth,
       isMinor,
       guardianFullName,
       guardianEmail
@@ -97,6 +98,27 @@ export async function POST(request: Request) {
       );
     }
 
+    // Guardians may only be linked inside the school they already belong to.
+    if (isMinor && guardianEmail) {
+      const existingGuardian = await prisma.user.findUnique({
+        where: { email: guardianEmail.toLowerCase().trim() }
+      });
+
+      if (existingGuardian && existingGuardian.schoolId !== school.id) {
+        return NextResponse.json(
+          { error: 'That guardian email belongs to a different school.' },
+          { status: 409 }
+        );
+      }
+
+      if (existingGuardian && existingGuardian.role !== 'GUARDIAN') {
+        return NextResponse.json(
+          { error: 'That guardian email is already registered with a different role.' },
+          { status: 409 }
+        );
+      }
+    }
+
     // Split student name
     const parts = studentFullName.trim().split(/\s+/);
     const firstName = parts[0] || studentFullName;
@@ -146,7 +168,7 @@ export async function POST(request: Request) {
           userId: studentUser.id,
           firstName,
           lastName,
-          dateOfBirth: new Date('2000-01-01'), // default mock date
+          dateOfBirth: new Date(`${dateOfBirth}T00:00:00.000Z`),
           isMinor
         }
       });
@@ -160,6 +182,10 @@ export async function POST(request: Request) {
         let guardianUser = await tx.user.findUnique({
           where: { email: gEmail }
         });
+
+        if (guardianUser && (guardianUser.schoolId !== school.id || guardianUser.role !== 'GUARDIAN')) {
+          throw new Error('GUARDIAN_TENANT_MISMATCH');
+        }
 
         if (!guardianUser) {
           guardianUser = await tx.user.create({
@@ -230,7 +256,7 @@ export async function POST(request: Request) {
           registration_code: school.joinCode,
           discipline: school.discipline,
           city: school.city,
-          country: 'United Kingdom',
+          country: school.country ?? '',
           timezone: school.timezone,
           is_public: true
         },
@@ -275,6 +301,12 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error: unknown) {
+    if (error instanceof Error && error.message === 'GUARDIAN_TENANT_MISMATCH') {
+      return NextResponse.json(
+        { error: 'That guardian email belongs to a different school or role.' },
+        { status: 409 }
+      );
+    }
     if (typeof error === 'object' && error !== null && 'code' in error && (error as { code: string }).code === 'P2002') {
       return NextResponse.json(
         { error: 'An account with this email address already exists. Please sign in instead.' },
