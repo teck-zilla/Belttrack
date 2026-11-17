@@ -14,6 +14,8 @@ function formatSchool(school: {
   country?: string | null;
   timezone?: string | null;
   joinCode: string;
+  deletionScheduledFor?: Date | null;
+  deletedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }) {
@@ -31,6 +33,10 @@ function formatSchool(school: {
     country: school.country ?? '',
     timezone: school.timezone || 'UTC',
     is_public: true,
+    deletion_scheduled_for: school.deletionScheduledFor
+      ? new Date(school.deletionScheduledFor).toISOString()
+      : null,
+    deleted_at: school.deletedAt ? new Date(school.deletedAt).toISOString() : null,
     created_at: safeCreated,
     updated_at: safeUpdated,
   };
@@ -124,7 +130,13 @@ export async function GET() {
         school_slug: dbUser.school?.slug || null,
         first_name: dbUser.profile?.firstName || null,
         last_name: dbUser.profile?.lastName || null,
-        email_verified: Boolean(dbUser.isEmailVerified)
+        email_verified: Boolean(dbUser.isEmailVerified),
+        deletion_requested_at: dbUser.deletionRequestedAt
+          ? dbUser.deletionRequestedAt.toISOString()
+          : null,
+        deletion_scheduled_for: dbUser.deletionScheduledFor
+          ? dbUser.deletionScheduledFor.toISOString()
+          : null
       },
       school: dbUser.school ? formatSchool(dbUser.school) : null
     });

@@ -22,6 +22,9 @@ export interface ActiveSessionUser {
   schoolId: string;
   role: Role;
   status: MembershipStatus;
+  deletionScheduledFor: Date | null;
+  schoolDeletionScheduledFor: Date | null;
+  schoolDeletedAt: Date | null;
 }
 
 export type GuardResult =
@@ -52,6 +55,14 @@ async function resolveSessionUser(): Promise<GuardResult> {
         { supabaseUid: authUserId },
         ...(authEmail ? [{ email: authEmail.toLowerCase().trim() }] : [])
       ]
+    },
+    include: {
+      school: {
+        select: {
+          deletionScheduledFor: true,
+          deletedAt: true
+        }
+      }
     }
   });
 
@@ -71,9 +82,52 @@ async function resolveSessionUser(): Promise<GuardResult> {
       email: dbUser.email,
       schoolId: dbUser.schoolId,
       role: dbUser.role,
-      status: dbUser.status
+      status: dbUser.status,
+      deletionScheduledFor: dbUser.deletionScheduledFor,
+      schoolDeletionScheduledFor: dbUser.school?.deletionScheduledFor ?? null,
+      schoolDeletedAt: dbUser.school?.deletedAt ?? null
     }
   };
+}
+
+function getDeletionBlock(session: { user: ActiveSessionUser }): GuardResult | null {
+  if (session.user.status === 'DELETION_PENDING') {
+    return {
+      ok: false,
+      status: 403,
+      error:
+        'This account is scheduled for deletion. Private records are locked during the 14-day grace period. Request cancellation from your account page.'
+    };
+  }
+
+  if (session.user.schoolDeletedAt) {
+    return {
+      ok: false,
+      status: 403,
+      error: 'This school account has been deleted.'
+    };
+  }
+
+  if (session.user.schoolDeletionScheduledFor) {
+    return {
+      ok: false,
+      status: 403,
+      error:
+        'This school is scheduled for deletion. Tenant records are locked during the 14-day grace period.'
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Requires a valid managed-auth session and tenant membership, but does not
+ * require ACTIVE status. Only use for deletion-request cancellation/status
+ * routes where a locked account must still be able to view or cancel its own
+ * pending deletion.
+ */
+export async function requireSessionUser(): Promise<GuardResult> {
+  return resolveSessionUser();
 }
 
 /**
@@ -82,6 +136,9 @@ async function resolveSessionUser(): Promise<GuardResult> {
 export async function requireActiveStaff(): Promise<GuardResult> {
   const session = await resolveSessionUser();
   if (!session.ok) return session;
+
+  const deletionBlock = getDeletionBlock(session);
+  if (deletionBlock) return deletionBlock;
 
   if (session.user.status !== 'ACTIVE') {
     return {
@@ -109,6 +166,9 @@ export async function requireActiveStaff(): Promise<GuardResult> {
 export async function requireActiveMember(): Promise<GuardResult> {
   const session = await resolveSessionUser();
   if (!session.ok) return session;
+
+  const deletionBlock = getDeletionBlock(session);
+  if (deletionBlock) return deletionBlock;
 
   if (session.user.status !== 'ACTIVE') {
     return {

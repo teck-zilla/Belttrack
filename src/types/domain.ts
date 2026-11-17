@@ -16,7 +16,11 @@ export type DisciplineType =
   | 'muay_thai'
   | 'krav_maga';
 
-export type MembershipStatus = 'pending_approval' | 'active' | 'inactive' | 'suspended';
+export type MembershipStatus = 'pending_approval' | 'active' | 'inactive' | 'suspended' | 'deletion_pending';
+
+export type DeletionTargetType = 'user' | 'school';
+
+export type DeletionRequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled' | 'completed';
 
 export type TechniqueSignoffStatus = 'not_started' | 'in_progress' | 'verified' | 'pending';
 
