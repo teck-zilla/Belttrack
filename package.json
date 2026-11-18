@@ -18,6 +18,7 @@
     "simulate:failures": "node scripts/simulate-verification-failures.mjs",
     "generate:contrast-pdf": "node scripts/generate-contrast-pdf.mjs",
     "generate:account-deletion-pdf": "node scripts/generate-account-deletion-pdf.mjs",
+    "generate:account-deletion-simulation-pdf": "node scripts/generate-account-deletion-simulation-pdf.mjs",
     "benchmark:registration": "node scripts/benchmark-registration.mjs",
     "profile:owner": "node scripts/launch-browser-profiles.mjs --role=owner",
     "profile:student": "node scripts/launch-browser-profiles.mjs --role=student",
