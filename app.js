@@ -39,6 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const rolePills = document.querySelectorAll('.role-pill');
   const roleSelector = document.querySelector('.role-selector');
   const entryPointsSection = document.querySelector('.entry-points-section');
+  const heroDescription = document.querySelector('.hero-description');
+  const pillarsGrid = document.querySelector('.pillars-grid');
 
   // Modals
   const modalRegister = document.getElementById('modal-register');
@@ -79,6 +81,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnOpenTerms = document.getElementById('btn-open-terms');
   const btnCloseTerms = document.getElementById('btn-close-terms');
   const btnAcknowledgeTerms = document.getElementById('btn-acknowledge-terms');
+
+  function applyAuthenticatedPreviewState() {
+    if (roleSelector) roleSelector.style.display = 'none';
+    if (entryPointsSection) entryPointsSection.style.display = 'none';
+    if (btnOpenDirectory) btnOpenDirectory.style.display = 'none';
+    if (heroDescription) heroDescription.style.display = 'none';
+    if (pillarsGrid) pillarsGrid.style.display = 'none';
+    try {
+      sessionStorage.setItem('belttrack-preview-authenticated', '1');
+    } catch {
+    }
+  }
+
+  try {
+    if (sessionStorage.getItem('belttrack-preview-authenticated') === '1') {
+      applyAuthenticatedPreviewState();
+    }
+  } catch {
+  }
 
   // Dynamic Grading Demo
   const btnSimulateCheckin = document.getElementById('btn-simulate-checkin');
@@ -784,9 +805,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (displayTenantName) displayTenantName.textContent = data.school.name;
             if (displayTenantCode) displayTenantCode.textContent = data.school.registration_code || data.school.join_code;
           }
-          if (roleSelector) roleSelector.style.display = 'none';
-          if (entryPointsSection) entryPointsSection.style.display = 'none';
-          if (btnOpenDirectory) btnOpenDirectory.style.display = 'none';
+          applyAuthenticatedPreviewState();
           setTimeout(() => {
             closeModal(modalLogin);
             if (feedbackLogin) feedbackLogin.classList.remove('active');
@@ -1100,9 +1119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackRegister.classList.add('active');
       }
 
-      if (roleSelector) roleSelector.style.display = 'none';
-      if (entryPointsSection) entryPointsSection.style.display = 'none';
-      if (btnOpenDirectory) btnOpenDirectory.style.display = 'none';
+      applyAuthenticatedPreviewState();
 
       setTimeout(() => {
         closeModal(modalRegister);
@@ -1197,9 +1214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackJoin.classList.add('active');
       }
 
-      if (roleSelector) roleSelector.style.display = 'none';
-      if (entryPointsSection) entryPointsSection.style.display = 'none';
-      if (btnOpenDirectory) btnOpenDirectory.style.display = 'none';
+      applyAuthenticatedPreviewState();
 
       setTimeout(() => {
         closeModal(modalJoin);
