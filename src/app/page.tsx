@@ -526,7 +526,7 @@ export default function HomePage() {
       />
 
       <main className="flex-1">
-        <HeroSection />
+        <HeroSection showPublicOverview={!isRealSession} />
         {!isRealSession && (
           <RoleEntryCards
             onOpenRegister={() => setRegisterModalOpen(true)}
