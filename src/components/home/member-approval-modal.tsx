@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAccessibleModal } from './use-accessible-modal';
 import { useTenant } from '@/context/tenant-context';
 
@@ -11,11 +11,18 @@ interface MemberApprovalModalProps {
 
 export function MemberApprovalModal({ isOpen, onClose }: MemberApprovalModalProps) {
   const modalRef = useAccessibleModal(isOpen, onClose, '#btn-open-approvals');
-  const { activeSchool, pendingMembers, approvedMembers, approveMember, rejectMember } = useTenant();
+  const { activeSchool, pendingMembers, approvedMembers, refreshApprovals, approveMember, rejectMember } = useTenant();
 
   const [activeTab, setActiveTab] = useState<'pending' | 'approved'>('pending');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) void refreshApprovals();
+  }, [isOpen, refreshApprovals]);
+
+  const visiblePendingMembers = pendingMembers.filter((member) => member.school_id === activeSchool?.id);
+  const visibleApprovedMembers = approvedMembers.filter((member) => member.school_id === activeSchool?.id);
 
   if (!isOpen) return null;
 
@@ -90,7 +97,7 @@ export function MemberApprovalModal({ isOpen, onClose }: MemberApprovalModalProp
           <div className="p-3 rounded-[10px] bg-surface-container-lowest border border-outline-variant">
             <span className="font-label text-[11px] text-surface-on-variant block">Pending Review</span>
             <span className="font-headline text-xl sm:text-2xl font-bold text-warning">
-              {pendingMembers.length}
+              {visiblePendingMembers.length}
             </span>
             <span className="font-body text-[10px] text-surface-on-variant block mt-0.5">
               Awaiting coach sign-off
@@ -100,7 +107,7 @@ export function MemberApprovalModal({ isOpen, onClose }: MemberApprovalModalProp
           <div className="p-3 rounded-[10px] bg-surface-container-lowest border border-outline-variant">
             <span className="font-label text-[11px] text-surface-on-variant block">Active Members</span>
             <span className="font-headline text-xl sm:text-2xl font-bold text-tertiary">
-              {approvedMembers.length}
+              {visibleApprovedMembers.length}
             </span>
             <span className="font-body text-[10px] text-surface-on-variant block mt-0.5">
               Verified active roster
@@ -139,7 +146,7 @@ export function MemberApprovalModal({ isOpen, onClose }: MemberApprovalModalProp
                   : 'bg-surface-container text-surface-on-variant'
               }`}
             >
-              {pendingMembers.length}
+              {visiblePendingMembers.length}
             </span>
           </button>
 
@@ -162,7 +169,7 @@ export function MemberApprovalModal({ isOpen, onClose }: MemberApprovalModalProp
                   : 'bg-surface-container text-surface-on-variant'
               }`}
             >
-              {approvedMembers.length}
+              {visibleApprovedMembers.length}
             </span>
           </button>
         </div>
@@ -188,7 +195,7 @@ export function MemberApprovalModal({ isOpen, onClose }: MemberApprovalModalProp
         {/* Body Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">
           {activeTab === 'pending' ? (
-            pendingMembers.length === 0 ? (
+            visiblePendingMembers.length === 0 ? (
               <div className="text-center py-8">
                 <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-surface-container flex items-center justify-center text-primary">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -201,7 +208,7 @@ export function MemberApprovalModal({ isOpen, onClose }: MemberApprovalModalProp
                 </p>
               </div>
             ) : (
-              pendingMembers.map((member) => (
+              visiblePendingMembers.map((member) => (
                 <div
                   key={member.id}
                   className="p-3.5 rounded-[10px] bg-surface-container-low border border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-3"
@@ -262,12 +269,12 @@ export function MemberApprovalModal({ isOpen, onClose }: MemberApprovalModalProp
               ))
             )
           ) : (
-            approvedMembers.length === 0 ? (
+            visibleApprovedMembers.length === 0 ? (
               <div className="text-center py-8 text-surface-on-variant font-body text-xs">
                 No active approved members recorded yet.
               </div>
             ) : (
-              approvedMembers.map((member) => (
+              visibleApprovedMembers.map((member) => (
                 <div
                   key={member.id}
                   className="p-3.5 rounded-[10px] bg-surface-container-low border border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-3"

@@ -12,6 +12,18 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import type { School, SchoolMember } from '@/types/domain';
 import { assertTenantMatch } from '@/lib/prisma-extension';
 
+interface ApprovalApiMember {
+  id: string;
+  userId: string;
+  schoolId: string;
+  email: string;
+  role: SchoolMember['role'];
+  status: SchoolMember['status'];
+  fullName: string;
+  guardianName?: string;
+  enrolledAt: string;
+}
+
 interface TenantContextType {
   activeSchool: School | null;
   isIsolated: boolean;
@@ -19,15 +31,9 @@ interface TenantContextType {
   clearTenant: () => void;
   pendingMembers: SchoolMember[];
   approvedMembers: SchoolMember[];
+  refreshApprovals: () => Promise<void>;
   approveMember: (memberId: string) => Promise<void>;
   rejectMember: (memberId: string) => Promise<void>;
-  registerPendingStudent: (params: {
-    studentFullName: string;
-    studentEmail: string;
-    isMinor: boolean;
-    guardianFullName?: string;
-    guardianEmail?: string;
-  }) => SchoolMember;
 }
 
 export const DEFAULT_DEMO_SCHOOL: School = {
@@ -119,9 +125,52 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     setActiveSchoolState(null);
   };
 
+  const refreshApprovals = useCallback(async () => {
+    const schoolId = activeSchool?.id;
+    if (!schoolId || schoolId === DEFAULT_DEMO_SCHOOL.id) return;
+
+    try {
+      const res = await fetch('/api/schools/approvals', { cache: 'no-store' });
+      if (!res.ok) return;
+
+      const data = (await res.json()) as { pendingMembers?: ApprovalApiMember[] };
+      if (!Array.isArray(data.pendingMembers)) return;
+
+      const members: SchoolMember[] = data.pendingMembers
+        .filter((member) => member.schoolId === schoolId)
+        .map((member) => ({
+          id: member.id,
+          school_id: member.schoolId,
+          user_id: member.userId,
+          role: member.role,
+          status: member.status,
+          full_name: member.fullName,
+          email: member.email,
+          guardian_name: member.guardianName,
+          stripes_count: 0,
+          total_classes_attended: 0,
+          is_flagged_inactive: false,
+          enrolled_at: member.enrolledAt
+        }));
+
+      setPendingMembers(members);
+      setApprovedMembers((prev) => prev.filter((member) => member.school_id === schoolId));
+    } catch {
+      // Preview mode or network failure: retain scoped local demo state.
+    }
+  }, [activeSchool?.id]);
+
+  useEffect(() => {
+    void refreshApprovals();
+  }, [refreshApprovals]);
+
+  const scopedPendingMembers = pendingMembers.filter((member) => member.school_id === activeSchool?.id);
+  const scopedApprovedMembers = approvedMembers.filter((member) => member.school_id === activeSchool?.id);
+
   const approveMember = async (memberId: string) => {
-    const target = pendingMembers.find((m) => m.id === memberId);
-    if (!target) return;
+    const target = scopedPendingMembers.find((m) => m.id === memberId);
+    if (!target || !activeSchool?.id) return;
+    assertTenantMatch(target.school_id, activeSchool.id);
 
     const activated: SchoolMember = {
       ...target,
@@ -133,84 +182,42 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
 
     // Async sync with database if user_id is a real DB record
     try {
-      if (activeSchool?.id) {
-        await fetch('/api/schools/approvals', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            schoolId: activeSchool.id,
-            userId: target.user_id,
-            action: 'APPROVE'
-          })
-        });
-      }
+      const res = await fetch('/api/schools/approvals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          schoolId: target.school_id,
+          userId: target.user_id,
+          action: 'APPROVE'
+        })
+      });
+      if (res.ok) await refreshApprovals();
     } catch {
       // Graceful fallback for offline / preview demo mode
     }
   };
 
   const rejectMember = async (memberId: string) => {
-    const target = pendingMembers.find((m) => m.id === memberId);
-    if (!target) return;
+    const target = scopedPendingMembers.find((m) => m.id === memberId);
+    if (!target || !activeSchool?.id) return;
+    assertTenantMatch(target.school_id, activeSchool.id);
 
     setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
 
     try {
-      if (activeSchool?.id) {
-        await fetch('/api/schools/approvals', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            schoolId: activeSchool.id,
-            userId: target.user_id,
-            action: 'REJECT'
-          })
-        });
-      }
+      const res = await fetch('/api/schools/approvals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          schoolId: target.school_id,
+          userId: target.user_id,
+          action: 'REJECT'
+        })
+      });
+      if (res.ok) await refreshApprovals();
     } catch {
       // Graceful fallback for offline / preview demo mode
     }
-  };
-
-  const registerPendingStudent = ({
-    studentFullName,
-    studentEmail,
-    isMinor,
-    guardianFullName,
-    guardianEmail
-  }: {
-    studentFullName: string;
-    studentEmail: string;
-    isMinor: boolean;
-    guardianFullName?: string;
-    guardianEmail?: string;
-  }): SchoolMember => {
-    if (!activeSchool?.id) {
-      throw new Error('Tenant isolation violation: schoolId must be provided for all private operations.');
-    }
-
-    const newStudentId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'stud-' + Date.now();
-    const newMember: SchoolMember = {
-      id: newStudentId,
-      school_id: activeSchool.id,
-      user_id: 'usr_' + newStudentId.slice(0, 8),
-      role: 'student',
-      status: 'pending_approval',
-      full_name: studentFullName,
-      email: studentEmail,
-      guardian_name: isMinor ? guardianFullName : undefined,
-      guardian_email: isMinor ? guardianEmail : undefined,
-      stripes_count: 0,
-      total_classes_attended: 0,
-      is_flagged_inactive: false,
-      enrolled_at: new Date().toISOString()
-    };
-
-    // Assert strict school_id tenant match
-    assertTenantMatch(newMember.school_id, activeSchool.id);
-
-    setPendingMembers(prev => [...prev, newMember]);
-    return newMember;
   };
 
   return (
@@ -220,11 +227,11 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         isIsolated: Boolean(activeSchool?.id),
         setActiveSchool,
         clearTenant,
-        pendingMembers,
-        approvedMembers,
+        pendingMembers: scopedPendingMembers,
+        approvedMembers: scopedApprovedMembers,
+        refreshApprovals,
         approveMember,
-        rejectMember,
-        registerPendingStudent
+        rejectMember
       }}
     >
       {children}

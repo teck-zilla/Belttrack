@@ -572,11 +572,22 @@ export async function isEmailVerified(email?: string | null): Promise<boolean> {
   if (!normalizedEmail) return false;
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-      select: { isEmailVerified: true }
-    });
-    return Boolean(user?.isEmailVerified);
+    const [user, verifiedCode] = await Promise.all([
+      prisma.user.findUnique({
+        where: { email: normalizedEmail },
+        select: { isEmailVerified: true }
+      }),
+      prisma.verificationCode.findFirst({
+        where: {
+          email: normalizedEmail,
+          purpose: 'EMAIL_VERIFICATION',
+          used: true
+        },
+        select: { id: true }
+      })
+    ]);
+
+    return Boolean(user?.isEmailVerified || verifiedCode);
   } catch {
     return false;
   }

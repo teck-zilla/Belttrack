@@ -59,7 +59,7 @@ function InlineFieldError({ id, message }: { id: string; message?: string }) {
 }
 
 export default function HomePage() {
-  const { activeSchool, setActiveSchool, registerPendingStudent } = useTenant();
+  const { activeSchool, setActiveSchool } = useTenant();
   const { login, setSessionUser, isRealSession } = useAuth();
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [isJoinModalOpen, setJoinModalOpen] = useState(false);
@@ -1169,21 +1169,6 @@ export default function HomePage() {
           setLoginModalOpen(true);
         }}
         onOpenTerms={() => setTermsModalOpen(true)}
-        onSuccess={(data) => {
-          registerPendingStudent({
-            studentFullName: data.studentName,
-            studentEmail: data.email,
-            isMinor: Boolean(data.isMinor),
-            guardianFullName: data.guardianName,
-            guardianEmail: data.guardianEmail
-          });
-          setSessionUser({
-            id: 'stud_' + Date.now(),
-            email: data.email,
-            fullName: data.studentName,
-            school_id: activeSchool?.id || null
-          }, 'student');
-        }}
       />
 
       {/* MODAL 3: PUBLIC SCHOOL DIRECTORY (CROSS-TENANT ISOLATION DEMO) */}
