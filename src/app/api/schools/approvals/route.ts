@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { requireActiveStaff } from '@/lib/auth-guard';
+import { writeAuditLog } from '@/lib/audit-log';
 
 export async function GET() {
   try {
@@ -126,6 +127,18 @@ export async function POST(request: Request) {
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: { status: nextStatus }
+    });
+
+    await writeAuditLog(prisma, {
+      schoolId,
+      actorUserId: guard.user.userId,
+      action: action === 'APPROVE' ? 'MEMBER_APPROVED' : 'MEMBER_REJECTED',
+      targetType: 'User',
+      targetId: user.id,
+      metadata: {
+        previousStatus: user.status,
+        nextStatus
+      }
     });
 
     // Sync Supabase Auth metadata if supabaseUid is bound

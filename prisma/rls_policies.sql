@@ -243,3 +243,22 @@ CREATE POLICY deletion_request_tenant_isolation_policy ON "DeletionRequest"
   FOR ALL
   USING (school_id = current_setting('app.current_school_id', true))
   WITH CHECK (school_id = current_setting('app.current_school_id', true));
+
+ALTER TABLE "AuditLog" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "AuditLog" FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY audit_log_tenant_select_policy ON "AuditLog"
+  FOR SELECT
+  USING (school_id = current_setting('app.current_school_id', true));
+
+CREATE POLICY audit_log_tenant_insert_policy ON "AuditLog"
+  FOR INSERT
+  WITH CHECK (school_id = current_setting('app.current_school_id', true));
+
+CREATE POLICY audit_log_block_update ON "AuditLog"
+  FOR UPDATE
+  USING (false);
+
+CREATE POLICY audit_log_block_delete ON "AuditLog"
+  FOR DELETE
+  USING (false);

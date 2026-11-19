@@ -3,6 +3,7 @@ import { requireActiveStaff } from '@/lib/auth-guard';
 import { ledgerEntrySchema } from '@/lib/validation/schemas';
 import { withTenantTransaction } from '@/lib/prisma-extension';
 import { formatReceiptSlug, getReceiptDisciplineCode } from '@/lib/tenant-constants';
+import { writeAuditLog } from '@/lib/audit-log';
 
 export async function POST(request: Request) {
   try {
@@ -101,6 +102,21 @@ export async function POST(request: Request) {
             transactionType: parsed.data.transactionType,
             reversalRefSlug: parsed.data.reversalRefSlug ?? null,
             note: parsed.data.note ?? null
+          }
+        });
+
+        await writeAuditLog(tx, {
+          schoolId: guard.user.schoolId,
+          actorUserId: guard.user.userId,
+          action: parsed.data.reversalRefSlug ? 'LEDGER_REVERSAL_RECORDED' : 'LEDGER_ENTRY_RECORDED',
+          targetType: 'LedgerEntry',
+          targetId: entry.id,
+          metadata: {
+            receiptSlug,
+            amountCents: parsed.data.amountCents,
+            currency: parsed.data.currency.toUpperCase(),
+            transactionType: parsed.data.transactionType,
+            reversalRefSlug: parsed.data.reversalRefSlug ?? null
           }
         });
 

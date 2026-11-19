@@ -6,6 +6,9 @@
  * and denial-of-service without external infrastructure dependencies.
  */
 
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
 export interface RateLimitRule {
   key: string;
   limit: number;
@@ -25,6 +28,43 @@ export interface RateLimitResult {
 interface RateLimitRecord {
   count: number;
   resetAt: number; // Unix timestamp in milliseconds
+}
+
+const upstashGlobalStore = globalThis as unknown as {
+  __belttrack_upstash_redis?: Redis;
+  __belttrack_upstash_limiters?: Map<string, Ratelimit>;
+};
+
+function getUpstashRedis(): Redis | null {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!url || !token) return null;
+
+  if (!upstashGlobalStore.__belttrack_upstash_redis) {
+    upstashGlobalStore.__belttrack_upstash_redis = new Redis({ url, token });
+  }
+
+  return upstashGlobalStore.__belttrack_upstash_redis;
+}
+
+function getUpstashLimiter(rule: RateLimitRule, redis: Redis): Ratelimit {
+  const limiters = upstashGlobalStore.__belttrack_upstash_limiters ?? new Map<string, Ratelimit>();
+  upstashGlobalStore.__belttrack_upstash_limiters = limiters;
+
+  const cacheKey = `${rule.key}:${rule.limit}:${rule.windowSeconds}`;
+  const existing = limiters.get(cacheKey);
+  if (existing) return existing;
+
+  const limiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.fixedWindow(rule.limit, `${rule.windowSeconds} s` as `${number} s`),
+    prefix: process.env.UPSTASH_RATE_LIMIT_PREFIX || 'belttrack:ratelimit',
+    ephemeralCache: new Map<string, number>()
+  });
+
+  limiters.set(cacheKey, limiter);
+  return limiter;
 }
 
 // Persist in-memory store across hot module reloading in development
@@ -70,48 +110,69 @@ export function formatRetryTime(seconds: number): string {
   return `${seconds} second${seconds === 1 ? '' : 's'}`;
 }
 
-/**
- * Resolves the client IP address from proxy, edge, or dev simulation headers.
- * 
- * SECURITY: Simulated IP addresses via 'x-simulated-ip' are strictly restricted to 
- * non-production environments (NODE_ENV !== 'production' && (NODE_ENV === 'development' || NODE_ENV === 'test' || ENABLE_SIMULATED_IP === 'true')).
- * In production deployments, this header is entirely ignored, and only trusted infrastructure headers are evaluated.
- */
+function normalizeIpList(value: string | null): string[] {
+  if (!value) return [];
+  return value
+    .split(',')
+    .map((ip) => ip.trim())
+    .filter(Boolean);
+}
+
+function firstIp(value: string | null): string | null {
+  return normalizeIpList(value)[0] ?? null;
+}
+
 export function getClientIp(request: Request): string {
+  const headers = request.headers;
   const isProduction = process.env.NODE_ENV === 'production';
   const isDevOrTest =
     process.env.NODE_ENV === 'development' ||
     process.env.NODE_ENV === 'test' ||
     process.env.ENABLE_SIMULATED_IP === 'true';
+  const isVercel = Boolean(
+    process.env.VERCEL ||
+      process.env.VERCEL_ENV ||
+      process.env.NEXT_PUBLIC_VERCEL_ENV
+  );
 
-  // 1. Development & Test Simulation (strictly ignored in production)
   if (!isProduction && isDevOrTest) {
-    const simulatedIp = request.headers.get('x-simulated-ip');
-    if (simulatedIp && simulatedIp.trim()) {
-      return simulatedIp.trim();
-    }
+    const simulatedIp = headers.get('x-simulated-ip')?.trim();
+    if (simulatedIp) return simulatedIp;
   }
 
-  // 2. Standard proxy header (comma-separated list, first entry is client IP)
-  const xForwardedFor = request.headers.get('x-forwarded-for');
-  if (xForwardedFor) {
-    const firstIp = xForwardedFor.split(',')[0].trim();
-    if (firstIp) return firstIp;
+  if (isVercel) {
+    const vercelIp = firstIp(headers.get('x-vercel-forwarded-for'));
+    if (vercelIp) return vercelIp;
+
+    const realIp = headers.get('x-real-ip')?.trim();
+    if (realIp) return realIp;
+
+    const forwardedIp = firstIp(headers.get('x-forwarded-for'));
+    if (forwardedIp) return forwardedIp;
+
+    return 'unknown';
   }
 
-  // 3. Direct reverse proxy header
-  const xRealIp = request.headers.get('x-real-ip');
-  if (xRealIp && xRealIp.trim()) {
-    return xRealIp.trim();
+  const trustedHops = Math.max(
+    1,
+    Number.parseInt(process.env.TRUSTED_PROXY_HOPS ?? '1', 10) || 1
+  );
+  const forwardedChain = normalizeIpList(headers.get('x-forwarded-for'));
+  if (forwardedChain.length > 0) {
+    const trustedIndex = Math.max(0, forwardedChain.length - trustedHops);
+    return forwardedChain[trustedIndex] ?? forwardedChain[0];
   }
 
-  // 4. Cloudflare connecting IP
-  const cfConnectingIp = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIp && cfConnectingIp.trim()) {
-    return cfConnectingIp.trim();
+  if (process.env.TRUST_REAL_IP_HEADER === 'true') {
+    const realIp = headers.get('x-real-ip')?.trim();
+    if (realIp) return realIp;
   }
 
-  // 5. Local development fallback
+  if (process.env.TRUST_CLOUDFLARE_CONNECTING_IP === 'true') {
+    const cloudflareIp = headers.get('cf-connecting-ip')?.trim();
+    if (cloudflareIp) return cloudflareIp;
+  }
+
   return '127.0.0.1';
 }
 
@@ -260,6 +321,56 @@ export function checkRateLimit(key: string, rule: RateLimitRule): RateLimitResul
     reset: Math.floor(existing.resetAt / 1000),
     retryAfter: 0
   };
+}
+
+export async function checkRateLimitAsync(
+  key: string,
+  rule: RateLimitRule
+): Promise<RateLimitResult> {
+  if (process.env.DISABLE_RATE_LIMIT === 'true') {
+    return {
+      success: true,
+      limit: rule.limit,
+      remaining: rule.limit,
+      reset: Math.floor((Date.now() + rule.windowSeconds * 1000) / 1000),
+      retryAfter: 0
+    };
+  }
+
+  const redis = getUpstashRedis();
+  if (!redis) return checkRateLimit(key, rule);
+
+  try {
+    const result = await getUpstashLimiter(rule, redis).limit(key);
+    await result.pending.catch(() => undefined);
+
+    const retryAfter = Math.max(0, Math.ceil((result.reset - Date.now()) / 1000));
+    return {
+      success: result.success,
+      limit: result.limit,
+      remaining: result.remaining,
+      reset: Math.floor(result.reset / 1000),
+      retryAfter,
+      message: result.success
+        ? undefined
+        : `Too many ${rule.description} from this IP address. Please try again in ${formatRetryTime(retryAfter)}.`
+    };
+  } catch {
+    console.error('[BELTTRACK RATE LIMIT] Upstash check failed; applying fallback policy');
+
+    if (process.env.RATE_LIMIT_FAIL_CLOSED === 'true') {
+      return {
+        success: false,
+        limit: rule.limit,
+        remaining: 0,
+        reset: Math.floor((Date.now() + rule.windowSeconds * 1000) / 1000),
+        retryAfter: rule.windowSeconds,
+        message: 'Rate limit service is temporarily unavailable. Please try again later.'
+      };
+    }
+
+    return checkRateLimit(key, rule);
+  }
 }
 
 /**

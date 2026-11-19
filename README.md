@@ -15,6 +15,31 @@ BeltTrack has evolved from an interactive MVP preview (**V1**) into a fully auth
 | **Phase 3** | **Authentication API & Route Handlers** | • `POST /api/auth/login`: Signs in via Supabase Auth and binds to PostgreSQL `school_id`<br>• `POST /api/auth/logout`: Clears session tokens and HTTP-only cookies<br>• `GET /api/auth/callback`: Handles PKCE code exchanges<br>• `GET /api/auth/me`: Resolves active session and tenant mapping | **Complete & Verified** |
 | **Phase 4** | **Client Auth State & Context Synchronization** | • `src/context/auth-context.tsx`: Subscribed to `onAuthStateChange` & `/api/auth/me`<br>• Added asynchronous `login(email, password)` and `logout()` handlers<br>• Preserved fallback demo persona preview mode for unauthenticated users<br>• Updated `src/components/layout/top-nav.tsx` with live session indicator & Sign In/Out | **Complete & Verified** |
 | **Phase 5** | **Production-Ready Login Modal & UI Parity** | • Dedicated `LoginModal` component (`src/components/home/login-modal.tsx`) with real-time error feedback<br>• Connected login modal in Next.js home page (`src/app/page.tsx`)<br>• Parity reflected in standalone interactive preview (`index.html`, `index.css`, `app.js`) | **Complete & Verified** |
+| **Phase 6** | **Demo & Production Presentation Polish** | • React 19 + ESLint verification pipeline<br>• Demo/Real tenant banner and hidden preview controls in live sessions<br>• Deterministic demo seed script (`npm run db:seed:demo`)<br>• Dashboard loading, empty, retry, and scrubbed error states<br>• Next.js metadata moved to `src/app/layout.tsx` | **Complete & Verified** |
+| **Phase 7** | **Production Hardening** | • Upstash-backed rate limiting with Vercel-aware trusted proxy IP extraction<br>• Strict same-origin CSRF enforcement and internal cron bearer exemption<br>• Security headers and CSP<br>• Tenant-scoped append-only `AuditLog` with approval/ledger write hooks<br>• Zod unit tests, tenant-isolation checks, and Playwright lifecycle coverage | **Complete & Verified** |
+
+---
+
+## Current Verification Commands
+
+```bash
+npm run audit
+npx tsc --noEmit --incremental false
+npm run lint
+npm test
+npx next build
+```
+
+Playwright lifecycle coverage:
+
+```bash
+npx playwright install chromium
+npm run test:e2e
+```
+
+The staff lifecycle e2e test requires `E2E_STAFF_STORAGE_STATE`, `E2E_PROFILE_ID`, and `E2E_TECHNIQUE_ID`; it skips automatically when these are absent.
+
+For deployment sequencing and required runtime configuration, see [`docs/deployment-runbook.md`](./docs/deployment-runbook.md) and [`docs/environment-checklist.md`](./docs/environment-checklist.md).
 
 ---
 
@@ -52,7 +77,7 @@ Under standard web browser security ([RFC 6265](https://datatracker.ietf.org/doc
 
 2. **Pillar 2: Active Tenant Context in Next.js 14+ App Router**:
    - A secure cookie (`belttrack_active_school_id`) tracks the academy currently in view.
-   - Next.js `middleware.ts` verifies that the authenticated user holds valid membership in the requested school before forwarding requests with an `x-school-id` header.
+   - Next.js `src/proxy.ts` verifies that the authenticated user holds valid membership in the requested school before forwarding requests with an `x-school-id` header.
    - Preserves 100% compatibility with Server Components and SSR without client-side state drift.
 
 3. **Pillar 3: Top Navigation Academy & Persona Switcher**:
@@ -126,6 +151,19 @@ DIRECT_URL="postgresql://postgres.<project-ref>:[YOUR-PASSWORD]@aws-0-[region].p
 NEXT_PUBLIC_SUPABASE_URL="https://<project-ref>.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOi..."
 SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOi..."
+
+# ==============================================================================
+# 3. PRODUCTION HARDENING
+# ==============================================================================
+UPSTASH_REDIS_REST_URL="https://<UPSTASH-ENDPOINT>"
+UPSTASH_REDIS_REST_TOKEN="<UPSTASH-TOKEN>"
+UPSTASH_RATE_LIMIT_PREFIX="belttrack:ratelimit"
+TRUSTED_PROXY_HOPS="1"
+TRUST_REAL_IP_HEADER="false"
+TRUST_CLOUDFLARE_CONNECTING_IP="false"
+RATE_LIMIT_FAIL_CLOSED="false"
+DELETION_PURGE_SECRET="<LONG-RANDOM-SECRET>"
+CRON_SECRET="<LONG-RANDOM-SECRET>"
 ```
 
 ### 5. Initialize Database & Apply Row-Level Security (RLS)
@@ -134,7 +172,7 @@ Generate the Prisma Client TypeScript typings:
 npm run db:generate
 ```
 
-Deploy the version-controlled multi-tenant schema migrations (12 tenant-isolated tables with `school_id` foreign keys and 5 domain enums):
+Deploy the version-controlled multi-tenant schema migrations (13 tenant-isolated tables with `school_id` foreign keys and 5 domain enums):
 ```bash
 npm run db:migrate
 ```

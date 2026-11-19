@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { getRateLimitConfig, checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { getRateLimitConfig, checkRateLimitAsync, getClientIp } from '@/lib/rate-limit';
+import { isAuthorizedInternalMutation, isSameOriginMutation } from '@/lib/csrf';
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -13,7 +14,7 @@ export async function proxy(request: NextRequest) {
   if (rateLimitRule) {
     const clientIp = getClientIp(request);
     const rateLimitKey = `${clientIp}:${rateLimitRule.key}`;
-    const rateLimitResult = checkRateLimit(rateLimitKey, rateLimitRule);
+    const rateLimitResult = await checkRateLimitAsync(rateLimitKey, rateLimitRule);
 
     if (!rateLimitResult.success) {
       return NextResponse.json(
@@ -40,25 +41,12 @@ export async function proxy(request: NextRequest) {
   const isApiRoute = pathname.startsWith('/api/');
   const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
 
-  if (isApiRoute && isMutation) {
-    const origin = request.headers.get('origin');
-    const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
-
-    if (origin && host) {
-      try {
-        const originUrl = new URL(origin);
-        if (originUrl.host !== host) {
-          return NextResponse.json(
-            { error: 'Cross-origin request blocked (CSRF protection)' },
-            { status: 403 }
-          );
-        }
-      } catch {
-        return NextResponse.json(
-          { error: 'Invalid Origin header' },
-          { status: 403 }
-        );
-      }
+  if (isApiRoute && isMutation && !isAuthorizedInternalMutation(request)) {
+    if (!isSameOriginMutation(request)) {
+      return NextResponse.json(
+        { error: 'Cross-origin request blocked (CSRF protection)' },
+        { status: 403 }
+      );
     }
   }
 
