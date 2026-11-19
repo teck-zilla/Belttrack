@@ -111,6 +111,7 @@ model School {
   ledger            LedgerEntry[]
   alerts            InactivityAlert[]
   receiptCounters   ReceiptCounter[]
+  auditLogs         AuditLog[]
 
   @@index([joinCode])
   @@index([slug, city])
@@ -137,6 +138,7 @@ model User {
   profile       StudentProfile?
   guardianLinks GuardianStudent[] @relation("GuardianRelation")
   studentOf     GuardianStudent[] @relation("StudentRelation")
+  auditLogs     AuditLog[]        @relation("AuditLogActor")
 
   @@index([schoolId, role])
   @@index([schoolId, status])
@@ -351,4 +353,21 @@ model DeletionRequest {
   @@index([schoolId, status, createdAt])
   @@index([status, scheduledFor])
   @@index([targetType, targetUserId])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  schoolId    String   @map("school_id")
+  actorUserId String?  @map("actor_user_id")
+  action      String
+  targetType  String   @map("target_type")
+  targetId    String?  @map("target_id")
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  actor  User?  @relation("AuditLogActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([schoolId, createdAt])
+  @@index([schoolId, action])
 }

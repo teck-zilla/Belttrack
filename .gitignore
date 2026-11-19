@@ -27,4 +27,7 @@ tsconfig.tsbuildinfo
 # Dedicated Browser Profiles
 .browser-profiles/
 
+playwright-report/
+test-results/
+
 
