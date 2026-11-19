@@ -604,6 +604,66 @@ export function PreviewDashboard() {
 
   const config = DISCIPLINE_DASHBOARD_CONFIG[currentDiscipline] || DISCIPLINE_DASHBOARD_CONFIG.brazilian_jiu_jitsu;
 
+  if (isLoadingDashboard) {
+    return (
+      <section className="max-w-5xl mx-auto px-4 mb-16" aria-busy="true">
+        <div className="mb-6">
+          <span className="font-label text-xs font-bold uppercase tracking-wider text-tertiary">
+            {isOwnerGroup ? 'Dojo Head Coach Console' : 'Student & Guardian Portal'}
+          </span>
+          <h2 className="font-headline text-2xl font-bold text-primary">
+            {isOwnerGroup ? 'Dojo Operating Dashboard' : 'Student Progression & Attendance'}
+          </h2>
+        </div>
+        <div
+          className="mb-4 p-3 rounded-[10px] border font-body text-xs bg-surface-container text-surface-on-variant border-outline-variant"
+          role="status"
+        >
+          Loading live dashboard data...
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-hidden="true">
+          {[0, 1, 2].map((item) => (
+            <div
+              key={item}
+              className="h-64 rounded-xl bg-surface-container border border-outline-variant animate-pulse"
+            />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (dashboardError) {
+    return (
+      <section className="max-w-5xl mx-auto px-4 mb-16">
+        <div className="p-6 rounded-xl bg-error-container text-error-on-container border border-error">
+          <h2 className="font-headline text-xl font-bold mb-2">Dashboard unavailable</h2>
+          <p className="font-body text-sm mb-4" role="alert">{dashboardError}</p>
+          <button
+            type="button"
+            onClick={() => void loadDashboard()}
+            className="inline-flex items-center px-3 py-1.5 rounded-[10px] bg-primary text-primary-foreground font-label text-xs font-semibold hover:shadow-soft"
+          >
+            Retry loading
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  if (!dashboard) {
+    return (
+      <section className="max-w-5xl mx-auto px-4 mb-16">
+        <div className="p-6 rounded-xl bg-surface-container-lowest border border-outline-variant">
+          <h2 className="font-headline text-xl font-bold text-primary mb-2">No dashboard data yet</h2>
+          <p className="font-body text-sm text-surface-on-variant">
+            Your school has no progress records for this account. Ask an owner or coach to link a student profile.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="max-w-5xl mx-auto px-4 mb-16">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
@@ -725,19 +785,6 @@ export function PreviewDashboard() {
 
       {/* EMAIL VERIFICATION BANNER */}
       <EmailVerificationBanner />
-
-      {(dashboardError || isLoadingDashboard) && (
-        <div
-          className={`mb-4 p-3 rounded-[10px] border font-body text-xs ${
-            dashboardError
-              ? 'bg-error-container text-error-on-container border-error'
-              : 'bg-surface-container text-surface-on-variant border-outline-variant'
-          }`}
-          role={dashboardError ? 'alert' : 'status'}
-        >
-          {dashboardError || 'Loading live dashboard data...'}
-        </div>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* CARD 1: DYNAMIC RANK PROGRESSION & GRADING READINESS */}

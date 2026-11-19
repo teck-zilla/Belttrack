@@ -48,9 +48,11 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Internal error resending verification';
-    console.error('[BELTTRACK AUTH /api/auth/resend-verification] POST error:', error);
-    return NextResponse.json({ error: message }, { status: 500 });
+  } catch {
+    console.error('[BELTTRACK AUTH /api/auth/resend-verification] POST failed');
+    return NextResponse.json(
+      { error: 'Unable to resend verification code. Please try again.' },
+      { status: 500 }
+    );
   }
 }

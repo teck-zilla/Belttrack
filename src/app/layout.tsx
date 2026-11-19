@@ -8,6 +8,21 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://belttrack.app'),
   title: 'Dashboard',
   description: 'Private martial arts dojo management and belt progression platform.',
+  keywords: [
+    'martial arts management',
+    'dojo software',
+    'bjj belt tracker',
+    'roll call attendance',
+    'private dojo tenant'
+  ],
+  alternates: {
+    canonical: '/',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    'max-image-preview': 'large',
+  },
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },

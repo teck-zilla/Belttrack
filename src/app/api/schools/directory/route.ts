@@ -17,8 +17,8 @@ export async function GET() {
     });
 
     return NextResponse.json({ success: true, schools });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK AUTH /api/schools/directory] GET error:', error);
+  } catch {
+    console.error('[BELTTRACK AUTH /api/schools/directory] GET error');
     return NextResponse.json(
       { error: 'Unable to load the public directory. Please try again later.' },
       { status: 500 }

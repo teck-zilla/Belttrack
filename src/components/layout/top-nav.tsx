@@ -7,13 +7,9 @@ import { useAuth } from '@/context/auth-context';
 
 export function TopNav({
   onOpenDirectory,
-  onOpenRegister,
-  onOpenJoin,
   onOpenLogin
 }: {
   onOpenDirectory?: () => void;
-  onOpenRegister?: () => void;
-  onOpenJoin?: () => void;
   onOpenLogin?: () => void;
 }) {
   const { activeSchool } = useTenant();

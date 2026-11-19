@@ -10,7 +10,7 @@ import { StudentJoinModal } from '@/components/home/student-join-modal';
 import { useAccessibleModal } from '@/components/home/use-accessible-modal';
 import { useTenant } from '@/context/tenant-context';
 import { useAuth } from '@/context/auth-context';
-import { schoolRegistrationSchema, studentJoinCodeSchema } from '@/lib/validation/schemas';
+import { schoolRegistrationSchema } from '@/lib/validation/schemas';
 import { calculatePasswordStrength } from '@/lib/validation/password';
 import type { DisciplineType } from '@/types/domain';
 
@@ -59,7 +59,7 @@ function InlineFieldError({ id, message }: { id: string; message?: string }) {
 }
 
 export default function HomePage() {
-  const { activeSchool, setActiveSchool } = useTenant();
+  const { setActiveSchool } = useTenant();
   const { login, setSessionUser, isRealSession } = useAuth();
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [isJoinModalOpen, setJoinModalOpen] = useState(false);
@@ -511,21 +511,31 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
-      <head>
-        <title>Dashboard</title>
-        <link rel="canonical" href="https://belttrack.app" />
-        <meta name="robots" content="index, follow, max-image-preview:large" />
-        <meta name="keywords" content="martial arts management, dojo software, bjj belt tracker, roll call attendance, private dojo tenant" />
-      </head>
-
       <TopNav
         onOpenDirectory={() => setDirectoryModalOpen(true)}
-        onOpenRegister={() => setRegisterModalOpen(true)}
-        onOpenJoin={() => setJoinModalOpen(true)}
         onOpenLogin={() => setLoginModalOpen(true)}
       />
 
       <main className="flex-1">
+        <div
+          className={`border-b border-outline-variant px-4 py-2 ${
+            isRealSession
+              ? 'bg-secondary-container text-secondary-on-container'
+              : 'bg-tertiary-container text-tertiary-on-container'
+          }`}
+          role="status"
+        >
+          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
+            <span className="font-label text-xs font-bold uppercase tracking-wider">
+              {isRealSession ? 'Live Tenant Mode' : 'Demo Preview Mode'}
+            </span>
+            <span className="font-body text-xs">
+              {isRealSession
+                ? 'Showing persisted records scoped to your active school tenant.'
+                : 'Sample data only. Role switching and progress previews are simulated.'}
+            </span>
+          </div>
+        </div>
         <HeroSection showPublicOverview={!isRealSession} />
         {!isRealSession && (
           <RoleEntryCards

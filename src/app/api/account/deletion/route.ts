@@ -52,8 +52,8 @@ export async function GET() {
       },
       request: request ? formatDeletionRequest(request) : null
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK DELETION /api/account/deletion] GET error:', error);
+  } catch {
+    console.error('[BELTTRACK DELETION /api/account/deletion] GET error');
     return NextResponse.json(
       { error: 'Unable to load the deletion request. Please try again later.' },
       { status: 500 }
@@ -135,8 +135,8 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error: unknown) {
-    console.error('[BELTTRACK DELETION /api/account/deletion] POST error:', error);
+  } catch {
+    console.error('[BELTTRACK DELETION /api/account/deletion] POST error');
     return NextResponse.json(
       { error: 'Unable to submit the deletion request. Please try again later.' },
       { status: 500 }
@@ -211,8 +211,8 @@ export async function DELETE() {
       message: 'Scheduled account deletion cancelled. Your account is active again.',
       request: formatDeletionRequest(cancelled)
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK DELETION /api/account/deletion] DELETE error:', error);
+  } catch {
+    console.error('[BELTTRACK DELETION /api/account/deletion] DELETE error');
     return NextResponse.json(
       { error: 'Unable to cancel the deletion request. Please try again later.' },
       { status: 500 }

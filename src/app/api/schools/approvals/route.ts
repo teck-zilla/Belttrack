@@ -59,8 +59,8 @@ export async function GET() {
       activeCount,
       pendingMembers: formattedPending
     });
-  } catch (err: unknown) {
-    console.error('[BELTTRACK AUTH /api/schools/approvals] GET error:', err);
+  } catch {
+    console.error('[BELTTRACK AUTH /api/schools/approvals] GET error');
     return NextResponse.json(
       { error: 'Unable to load approvals. Please try again later.' },
       { status: 500 }
@@ -147,8 +147,8 @@ export async function POST(request: Request) {
       status: nextStatus,
       userId: updatedUser.id
     });
-  } catch (err: unknown) {
-    console.error('[BELTTRACK AUTH /api/schools/approvals] POST error:', err);
+  } catch {
+    console.error('[BELTTRACK AUTH /api/schools/approvals] POST error');
     return NextResponse.json(
       { error: 'Unable to process the approval. Please try again later.' },
       { status: 500 }

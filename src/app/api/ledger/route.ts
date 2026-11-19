@@ -132,8 +132,8 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error: unknown) {
-    console.error('[BELTTRACK LEDGER] POST error:', error);
+  } catch {
+    console.error('[BELTTRACK LEDGER] POST error');
     return NextResponse.json(
       { error: 'Unable to record the ledger entry. Please try again later.' },
       { status: 500 }

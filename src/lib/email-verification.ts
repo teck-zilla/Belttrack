@@ -192,8 +192,8 @@ export function getEmailDesignTokens(): EmailDesignTokens {
       };
       return cachedEmailTokens;
     }
-  } catch (err) {
-    console.warn('[BELTTRACK AUTH] Failed to load design tokens for email template:', err);
+  } catch {
+    console.warn('[BELTTRACK AUTH] Failed to load design tokens for email template');
   }
 
   // Graceful semantic fallback using standard CSS color names
@@ -367,32 +367,15 @@ export async function sendVerificationEmail(email: string, code: string): Promis
       });
 
       const durationMs = Math.round(performance.now() - startTime);
-      console.log(`[BELTTRACK AUTH] Verification email successfully dispatched via SMTP to: ${normalizedEmail} [${durationMs}ms]`);
+      console.log(`[BELTTRACK AUTH] Verification email dispatched via SMTP [${durationMs}ms]`);
       return true;
-    } catch (smtpErr) {
+    } catch {
       const durationMs = Math.round(performance.now() - startTime);
-      console.warn(`[BELTTRACK AUTH] SMTP dispatch failed after ${durationMs}ms, falling back to console logger:`, smtpErr);
+      console.warn(`[BELTTRACK AUTH] SMTP verification dispatch failed after ${durationMs}ms; using fallback.`);
     }
   }
 
-  // Graceful fallback: output structured transactional email to the server console
-  const timestamp = new Date().toISOString();
-  console.log('\n======================================================================');
-  console.log('              BELTTRACK TRANSACTIONAL EMAIL DISPATCH                  ');
-  console.log('======================================================================');
-  console.log(`[Timestamp]: ${timestamp}`);
-  console.log(`[To]:        ${normalizedEmail}`);
-  console.log(`[Subject]:   BeltTrack - Verify Your Email Address`);
-  console.log('----------------------------------------------------------------------');
-  console.log('Welcome to BeltTrack Martial Arts Management!');
-  console.log('');
-  console.log(`Your 6-digit account verification code is:`);
-  console.log(`                   >>>  ${code}  <<<`);
-  console.log('');
-  console.log('This code will expire in 6 minutes.');
-  console.log('Enter this code in your BeltTrack dashboard banner to confirm your email.');
-  console.log('If you did not register for an account, please disregard this email.');
-  console.log('======================================================================\n');
+  console.log('[BELTTRACK AUTH] Verification email fallback used; recipient and code withheld from logs.');
 
   return true;
 }
@@ -819,27 +802,14 @@ export async function sendPasswordResetEmail(email: string, code: string): Promi
         html: emailHtml
       });
 
-      console.log(`[BELTTRACK AUTH] Password reset email dispatched via SMTP to: ${normalizedEmail}`);
+      console.log('[BELTTRACK AUTH] Password reset email dispatched via SMTP');
       return true;
-    } catch (smtpErr) {
-      console.warn('[BELTTRACK AUTH] SMTP reset dispatch failed, falling back to console:', smtpErr);
+    } catch {
+      console.warn('[BELTTRACK AUTH] SMTP password reset dispatch failed; using fallback.');
     }
   }
 
-  const timestamp = new Date().toISOString();
-  console.log('\n======================================================================');
-  console.log('              BELTTRACK PASSWORD RESET CODE DISPATCH                  ');
-  console.log('======================================================================');
-  console.log(`[Timestamp]: ${timestamp}`);
-  console.log(`[To]:        ${normalizedEmail}`);
-  console.log(`[Subject]:   BeltTrack - Your Password Reset Code`);
-  console.log('----------------------------------------------------------------------');
-  console.log(`Your 6-digit password reset code is:`);
-  console.log(`                   >>>  ${code}  <<<`);
-  console.log('');
-  console.log('This code will expire in 6 minutes.');
-  console.log('Enter this code in the BeltTrack sign-in modal to reset your password.');
-  console.log('======================================================================\n');
+  console.log('[BELTTRACK AUTH] Password reset fallback used; recipient and code withheld from logs.');
 
   return true;
 }

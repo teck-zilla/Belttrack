@@ -120,8 +120,8 @@ export async function POST(request: Request) {
 
       throw error;
     }
-  } catch (error: unknown) {
-    console.error('[BELTTRACK ATTENDANCE] POST error:', error);
+  } catch {
+    console.error('[BELTTRACK ATTENDANCE] POST error');
     return NextResponse.json(
       { error: 'Unable to record attendance. Please try again later.' },
       { status: 500 }

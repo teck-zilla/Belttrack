@@ -7,13 +7,12 @@ export async function POST() {
     const { error } = await supabase.auth.signOut();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: 'Unable to sign out. Please try again.' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, message: 'Logged out successfully' });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Internal logout error';
-    return NextResponse.json({ error: message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: 'Unable to sign out. Please try again.' }, { status: 500 });
   }
 }
 

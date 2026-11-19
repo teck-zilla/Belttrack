@@ -193,16 +193,16 @@ export async function POST(request: Request) {
 
     if (isAsyncEmail) {
       // Mode 2: Detached background execution (non-blocking for HTTP response)
-      createAndSendVerificationCode(ownerEmail.toLowerCase()).catch((emailErr) => {
-        console.error('[BELTTRACK AUTH] Background email dispatch failed:', emailErr);
+      createAndSendVerificationCode(ownerEmail.toLowerCase()).catch(() => {
+        console.error('[BELTTRACK AUTH] Background email dispatch failed');
       });
     } else {
       // Mode 1: Synchronous execution on request thread
       const emailStart = performance.now();
       try {
         await createAndSendVerificationCode(ownerEmail.toLowerCase());
-      } catch (emailErr) {
-        console.error('[BELTTRACK AUTH] Failed to dispatch verification email:', emailErr);
+      } catch {
+        console.error('[BELTTRACK AUTH] Failed to dispatch verification email');
       }
       emailDurationMs = Math.round(performance.now() - emailStart);
     }
@@ -257,7 +257,9 @@ export async function POST(request: Request) {
         { status: 409 }
       );
     }
-    const message = error instanceof Error ? error.message : 'Database error registering school tenant';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Unable to register school right now. Please try again.' },
+      { status: 500 }
+    );
   }
 }

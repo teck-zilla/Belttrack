@@ -159,8 +159,8 @@ export async function getLatestAuthSession(supabaseUid: string): Promise<AuthSes
       user_agent: row.user_agent || null,
       aal: row.aal || null,
     };
-  } catch (err) {
-    console.warn('[BELTTRACK AUTH] Unable to query auth.sessions from PostgreSQL:', err);
+  } catch {
+    console.warn('[BELTTRACK AUTH] Unable to query auth.sessions from PostgreSQL');
     return null;
   }
 }
