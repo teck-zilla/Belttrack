@@ -102,8 +102,8 @@ export async function POST(request: Request) {
           } else {
             await createAndSendPasswordResetCode(targetEmail);
           }
-        } catch (dispatchErr) {
-          console.error('[BELTTRACK AUTH /api/auth/reset-password] Reset code dispatch failed:', dispatchErr);
+        } catch {
+          console.error('[BELTTRACK AUTH /api/auth/reset-password] Reset code dispatch failed');
         }
       }
 
@@ -207,8 +207,8 @@ export async function POST(request: Request) {
             { status: 503 }
           );
         }
-      } catch (adminErr) {
-        console.warn('[BELTTRACK AUTH /api/auth/reset-password] Supabase admin unavailable:', adminErr);
+      } catch {
+        console.warn('[BELTTRACK AUTH /api/auth/reset-password] Supabase admin unavailable');
         return NextResponse.json(
           { error: 'Authentication service unavailable. Please try again later.' },
           { status: 503 }
@@ -230,8 +230,8 @@ export async function POST(request: Request) {
       { error: 'Invalid action. Supported actions are "request", "resend", and "confirm".' },
       { status: 400 }
     );
-  } catch (err: unknown) {
-    console.error('[BELTTRACK AUTH /api/auth/reset-password] Unexpected error:', err);
+  } catch {
+    console.error('[BELTTRACK AUTH /api/auth/reset-password] Unexpected error');
     return NextResponse.json(
       { error: 'Unable to process the password reset request. Please try again later.' },
       { status: 500 }

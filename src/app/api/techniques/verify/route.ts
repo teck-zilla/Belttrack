@@ -103,8 +103,8 @@ export async function POST(request: Request) {
         verifiedBy: outcome.progress.verifiedBy
       }
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK TECHNIQUES] POST verify error:', error);
+  } catch {
+    console.error('[BELTTRACK TECHNIQUES] POST verify error');
     return NextResponse.json(
       { error: 'Unable to record the technique sign-off. Please try again later.' },
       { status: 500 }

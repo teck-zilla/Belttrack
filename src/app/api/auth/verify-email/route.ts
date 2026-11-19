@@ -47,8 +47,8 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
-  } catch (error: unknown) {
-    console.error('[BELTTRACK AUTH /api/auth/verify-email] POST error:', error);
+  } catch {
+    console.error('[BELTTRACK AUTH /api/auth/verify-email] POST error');
     return NextResponse.json(
       { error: 'Unable to verify the email code. Please try again later.' },
       { status: 500 }
@@ -84,8 +84,8 @@ export async function GET(request: Request) {
       email: normalizedEmail,
       verified
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK AUTH /api/auth/verify-email] GET error:', error);
+  } catch {
+    console.error('[BELTTRACK AUTH /api/auth/verify-email] GET error');
     return NextResponse.json(
       { error: 'Unable to check verification status. Please try again later.' },
       { status: 500 }

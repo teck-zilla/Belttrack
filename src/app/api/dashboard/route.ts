@@ -328,8 +328,8 @@ export async function GET(request: Request) {
         createdAt: entry.createdAt.toISOString()
       }))
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK DASHBOARD] GET error:', error);
+  } catch {
+    console.error('[BELTTRACK DASHBOARD] GET error');
     return NextResponse.json(
       { error: 'Unable to load the dashboard. Please try again later.' },
       { status: 500 }

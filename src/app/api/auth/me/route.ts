@@ -95,8 +95,8 @@ export async function GET() {
           }
         });
       }
-    } catch (dbErr) {
-      console.warn('[BELTTRACK AUTH /api/auth/me] Database query fallback:', dbErr);
+    } catch {
+      console.warn('[BELTTRACK AUTH /api/auth/me] Database query fallback used');
     }
 
     if (!dbUser) {
@@ -140,8 +140,8 @@ export async function GET() {
       },
       school: dbUser.school ? formatSchool(dbUser.school) : null
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK AUTH /api/auth/me] Unexpected server error:', error);
+  } catch {
+    console.error('[BELTTRACK AUTH /api/auth/me] Unexpected server error');
     return NextResponse.json(
       { error: 'Unable to retrieve the active session. Please try again later.' },
       { status: 500 }

@@ -1,0 +1,28 @@
+import { defineConfig, globalIgnores } from 'eslint/config';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
+
+export default defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  {
+    rules: {
+      'react-hooks/immutability': 'off',
+      'react-hooks/refs': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      '@next/next/no-page-custom-font': 'off'
+    }
+  },
+  globalIgnores([
+    '.next/**',
+    'node_modules/**',
+    'out/**',
+    'build/**',
+    'coverage/**',
+    'docs/**',
+    'scripts/**',
+    '*.js',
+    '*.mjs',
+    '*.cjs'
+  ])
+]);

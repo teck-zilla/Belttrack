@@ -88,7 +88,7 @@ export async function POST(request: Request) {
         });
       } catch (error: unknown) {
         const detail = error instanceof Error ? error.message : 'Unknown purge failure.';
-        console.error(`[BELTTRACK DELETION] Purge failed for request ${deletionRequest.id}:`, error);
+        console.error('[BELTTRACK DELETION] Purge failed for a deletion request');
         results.push({
           requestId: deletionRequest.id,
           targetType: deletionRequest.targetType,
@@ -103,8 +103,8 @@ export async function POST(request: Request) {
       processed: results.length,
       results
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK DELETION /api/internal/deletions/purge] error:', error);
+  } catch {
+    console.error('[BELTTRACK DELETION /api/internal/deletions/purge] error');
     return NextResponse.json(
       { error: 'Unable to process due deletions. Please try again later.' },
       { status: 500 }

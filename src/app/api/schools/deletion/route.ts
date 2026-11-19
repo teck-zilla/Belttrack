@@ -79,8 +79,8 @@ export async function GET() {
       },
       request: request ? formatSchoolDeletionRequest(request) : null
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK DELETION /api/schools/deletion] GET error:', error);
+  } catch {
+    console.error('[BELTTRACK DELETION /api/schools/deletion] GET error');
     return NextResponse.json(
       { error: 'Unable to load school deletion status. Please try again later.' },
       { status: 500 }
@@ -170,8 +170,8 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error: unknown) {
-    console.error('[BELTTRACK DELETION /api/schools/deletion] POST error:', error);
+  } catch {
+    console.error('[BELTTRACK DELETION /api/schools/deletion] POST error');
     return NextResponse.json(
       { error: 'Unable to schedule school deletion. Please try again later.' },
       { status: 500 }
@@ -229,8 +229,8 @@ export async function DELETE() {
       message: 'School deletion cancelled. Tenant access is restored.',
       request: formatSchoolDeletionRequest(cancelled)
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK DELETION /api/schools/deletion] DELETE error:', error);
+  } catch {
+    console.error('[BELTTRACK DELETION /api/schools/deletion] DELETE error');
     return NextResponse.json(
       { error: 'Unable to cancel school deletion. Please try again later.' },
       { status: 500 }

@@ -68,8 +68,8 @@ export async function GET(request: Request) {
         };
       })
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK TECHNIQUES] GET error:', error);
+  } catch {
+    console.error('[BELTTRACK TECHNIQUES] GET error');
     return NextResponse.json(
       { error: 'Unable to load the technique curriculum. Please try again later.' },
       { status: 500 }

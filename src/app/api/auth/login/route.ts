@@ -178,15 +178,6 @@ export async function POST(request: Request) {
     }
 
     const sessionRow = await getLatestAuthSession(authData.user.id);
-    if (sessionRow) {
-      console.log(`[BELTTRACK AUTH /api/auth/login] Captured PostgreSQL auth.sessions row for ${dbUser.email}:`, {
-        sessionId: sessionRow.id,
-        userId: sessionRow.user_id,
-        createdAt: sessionRow.created_at,
-        ip: sessionRow.ip,
-        userAgent: sessionRow.user_agent,
-      });
-    }
 
     return NextResponse.json({
       success: true,
@@ -213,8 +204,8 @@ export async function POST(request: Request) {
       },
       school: dbUser.school ? formatSchool(dbUser.school) : null
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK AUTH /api/auth/login] Unexpected error:', error);
+  } catch {
+    console.error('[BELTTRACK AUTH /api/auth/login] Authentication failed');
     return NextResponse.json(
       { error: 'Unable to process authentication. Please try again later.' },
       { status: 500 }

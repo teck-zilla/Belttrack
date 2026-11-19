@@ -112,8 +112,8 @@ export async function GET() {
       approvedCount: formatted.filter((request) => request.status === 'approved').length,
       requests: formatted
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK DELETION /api/schools/deletion-requests] GET error:', error);
+  } catch {
+    console.error('[BELTTRACK DELETION /api/schools/deletion-requests] GET error');
     return NextResponse.json(
       { error: 'Unable to load deletion requests. Please try again later.' },
       { status: 500 }
@@ -244,8 +244,8 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error: unknown) {
-    console.error('[BELTTRACK DELETION /api/schools/deletion-requests] POST error:', error);
+  } catch {
+    console.error('[BELTTRACK DELETION /api/schools/deletion-requests] POST error');
     return NextResponse.json(
       { error: 'Unable to schedule the member deletion. Please try again later.' },
       { status: 500 }
@@ -407,8 +407,8 @@ export async function PATCH(request: Request) {
       message: 'Deletion approved. The member account is locked for the 14-day grace period.',
       request: formatRequest(approved, members)
     });
-  } catch (error: unknown) {
-    console.error('[BELTTRACK DELETION /api/schools/deletion-requests] PATCH error:', error);
+  } catch {
+    console.error('[BELTTRACK DELETION /api/schools/deletion-requests] PATCH error');
     return NextResponse.json(
       { error: 'Unable to review the deletion request. Please try again later.' },
       { status: 500 }

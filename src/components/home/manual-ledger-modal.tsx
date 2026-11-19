@@ -238,7 +238,7 @@ export function ManualLedgerModal({
                 id="ledger-category"
                 name="category"
                 value={category}
-                onChange={(e) => setCategory(e.target.value as any)}
+                onChange={(e) => setCategory(e.target.value as 'tuition' | 'promotion_fee' | 'merchandise' | 'drop_in')}
                 className="w-full px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-body text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
               >
                 <option value="tuition">Monthly Tuition</option>
