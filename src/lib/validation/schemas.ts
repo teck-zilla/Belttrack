@@ -191,8 +191,7 @@ export const techniqueSignoffSchema = z.object({
 export const attendanceCheckInSchema = z.object({
   idempotencyKey: z.string().uuid('A valid idempotency key is required'),
   profileId: z.string().uuid('Valid student profile ID required').optional(),
-  classId: z.string().uuid('Valid class ID required').optional(),
-  attendedAt: z.string().datetime().optional()
+  classId: z.string().uuid('Valid class ID required').optional()
 });
 
 /**
@@ -249,3 +248,17 @@ export const staffUserDeletionSchema = z.object({
 });
 
 export const schoolDeletionRequestSchema = deletionRequestSchema;
+
+/**
+ * 8. SCHOOL JOIN CODE MANAGEMENT
+ */
+export const joinCodeManagementSchema = z.object({
+  action: z.enum(['ROTATE', 'REVOKE']),
+  customCode: z
+    .string()
+    .regex(/^[A-Za-z]{1,6}-[A-Za-z]{1,4}-[0-9]{1,4}$/, 'wrong details')
+    .optional()
+}).refine((data) => data.action !== 'REVOKE' || !data.customCode, {
+  message: 'Custom code is not allowed when revoking a join code',
+  path: ['customCode']
+});

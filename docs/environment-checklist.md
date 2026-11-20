@@ -8,7 +8,14 @@
 | `DIRECT_URL` | Prisma DDL and migrations | Use direct/session connection string. |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase Auth URL | Must match the Supabase project. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser-safe Supabase client key | Public by design. |
+| `NEXT_PUBLIC_SITE_URL` | Canonical HTTPS origin for auth callbacks | Recommended; overrides request host and Vercel fallback. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Admin client for auth metadata and verification | Server-only; never expose to the browser. |
+| `SMTP_HOST` | Outbound SMTP host for verification/reset codes | Required in production; registration fails closed without it. |
+| `SMTP_PORT` | SMTP port | `587` for STARTTLS, `465` for SSL. |
+| `SMTP_SECURE` | SMTP TLS mode | `true` only for implicit TLS on `465`. |
+| `SMTP_USER` | SMTP username or API key | Server-only. |
+| `SMTP_PASS` | SMTP password or token | Server-only; store only in the deployment provider. |
+| `SMTP_FROM` | Verified sender identity | Must be authorized by the SMTP provider. |
 | `VERIFICATION_CODE_SECRET` | HMAC secret for verification/reset codes | Long random value. |
 | `COOKIE_SECRET` | Signs session cookies when preferred | Long random value. |
 | `DELETION_PURGE_SECRET` | Authenticates internal purge endpoint | Long random value; required by scheduled workflow. |
@@ -43,6 +50,7 @@
 | `E2E_CLASS_ID` | Optional tenant-scoped class schedule UUID used by attendance. |
 
 ## Preflight Checks
+- Production boot validation rejects missing variables, placeholders, weak secrets, invalid SMTP settings, and disabled rate limits.
 - Never commit real secrets.
 - Confirm `.env.example` contains placeholders only.
 - Confirm `npm run audit` reports zero violations.

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
-import { requireActiveMember } from '@/lib/auth-guard';
+import { requireActiveStaff } from '@/lib/auth-guard';
 import { prisma } from '@/lib/prisma';
 import { attendanceCheckInSchema } from '@/lib/validation/schemas';
 import { resolveAttendanceProfile } from '@/lib/roster';
@@ -24,7 +24,7 @@ function serializeAttendance(attendance: {
 
 export async function POST(request: Request) {
   try {
-    const guard = await requireActiveMember();
+    const guard = await requireActiveStaff();
     if (!guard.ok) {
       return NextResponse.json({ error: guard.error }, { status: guard.status });
     }
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     }
 
     const profile = resolved.profile;
-    const attendedAt = parsed.data.attendedAt ? new Date(parsed.data.attendedAt) : new Date();
+    const attendedAt = new Date();
 
     if (parsed.data.classId) {
       const scheduledClass = await prisma.classSchedule.findFirst({

@@ -4,7 +4,7 @@ import { getAdminClient, isSupabaseAdminConfigured } from '@/lib/supabase/admin'
 import { studentJoinCodeSchema } from '@/lib/validation/schemas';
 import { checkPredictablePassword } from '@/lib/validation/password';
 import { checkPwnedPassword } from '@/lib/validation/pwned-check';
-import { createAndSendVerificationCode } from '@/lib/email-verification';
+import { createAndSendVerificationCode, isSmtpConfigured } from '@/lib/email-verification';
 
 export async function POST(request: Request) {
   const requestStart = performance.now();
@@ -13,7 +13,9 @@ export async function POST(request: Request) {
 
   try {
     const url = new URL(request.url, 'http://localhost:3000');
-    const isAsyncEmail = url.searchParams.get('async_email') === 'true' || request.headers.get('x-email-mode') === 'async';
+    const isAsyncEmail =
+      process.env.NODE_ENV !== 'production' &&
+      (url.searchParams.get('async_email') === 'true' || request.headers.get('x-email-mode') === 'async');
 
     let json: unknown;
     try {
@@ -49,6 +51,13 @@ export async function POST(request: Request) {
     if (!isSupabaseAdminConfigured()) {
       return NextResponse.json(
         { error: 'Authentication service is not configured. Registration is temporarily unavailable.' },
+        { status: 503 }
+      );
+    }
+
+    if (!isSmtpConfigured()) {
+      return NextResponse.json(
+        { error: 'Email delivery is not configured. Registration is temporarily unavailable.' },
         { status: 503 }
       );
     }
@@ -223,23 +232,23 @@ export async function POST(request: Request) {
     });
     dbDurationMs = Math.round(performance.now() - dbStart);
 
-    // Dispatch 6-digit verification code: Synchronous (in-request) vs Background (asynchronous)
     const emailMode = isAsyncEmail ? 'background' : 'synchronous';
 
     if (isAsyncEmail) {
-      // Mode 2: Detached background execution (non-blocking for HTTP response)
       createAndSendVerificationCode(studentEmail.toLowerCase()).catch(() => {
         console.error('[BELTTRACK AUTH] Background email dispatch failed');
       });
     } else {
-      // Mode 1: Synchronous execution on request thread
       const emailStart = performance.now();
-      try {
-        await createAndSendVerificationCode(studentEmail.toLowerCase());
-      } catch {
-        console.error('[BELTTRACK AUTH] Failed to dispatch verification email');
-      }
+      const emailResult = await createAndSendVerificationCode(studentEmail.toLowerCase());
       emailDurationMs = Math.round(performance.now() - emailStart);
+
+      if (!emailResult.success) {
+        return NextResponse.json(
+          { error: emailResult.error || 'Unable to send verification email. Please try again later.' },
+          { status: emailResult.deliveryUnavailable ? 503 : 400 }
+        );
+      }
     }
 
     const totalDurationMs = Math.round(performance.now() - requestStart);

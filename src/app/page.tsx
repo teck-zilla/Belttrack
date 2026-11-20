@@ -8,7 +8,6 @@ import { PreviewDashboard } from '@/components/home/preview-dashboard';
 import { LoginModal } from '@/components/home/login-modal';
 import { StudentJoinModal } from '@/components/home/student-join-modal';
 import { useAccessibleModal } from '@/components/home/use-accessible-modal';
-import { useTenant } from '@/context/tenant-context';
 import { useAuth } from '@/context/auth-context';
 import { schoolRegistrationSchema } from '@/lib/validation/schemas';
 import { calculatePasswordStrength } from '@/lib/validation/password';
@@ -59,8 +58,7 @@ function InlineFieldError({ id, message }: { id: string; message?: string }) {
 }
 
 export default function HomePage() {
-  const { setActiveSchool } = useTenant();
-  const { login, setSessionUser, isRealSession } = useAuth();
+  const { login, isRealSession } = useAuth();
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [isJoinModalOpen, setJoinModalOpen] = useState(false);
   const [isDirectoryModalOpen, setDirectoryModalOpen] = useState(false);
@@ -472,25 +470,7 @@ export default function HomePage() {
         throw new Error(data.error || 'Failed to register school tenant');
       }
 
-      // Update active tenant state with verified DB record
-      setActiveSchool(data.school);
-
-      // Automatically sign in the registered school owner with unverified email state
-      setSessionUser({
-        id: data.user?.id || 'usr_' + Date.now(),
-        email: normalizedOwnerEmail,
-        fullName: ownerName.trim(),
-        school_id: data.school.id,
-        supabase_uid: data.user?.supabaseUid || undefined,
-        isEmailVerified: false
-      }, 'owner', false);
-
-      // Attempt automatic sign-in for owner
-      try {
-        await login(normalizedOwnerEmail, ownerPassword.trim());
-      } catch {
-        // Fallback: user can sign in via Login modal
-      }
+      const loginResult = await login(normalizedOwnerEmail, ownerPassword.trim());
 
       setRegisterSuccessData({
         schoolName: data.school.name,
@@ -500,7 +480,11 @@ export default function HomePage() {
         country: data.school.country || country,
         ownerEmail: normalizedOwnerEmail
       });
-      setFormFeedback(null);
+      setFormFeedback(
+        loginResult.success
+          ? null
+          : `School registered. ${loginResult.error || 'Please sign in manually.'}`
+      );
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Database error registering school tenant';
       setFormFeedback(message);

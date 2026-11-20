@@ -37,7 +37,7 @@ export async function POST(request: Request) {
           error: result.error || 'Failed to resend verification code',
           retryAfter: result.retryAfter
         },
-        { status: result.retryAfter ? 429 : 400 }
+        { status: result.deliveryUnavailable ? 503 : result.retryAfter ? 429 : 400 }
       );
     }
 

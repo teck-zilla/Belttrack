@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { writeAuditLog } from '@/lib/audit-log';
 import {
   isDeletionPurgeAuthorized,
   purgeSchoolAccount,
@@ -8,6 +9,35 @@ import {
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+async function completeDeletionRequest(input: {
+  id: string;
+  schoolId: string;
+  targetType: string;
+  detail: string;
+}) {
+  const completedAt = new Date();
+
+  await prisma.$transaction(async (tx) => {
+    await tx.deletionRequest.update({
+      where: { id: input.id },
+      data: { status: 'COMPLETED', completedAt }
+    });
+
+    await writeAuditLog(tx, {
+      schoolId: input.schoolId,
+      actorUserId: null,
+      action: 'DELETION_PURGE_COMPLETED',
+      targetType: 'DeletionRequest',
+      targetId: input.id,
+      metadata: {
+        targetType: input.targetType,
+        completedAt: completedAt.toISOString(),
+        detail: input.detail
+      }
+    });
+  });
+}
 
 export async function POST(request: Request) {
   if (!isDeletionPurgeAuthorized(request)) {
@@ -35,16 +65,19 @@ export async function POST(request: Request) {
       try {
         if (deletionRequest.targetType === 'USER') {
           if (!deletionRequest.targetUserId) {
-            await prisma.deletionRequest.update({
-              where: { id: deletionRequest.id },
-              data: { status: 'COMPLETED', completedAt: new Date() }
+            const detail = 'No target user was attached to the request.';
+            await completeDeletionRequest({
+              id: deletionRequest.id,
+              schoolId: deletionRequest.schoolId,
+              targetType: deletionRequest.targetType,
+              detail
             });
 
             results.push({
               requestId: deletionRequest.id,
               targetType: deletionRequest.targetType,
               status: 'completed',
-              detail: 'No target user was attached to the request.'
+              detail
             });
             continue;
           }
@@ -53,42 +86,63 @@ export async function POST(request: Request) {
             deletionRequest.targetUserId,
             deletionRequest.schoolId
           );
+          const detail = result === 'missing' ? 'User already absent.' : 'User purged.';
 
-          await prisma.deletionRequest.update({
-            where: { id: deletionRequest.id },
-            data: { status: 'COMPLETED', completedAt: new Date() }
+          await completeDeletionRequest({
+            id: deletionRequest.id,
+            schoolId: deletionRequest.schoolId,
+            targetType: deletionRequest.targetType,
+            detail
           });
 
           results.push({
             requestId: deletionRequest.id,
             targetType: deletionRequest.targetType,
             status: 'completed',
-            detail: result === 'missing' ? 'User already absent.' : 'User purged.'
+            detail
           });
           continue;
         }
 
         const result = await purgeSchoolAccount(deletionRequest.schoolId);
+        const detail =
+          result === 'missing'
+            ? 'School already absent.'
+            : result === 'already_purged'
+              ? 'School already purged.'
+              : 'School purged and ledger anchor retained.';
 
-        await prisma.deletionRequest.update({
-          where: { id: deletionRequest.id },
-          data: { status: 'COMPLETED', completedAt: new Date() }
+        await completeDeletionRequest({
+          id: deletionRequest.id,
+          schoolId: deletionRequest.schoolId,
+          targetType: deletionRequest.targetType,
+          detail
         });
 
         results.push({
           requestId: deletionRequest.id,
           targetType: deletionRequest.targetType,
           status: 'completed',
-          detail:
-            result === 'missing'
-              ? 'School already absent.'
-              : result === 'already_purged'
-                ? 'School already purged.'
-                : 'School purged and ledger anchor retained.'
+          detail
         });
       } catch (error: unknown) {
         const detail = error instanceof Error ? error.message : 'Unknown purge failure.';
         console.error('[BELTTRACK DELETION] Purge failed for a deletion request');
+        try {
+          await writeAuditLog(prisma, {
+            schoolId: deletionRequest.schoolId,
+            actorUserId: null,
+            action: 'DELETION_PURGE_FAILED',
+            targetType: 'DeletionRequest',
+            targetId: deletionRequest.id,
+            metadata: {
+              targetType: deletionRequest.targetType,
+              detail
+            }
+          });
+        } catch {
+          console.error('[BELTTRACK DELETION] Failed to append purge failure audit');
+        }
         results.push({
           requestId: deletionRequest.id,
           targetType: deletionRequest.targetType,

@@ -11,15 +11,26 @@ interface MemberApprovalModalProps {
 
 export function MemberApprovalModal({ isOpen, onClose }: MemberApprovalModalProps) {
   const modalRef = useAccessibleModal(isOpen, onClose, '#btn-open-approvals');
-  const { activeSchool, pendingMembers, approvedMembers, refreshApprovals, approveMember, rejectMember } = useTenant();
+  const {
+    activeSchool,
+    pendingMembers,
+    approvedMembers,
+    approvalError,
+    refreshApprovals,
+    clearApprovalError,
+    approveMember,
+    rejectMember
+  } = useTenant();
 
   const [activeTab, setActiveTab] = useState<'pending' | 'approved'>('pending');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isOpen) void refreshApprovals();
-  }, [isOpen, refreshApprovals]);
+    if (!isOpen) return;
+    clearApprovalError();
+    void refreshApprovals();
+  }, [isOpen, refreshApprovals, clearApprovalError]);
 
   const visiblePendingMembers = pendingMembers.filter((member) => member.school_id === activeSchool?.id);
   const visibleApprovedMembers = approvedMembers.filter((member) => member.school_id === activeSchool?.id);
@@ -174,6 +185,15 @@ export function MemberApprovalModal({ isOpen, onClose }: MemberApprovalModalProp
           </button>
         </div>
 
+        {approvalError && (
+          <div
+            role="alert"
+            className="mx-4 sm:mx-6 mt-3 p-2.5 rounded-[10px] bg-error-container text-error-on-container font-body text-xs font-medium"
+          >
+            {approvalError}
+          </div>
+        )}
+
         {/* Live Feedback Announcement */}
         {feedback && (
           <div
@@ -224,6 +244,11 @@ export function MemberApprovalModal({ isOpen, onClose }: MemberApprovalModalProp
                       {member.guardian_name && (
                         <span className="font-label text-[10px] font-bold px-2 py-0.5 rounded bg-surface-container text-surface-on-variant">
                           Minor (Linked Guardian)
+                        </span>
+                      )}
+                      {member.guardian_links && member.guardian_links.length > 0 && (
+                        <span className="font-label text-[10px] font-bold px-2 py-0.5 rounded bg-warning text-surface-foreground">
+                          Guardian Access Pending
                         </span>
                       )}
                     </div>
@@ -308,7 +333,7 @@ export function MemberApprovalModal({ isOpen, onClose }: MemberApprovalModalProp
         {/* Footer */}
         <div className="p-4 sm:p-6 py-3 border-t border-outline-variant bg-surface-container-lowest flex items-center justify-between">
           <span className="font-body text-[11px] text-surface-on-variant">
-            Approving a student unlocks real-time roll-call attendance and technique grading.
+            Approving a student unlocks linked guardian access, roll-call attendance, and technique grading.
           </span>
           <button
             type="button"

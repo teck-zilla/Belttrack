@@ -35,6 +35,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isRealSession: boolean;
   isLoading: boolean;
+  sessionError: string | null;
   activeRole: UserRole;
   isEmailVerified: boolean;
   switchRole: (newRole: UserRole) => void;
@@ -44,7 +45,6 @@ export interface AuthContextType {
   ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
-  setSessionUser: (authUser: AuthUser, role?: UserRole, isVerified?: boolean) => void;
   verifyEmailCode: (code: string) => Promise<{ success: boolean; error?: string }>;
   resendVerificationCode: () => Promise<{ success: boolean; error?: string; retryAfter?: number }>;
   setEmailVerifiedState: (verified: boolean) => void;
@@ -82,66 +82,86 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<AuthSessionRow | null>(null);
   const [isRealSession, setIsRealSession] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [sessionError, setSessionError] = useState<string | null>(null);
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(true);
+
+  const resetToPreview = useCallback(() => {
+    setUser(DEMO_USER);
+    setSession(null);
+    setCurrentMember(DEMO_MEMBER);
+    setActiveRole('owner');
+    setIsRealSession(false);
+    setIsEmailVerified(true);
+    setActiveSchool(DEFAULT_DEMO_SCHOOL);
+  }, [setActiveSchool]);
 
   const refreshSession = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/me');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.authenticated && data.user) {
-          const verified = data.user.email_verified !== undefined ? Boolean(data.user.email_verified) : true;
-          setIsEmailVerified(verified);
-          if (data.session) {
-            setSession(data.session);
-          }
-
-          const authUser: AuthUser = {
-            id: data.user.id,
-            supabase_uid: data.user.supabase_uid,
-            email: data.user.email,
-            fullName: data.user.first_name && data.user.last_name
-              ? `${data.user.first_name} ${data.user.last_name}`
-              : data.user.email,
-            school_id: data.user.school_id,
-            isEmailVerified: verified
-          };
-
-          const role = (data.user.role as UserRole) || 'student';
-
-          setUser(authUser);
-          setIsRealSession(true);
-          setActiveRole(role);
-
-          if (data.school) {
-            setActiveSchool(data.school);
-          }
-
-          if (data.user.school_id) {
-            setCurrentMember({
-              id: `mem_${data.user.id.slice(0, 8)}`,
-              school_id: data.user.school_id,
-              user_id: data.user.id,
-              supabase_uid: data.user.supabase_uid,
-              role,
-              status: data.user.status || 'pending_approval',
-              full_name: authUser.fullName,
-              email: data.user.email,
-              stripes_count: 0,
-              total_classes_attended: 0,
-              is_flagged_inactive: false,
-              enrolled_at: new Date().toISOString()
-            });
-          }
-          return;
-        }
+      if (!res.ok) {
+        if (isRealSession) setSessionError('Session verification failed. Sign in again.');
+        resetToPreview();
+        return;
       }
+
+      const data = await res.json();
+      if (data.authenticated && data.user) {
+        const verified = data.user.email_verified !== undefined ? Boolean(data.user.email_verified) : true;
+        setIsEmailVerified(verified);
+        setSessionError(null);
+        if (data.session) {
+          setSession(data.session);
+        }
+
+        const authUser: AuthUser = {
+          id: data.user.id,
+          supabase_uid: data.user.supabase_uid,
+          email: data.user.email,
+          fullName: data.user.first_name && data.user.last_name
+            ? `${data.user.first_name} ${data.user.last_name}`
+            : data.user.email,
+          school_id: data.user.school_id,
+          isEmailVerified: verified
+        };
+
+        const role = (data.user.role as UserRole) || 'student';
+
+        setUser(authUser);
+        setIsRealSession(true);
+        setActiveRole(role);
+
+        if (data.school) {
+          setActiveSchool(data.school);
+        }
+
+        if (data.user.school_id) {
+          setCurrentMember({
+            id: `mem_${data.user.id.slice(0, 8)}`,
+            school_id: data.user.school_id,
+            user_id: data.user.id,
+            supabase_uid: data.user.supabase_uid,
+            role,
+            status: data.user.status || 'pending_approval',
+            full_name: authUser.fullName,
+            email: data.user.email,
+            stripes_count: 0,
+            total_classes_attended: 0,
+            is_flagged_inactive: false,
+            enrolled_at: new Date().toISOString()
+          });
+        }
+        return;
+      }
+
+      resetToPreview();
+      setSessionError(null);
     } catch {
-      // Fallback to preview demo mode on network or parse error
+      if (isRealSession) setSessionError('Session verification failed. Sign in again.');
+      resetToPreview();
     } finally {
       setIsLoading(false);
     }
-  }, [setActiveSchool]);
+  }, [isRealSession, resetToPreview, setActiveSchool]);
 
   useEffect(() => {
     refreshSession();
@@ -152,13 +172,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
           refreshSession();
         } else if (event === 'SIGNED_OUT') {
-          setUser(DEMO_USER);
-          setSession(null);
-          setCurrentMember(DEMO_MEMBER);
-          setActiveRole('owner');
-          setIsRealSession(false);
+          resetToPreview();
+          setSessionError(null);
           setIsLoading(false);
-          setIsEmailVerified(true);
         }
       });
 
@@ -168,7 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       setIsLoading(false);
     }
-  }, [refreshSession]);
+  }, [refreshSession, resetToPreview, setActiveSchool]);
 
   const switchRole = (newRole: UserRole) => {
     setActiveRole(newRole);
@@ -176,37 +192,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setCurrentMember({
         ...currentMember,
         role: newRole
-      });
-    }
-  };
-
-  const setSessionUser = (authUser: AuthUser, role: UserRole = 'owner', isVerified?: boolean) => {
-    const verified = isVerified !== undefined
-      ? isVerified
-      : (authUser.isEmailVerified !== undefined ? authUser.isEmailVerified : false);
-
-    setUser({
-      ...authUser,
-      isEmailVerified: verified
-    });
-    setIsRealSession(true);
-    setActiveRole(role);
-    setIsEmailVerified(verified);
-
-    if (authUser.school_id) {
-      setCurrentMember({
-        id: `mem_${authUser.id.slice(0, 8)}`,
-        school_id: authUser.school_id,
-        user_id: authUser.id,
-        supabase_uid: authUser.supabase_uid,
-        role,
-        status: 'active',
-        full_name: authUser.fullName,
-        email: authUser.email,
-        stripes_count: 0,
-        total_classes_attended: 0,
-        is_flagged_inactive: false,
-        enrolled_at: new Date().toISOString()
       });
     }
   };
@@ -294,7 +279,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!res.ok || data.error) {
         setIsLoading(false);
-        return { success: false, error: data.error || 'Authentication failed' };
+        const error = data.error || 'Authentication failed';
+        setSessionError(error);
+        return { success: false, error };
       }
 
       if (data.session) {
@@ -342,11 +329,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
+      setSessionError(null);
       await refreshSession();
       return { success: true };
     } catch (err: unknown) {
       setIsLoading(false);
       const message = err instanceof Error ? err.message : 'Network error during login';
+      setSessionError(message);
       return { success: false, error: message };
     }
   };
@@ -358,14 +347,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Ignore network errors during logout
     } finally {
-      setUser(DEMO_USER);
-      setSession(null);
-      setCurrentMember(DEMO_MEMBER);
-      setActiveRole('owner');
-      setIsRealSession(false);
+      resetToPreview();
+      setSessionError(null);
       setIsLoading(false);
-      setIsEmailVerified(true);
-      setActiveSchool(DEFAULT_DEMO_SCHOOL);
     }
   };
 
@@ -378,13 +362,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: Boolean(user),
         isRealSession,
         isLoading,
+        sessionError,
         activeRole,
         isEmailVerified,
         switchRole,
         login,
         logout,
         refreshSession,
-        setSessionUser,
         verifyEmailCode,
         resendVerificationCode,
         setEmailVerifiedState
