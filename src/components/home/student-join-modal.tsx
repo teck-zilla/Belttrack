@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { useAccessibleModal } from './use-accessible-modal';
 import { studentJoinCodeSchema } from '@/lib/validation/schemas';
@@ -52,6 +52,20 @@ export function StudentJoinModal({
     studentName: string;
     status: string;
   } | null>(null);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [verifyFeedback, setVerifyFeedback] = useState<{ type: 'error' | 'success' | 'info'; message: string } | null>(null);
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+  const [isResendingCode, setIsResendingCode] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [isEmailVerifiedOnSite, setIsEmailVerifiedOnSite] = useState(false);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   if (!isOpen) return null;
 
@@ -286,7 +300,85 @@ export function StudentJoinModal({
     setFieldErrors({});
     setFormFeedback(null);
     setJoinSuccessData(null);
+    setVerificationCode('');
+    setVerifyFeedback(null);
+    setIsVerifyingCode(false);
+    setIsResendingCode(false);
+    setResendCooldown(0);
+    setIsEmailVerifiedOnSite(false);
     onClose();
+  };
+
+  const handleVerifyJoinedEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCode = verificationCode.trim();
+    const normalizedEmail = studentEmail.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      setVerifyFeedback({ type: 'error', message: 'Email address is missing. Please sign in to verify.' });
+      return;
+    }
+    if (!/^\d{6}$/.test(cleanCode)) {
+      setVerifyFeedback({ type: 'error', message: 'Verification code must be exactly 6 digits.' });
+      return;
+    }
+
+    try {
+      setIsVerifyingCode(true);
+      setVerifyFeedback(null);
+      const res = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: normalizedEmail, code: cleanCode })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setVerifyFeedback({ type: 'error', message: data.error || 'Verification failed. Please check the code.' });
+        return;
+      }
+
+      setIsEmailVerifiedOnSite(true);
+      setVerifyFeedback({ type: 'success', message: 'Email address verified successfully.' });
+    } catch {
+      setVerifyFeedback({ type: 'error', message: 'Network error verifying code. Please try again.' });
+    } finally {
+      setIsVerifyingCode(false);
+    }
+  };
+
+  const handleResendJoinedCode = async () => {
+    if (resendCooldown > 0 || isResendingCode) return;
+    const normalizedEmail = studentEmail.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      setVerifyFeedback({ type: 'error', message: 'Email address is missing. Please sign in to resend.' });
+      return;
+    }
+
+    try {
+      setIsResendingCode(true);
+      setVerifyFeedback(null);
+      const res = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: normalizedEmail })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.retryAfter) setResendCooldown(Number(data.retryAfter) || 60);
+        setVerifyFeedback({ type: 'error', message: data.error || 'Failed to resend verification code.' });
+        return;
+      }
+
+      setResendCooldown(60);
+      setVerifyFeedback({ type: 'info', message: `A new verification code was sent to ${normalizedEmail}.` });
+    } catch {
+      setVerifyFeedback({ type: 'error', message: 'Network error resending verification code.' });
+    } finally {
+      setIsResendingCode(false);
+    }
   };
 
   return (
@@ -302,20 +394,23 @@ export function StudentJoinModal({
       >
         {/* SUCCESS CONFIRMATION STATE */}
         {joinSuccessData ? (
-          <div className="space-y-4 text-center py-2">
-            <div className="w-12 h-12 mx-auto rounded-full bg-tertiary-container text-tertiary-on-container flex items-center justify-center shadow-soft">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
+          <div className="space-y-4 py-2">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 mx-auto rounded-full bg-tertiary-container text-tertiary-on-container flex items-center justify-center shadow-soft">
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </div>
+              <div>
+                <span className="font-label text-xs font-bold text-tertiary uppercase tracking-wider block">
+                  Enrollment Submitted
+                </span>
+                <h3 className="font-headline text-xl font-bold text-primary mt-1">
+                  Welcome to {joinSuccessData.schoolName}!
+                </h3>
+              </div>
             </div>
-            <div>
-              <span className="font-label text-xs font-bold text-tertiary uppercase tracking-wider block">
-                Enrollment Submitted
-              </span>
-              <h3 className="font-headline text-xl font-bold text-primary mt-1">
-                Welcome to {joinSuccessData.schoolName}!
-              </h3>
-            </div>
+
             <div className="p-3 rounded-[10px] bg-surface-container-low border border-outline-variant text-left space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-surface-on-variant font-body">Account Status:</span>
@@ -327,12 +422,85 @@ export function StudentJoinModal({
                 Your profile has been created under <strong>PENDING_APPROVAL</strong>. Once your head coach approves your registration during class roll-call, full rank progress and technique logs will be unlocked.
               </p>
             </div>
+
+            <div className="p-3 rounded-[10px] border border-outline-variant bg-surface-container-lowest space-y-3 text-left">
+              <div>
+                <span className="font-label text-[10px] font-bold uppercase tracking-wider text-tertiary block">
+                  Verify Email Address
+                </span>
+                <p className="font-body text-xs text-surface-on-variant mt-1">
+                  We sent a 6-digit verification code to <strong className="text-primary">{studentEmail.trim().toLowerCase()}</strong>. Enter it below to complete verification.
+                </p>
+              </div>
+
+              {!isEmailVerifiedOnSite ? (
+                <form onSubmit={handleVerifyJoinedEmail} className="space-y-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={6}
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="123456"
+                      aria-label="6-digit email verification code"
+                      className="w-full sm:w-32 px-3 py-2 rounded-[10px] bg-surface-container-low border border-outline-variant font-mono text-center text-sm font-bold tracking-widest text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary focus-visible:ring-offset-2"
+                      disabled={isVerifyingCode}
+                    />
+                    <button
+                      type="submit"
+                      disabled={isVerifyingCode || verificationCode.trim().length !== 6}
+                      className="px-4 py-2 rounded-[10px] bg-primary text-primary-foreground font-label text-xs font-semibold hover:bg-tertiary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isVerifyingCode ? 'Verifying...' : 'Verify Email'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResendJoinedCode}
+                      disabled={isResendingCode || resendCooldown > 0}
+                      className="px-3 py-2 rounded-[10px] bg-surface-container text-surface-foreground border border-outline-variant font-label text-xs font-medium hover:bg-surface-container-high transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {resendCooldown > 0 ? `Resend (${resendCooldown}s)` : isResendingCode ? 'Sending...' : 'Resend Code'}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div
+                  role="status"
+                  className="p-2.5 rounded-[10px] bg-tertiary-container text-tertiary-on-container border border-tertiary/40 font-body text-xs"
+                >
+                  Email verified. You can continue to sign in when your coach approves your account.
+                </div>
+              )}
+
+              {verifyFeedback && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className={`p-2.5 rounded-[10px] font-body text-xs border ${
+                    verifyFeedback.type === 'error'
+                      ? 'bg-error-container text-error-on-container border-error/30'
+                      : verifyFeedback.type === 'success'
+                      ? 'bg-tertiary-container text-tertiary-on-container border-tertiary/40'
+                      : 'bg-surface-container text-surface-foreground border-outline-variant'
+                  }`}
+                >
+                  {verifyFeedback.message}
+                </div>
+              )}
+
+              <span className="font-body text-[11px] text-surface-on-variant block">
+                In development, the 6-digit code is printed to the server terminal.
+              </span>
+            </div>
+
             <button
               type="button"
               onClick={handleResetAndClose}
               className="w-full py-2 px-4 rounded-[10px] bg-primary text-primary-foreground font-label text-xs font-medium hover:bg-tertiary transition-colors"
             >
-              Continue to Student Dashboard
+              {isEmailVerifiedOnSite ? 'Done' : 'Continue'}
             </button>
           </div>
         ) : (
