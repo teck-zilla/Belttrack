@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { writeAuditLog } from '@/lib/audit-log';
 import { requireActiveStaff } from '@/lib/auth-guard';
 import { getAdminClient } from '@/lib/supabase/admin';
 import { getDeletionSchedule } from '@/lib/account-deletion';
@@ -217,6 +218,20 @@ export async function POST(request: Request) {
         }
       });
 
+      await writeAuditLog(tx, {
+        schoolId: guard.user.schoolId,
+        actorUserId: guard.user.userId,
+        action: 'MEMBER_DELETION_SCHEDULED',
+        targetType: 'DeletionRequest',
+        targetId: deletionRequest.id,
+        metadata: {
+          targetType: 'USER',
+          targetUserId: target.id,
+          scheduledFor: scheduledFor.toISOString(),
+          reason: validated.data.reason || null
+        }
+      });
+
       return deletionRequest;
     });
 
@@ -338,14 +353,31 @@ export async function PATCH(request: Request) {
     const now = new Date();
 
     if (validated.data.action === 'REJECT') {
-      const rejected = await prisma.deletionRequest.update({
-        where: { id: deletionRequest.id },
-        data: {
-          status: 'REJECTED',
-          reviewedById: guard.user.userId,
-          reviewedAt: now,
-          decisionNote: validated.data.decisionNote || null
-        }
+      const rejected = await prisma.$transaction(async (tx) => {
+        const updated = await tx.deletionRequest.update({
+          where: { id: deletionRequest.id },
+          data: {
+            status: 'REJECTED',
+            reviewedById: guard.user.userId,
+            reviewedAt: now,
+            decisionNote: validated.data.decisionNote || null
+          }
+        });
+
+        await writeAuditLog(tx, {
+          schoolId: guard.user.schoolId,
+          actorUserId: guard.user.userId,
+          action: 'MEMBER_DELETION_REJECTED',
+          targetType: 'DeletionRequest',
+          targetId: updated.id,
+          metadata: {
+            targetType: 'USER',
+            targetUserId: target.id,
+            decisionNote: validated.data.decisionNote || null
+          }
+        });
+
+        return updated;
       });
 
       const members = await loadMemberMap(guard.user.schoolId, [
@@ -380,6 +412,20 @@ export async function PATCH(request: Request) {
           status: 'DELETION_PENDING',
           deletionRequestedAt: deletionRequest.requestedAt,
           deletionScheduledFor: scheduledFor
+        }
+      });
+
+      await writeAuditLog(tx, {
+        schoolId: guard.user.schoolId,
+        actorUserId: guard.user.userId,
+        action: 'MEMBER_DELETION_APPROVED',
+        targetType: 'DeletionRequest',
+        targetId: updatedRequest.id,
+        metadata: {
+          targetType: 'USER',
+          targetUserId: target.id,
+          scheduledFor: scheduledFor.toISOString(),
+          decisionNote: validated.data.decisionNote || null
         }
       });
 

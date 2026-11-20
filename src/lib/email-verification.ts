@@ -36,9 +36,14 @@ type CodePurpose = 'EMAIL_VERIFICATION' | 'PASSWORD_RESET';
 function hashCode(code: string): string {
   const secret =
     process.env.VERIFICATION_CODE_SECRET ||
-    process.env.COOKIE_SECRET ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    'belttrack-verification-code-development-secret';
+    (process.env.NODE_ENV === 'production'
+      ? ''
+      : process.env.COOKIE_SECRET || 'belttrack-verification-code-development-secret');
+
+  if (!secret) {
+    throw new Error('VERIFICATION_CODE_SECRET must be configured in production');
+  }
+
   return crypto.createHmac('sha256', secret).update(code).digest('hex');
 }
 
@@ -89,7 +94,7 @@ export function generateVerificationCode(): string {
 
 /**
  * Safely initializes or retrieves the SMTP transporter singleton.
- * Returns null if SMTP_HOST or SMTP_USER are not configured in environment variables.
+ * Returns null unless SMTP_HOST, SMTP_USER, and SMTP_PASS are configured.
  */
 let smtpTransporter: Transporter | null = null;
 
@@ -127,7 +132,11 @@ export function getSmtpTransporter(): Transporter | null {
  * Checks whether SMTP delivery is configured in the current environment.
  */
 export function isSmtpConfigured(): boolean {
-  return Boolean(process.env.SMTP_HOST?.trim() && process.env.SMTP_USER?.trim());
+  return Boolean(
+    process.env.SMTP_HOST?.trim() &&
+      process.env.SMTP_USER?.trim() &&
+      process.env.SMTP_PASS?.trim()
+  );
 }
 
 export interface EmailDesignTokens {
@@ -342,42 +351,39 @@ export function renderVerificationEmailHtml(code: string, recipientEmail?: strin
 
 /**
  * Dispatches the transactional verification email via configured SMTP transporter.
- * Gracefully falls back to structured server console logging when SMTP is unconfigured,
- * offline, or encounters delivery failure.
+ * Fails closed when SMTP is unconfigured or delivery fails.
  */
 export async function sendVerificationEmail(email: string, code: string): Promise<boolean> {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) return false;
 
   const transporter = getSmtpTransporter();
-
-  // If SMTP is configured, attempt outbound delivery via SMTP transporter
-  if (transporter) {
-    const startTime = performance.now();
-    try {
-      const fromAddress = process.env.SMTP_FROM?.trim() || '"BeltTrack Martial Arts" <no-reply@belttrack.app>';
-      const emailHtml = renderVerificationEmailHtml(code, normalizedEmail);
-
-      await transporter.sendMail({
-        from: fromAddress,
-        to: normalizedEmail,
-        subject: 'BeltTrack - Verify Your Email Address',
-        text: `Welcome to BeltTrack Martial Arts Management!\n\nYour 6-digit account verification code is: ${code}\n\nThis code will expire in 6 minutes.\nEnter this code in your BeltTrack dashboard banner to confirm your email.\nIf you did not register for an account, please disregard this email.`,
-        html: emailHtml
-      });
-
-      const durationMs = Math.round(performance.now() - startTime);
-      console.log(`[BELTTRACK AUTH] Verification email dispatched via SMTP [${durationMs}ms]`);
-      return true;
-    } catch {
-      const durationMs = Math.round(performance.now() - startTime);
-      console.warn(`[BELTTRACK AUTH] SMTP verification dispatch failed after ${durationMs}ms; using fallback.`);
-    }
+  if (!transporter) {
+    console.warn('[BELTTRACK AUTH] SMTP is not configured; verification email was not sent.');
+    return false;
   }
 
-  console.log('[BELTTRACK AUTH] Verification email fallback used; recipient and code withheld from logs.');
+  const startTime = performance.now();
+  try {
+    const fromAddress = process.env.SMTP_FROM?.trim() || '"BeltTrack Martial Arts" <no-reply@belttrack.app>';
+    const emailHtml = renderVerificationEmailHtml(code, normalizedEmail);
 
-  return true;
+    await transporter.sendMail({
+      from: fromAddress,
+      to: normalizedEmail,
+      subject: 'BeltTrack - Verify Your Email Address',
+      text: `Welcome to BeltTrack Martial Arts Management!\n\nYour 6-digit account verification code is: ${code}\n\nThis code will expire in 6 minutes.\nEnter this code in your BeltTrack dashboard banner to confirm your email.\nIf you did not register for an account, please disregard this email.`,
+      html: emailHtml
+    });
+
+    const durationMs = Math.round(performance.now() - startTime);
+    console.log(`[BELTTRACK AUTH] Verification email dispatched via SMTP [${durationMs}ms]`);
+    return true;
+  } catch {
+    const durationMs = Math.round(performance.now() - startTime);
+    console.warn(`[BELTTRACK AUTH] SMTP verification dispatch failed after ${durationMs}ms; verification not completed.`);
+    return false;
+  }
 }
 
 /**
@@ -444,10 +450,18 @@ async function issueCode(
 
 export async function createAndSendVerificationCode(
   email: string
-): Promise<{ success: boolean; error?: string; expiresAt?: number; code?: string }> {
+): Promise<{ success: boolean; error?: string; expiresAt?: number; code?: string; deliveryUnavailable?: boolean }> {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) {
     return { success: false, error: 'A valid email address is required.' };
+  }
+
+  if (!isSmtpConfigured()) {
+    return {
+      success: false,
+      error: 'Email delivery is not configured. Please try again later.',
+      deliveryUnavailable: true
+    };
   }
 
   const issued = await issueCode(normalizedEmail, 'EMAIL_VERIFICATION');
@@ -455,7 +469,18 @@ export async function createAndSendVerificationCode(
     return { success: false, error: issued.error };
   }
 
-  await sendVerificationEmail(normalizedEmail, issued.code);
+  const delivered = await sendVerificationEmail(normalizedEmail, issued.code);
+  if (!delivered) {
+    await prisma.verificationCode.updateMany({
+      where: { email: normalizedEmail, purpose: 'EMAIL_VERIFICATION', used: false },
+      data: { used: true }
+    });
+    return {
+      success: false,
+      error: 'Unable to send verification email. Please try again later.',
+      deliveryUnavailable: true
+    };
+  }
 
   return {
     success: true,
@@ -555,22 +580,12 @@ export async function isEmailVerified(email?: string | null): Promise<boolean> {
   if (!normalizedEmail) return false;
 
   try {
-    const [user, verifiedCode] = await Promise.all([
-      prisma.user.findUnique({
-        where: { email: normalizedEmail },
-        select: { isEmailVerified: true }
-      }),
-      prisma.verificationCode.findFirst({
-        where: {
-          email: normalizedEmail,
-          purpose: 'EMAIL_VERIFICATION',
-          used: true
-        },
-        select: { id: true }
-      })
-    ]);
+    const user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+      select: { isEmailVerified: true }
+    });
 
-    return Boolean(user?.isEmailVerified || verifiedCode);
+    return Boolean(user?.isEmailVerified);
   } catch {
     return false;
   }
@@ -598,7 +613,7 @@ export async function setEmailVerified(email: string, verified: boolean): Promis
  */
 export async function resendVerificationCode(
   email: string
-): Promise<{ success: boolean; error?: string; retryAfter?: number; code?: string }> {
+): Promise<{ success: boolean; error?: string; retryAfter?: number; code?: string; deliveryUnavailable?: boolean }> {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) {
     return {
@@ -673,6 +688,7 @@ export interface PasswordResetCodeResult {
   expiresAt?: number;
   retryAfter?: number;
   code?: string;
+  deliveryUnavailable?: boolean;
 }
 
 /**
@@ -781,37 +797,36 @@ export function renderPasswordResetEmailHtml(code: string, recipientEmail?: stri
 }
 
 /**
- * Dispatches password reset email via SMTP or console fallback.
+ * Dispatches password reset email via SMTP and fails closed on delivery errors.
  */
 export async function sendPasswordResetEmail(email: string, code: string): Promise<boolean> {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) return false;
 
   const transporter = getSmtpTransporter();
-
-  if (transporter) {
-    try {
-      const fromAddress = process.env.SMTP_FROM?.trim() || '"BeltTrack Martial Arts" <no-reply@belttrack.app>';
-      const emailHtml = renderPasswordResetEmailHtml(code, normalizedEmail);
-
-      await transporter.sendMail({
-        from: fromAddress,
-        to: normalizedEmail,
-        subject: 'BeltTrack - Your Password Reset Code',
-        text: `A password reset was requested for your BeltTrack account.\n\nYour 6-digit reset code is: ${code}\n\nThis code will expire in 6 minutes.\nEnter this code in the sign-in modal to choose a new password.\nIf you did not request this, please disregard this email.`,
-        html: emailHtml
-      });
-
-      console.log('[BELTTRACK AUTH] Password reset email dispatched via SMTP');
-      return true;
-    } catch {
-      console.warn('[BELTTRACK AUTH] SMTP password reset dispatch failed; using fallback.');
-    }
+  if (!transporter) {
+    console.warn('[BELTTRACK AUTH] SMTP is not configured; password reset email was not sent.');
+    return false;
   }
 
-  console.log('[BELTTRACK AUTH] Password reset fallback used; recipient and code withheld from logs.');
+  try {
+    const fromAddress = process.env.SMTP_FROM?.trim() || '"BeltTrack Martial Arts" <no-reply@belttrack.app>';
+    const emailHtml = renderPasswordResetEmailHtml(code, normalizedEmail);
 
-  return true;
+    await transporter.sendMail({
+      from: fromAddress,
+      to: normalizedEmail,
+      subject: 'BeltTrack - Your Password Reset Code',
+      text: `A password reset was requested for your BeltTrack account.\n\nYour 6-digit reset code is: ${code}\n\nThis code will expire in 6 minutes.\nEnter this code in the sign-in modal to choose a new password.\nIf you did not request this, please disregard this email.`,
+      html: emailHtml
+    });
+
+    console.log('[BELTTRACK AUTH] Password reset email dispatched via SMTP');
+    return true;
+  } catch {
+    console.warn('[BELTTRACK AUTH] SMTP password reset dispatch failed; reset not completed.');
+    return false;
+  }
 }
 
 /**
@@ -825,12 +840,31 @@ export async function createAndSendPasswordResetCode(
     return { success: false, error: 'A valid email address is required.' };
   }
 
+  if (!isSmtpConfigured()) {
+    return {
+      success: false,
+      error: 'Email delivery is not configured. Please try again later.',
+      deliveryUnavailable: true
+    };
+  }
+
   const issued = await issueCode(normalizedEmail, 'PASSWORD_RESET');
   if (!issued.success || !issued.code) {
     return { success: false, error: issued.error, retryAfter: issued.retryAfter };
   }
 
-  await sendPasswordResetEmail(normalizedEmail, issued.code);
+  const delivered = await sendPasswordResetEmail(normalizedEmail, issued.code);
+  if (!delivered) {
+    await prisma.verificationCode.updateMany({
+      where: { email: normalizedEmail, purpose: 'PASSWORD_RESET', used: false },
+      data: { used: true }
+    });
+    return {
+      success: false,
+      error: 'Unable to send password reset email. Please try again later.',
+      deliveryUnavailable: true
+    };
+  }
 
   return {
     success: true,

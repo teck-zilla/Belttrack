@@ -13,7 +13,7 @@ export function TopNav({
   onOpenLogin?: () => void;
 }) {
   const { activeSchool } = useTenant();
-  const { activeRole, switchRole, user, isRealSession, logout } = useAuth();
+  const { activeRole, switchRole, user, isRealSession, sessionError, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 bg-surface-container-lowest border-b border-outline-variant shadow-soft-2">
@@ -99,6 +99,15 @@ export function TopNav({
                 </button>
               ))}
             </div>
+          )}
+
+          {sessionError && (
+            <span
+              role="alert"
+              className="w-full sm:w-auto text-center text-[11px] font-label font-semibold px-2 py-1 rounded-[10px] bg-error-container text-error-on-container"
+            >
+              {sessionError}
+            </span>
           )}
 
           {/* Real Auth Actions */}

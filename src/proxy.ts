@@ -3,9 +3,46 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getRateLimitConfig, checkRateLimitAsync, getClientIp } from '@/lib/rate-limit';
 import { isAuthorizedInternalMutation, isSameOriginMutation } from '@/lib/csrf';
 
+function buildContentSecurityPolicy(nonce: string, isProduction: boolean): string {
+  const scriptSrc = isProduction
+    ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`
+    : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`;
+
+  const directives = [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "frame-ancestors 'none'",
+    "form-action 'self'",
+    "object-src 'none'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' https://fonts.gstatic.com",
+    `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com`,
+    scriptSrc,
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+    "worker-src 'self' blob:"
+  ];
+
+  if (isProduction) {
+    directives.push('upgrade-insecure-requests');
+  }
+
+  return directives.join('; ');
+}
+
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const method = request.method;
+  const isProduction = process.env.NODE_ENV === 'production';
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  const contentSecurityPolicy = buildContentSecurityPolicy(nonce, isProduction);
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-nonce', nonce);
+  requestHeaders.set('Content-Security-Policy', contentSecurityPolicy);
+
+  const applyResponseHeaders = (response: NextResponse) => {
+    response.headers.set('Content-Security-Policy', contentSecurityPolicy);
+  };
 
   // 1. IP Rate Limiting Evaluation
   const rateLimitRule = getRateLimitConfig(pathname, method);
@@ -17,7 +54,7 @@ export async function proxy(request: NextRequest) {
     const rateLimitResult = await checkRateLimitAsync(rateLimitKey, rateLimitRule);
 
     if (!rateLimitResult.success) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: rateLimitResult.message },
         {
           status: 429,
@@ -30,6 +67,8 @@ export async function proxy(request: NextRequest) {
           },
         }
       );
+      applyResponseHeaders(response);
+      return response;
     }
 
     rateLimitHeaders['X-RateLimit-Limit'] = rateLimitResult.limit.toString();
@@ -43,22 +82,27 @@ export async function proxy(request: NextRequest) {
 
   if (isApiRoute && isMutation && !isAuthorizedInternalMutation(request)) {
     if (!isSameOriginMutation(request)) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Cross-origin request blocked (CSRF protection)' },
         { status: 403 }
       );
+      applyResponseHeaders(response);
+      return response;
     }
   }
 
   // 3. Supabase Auth Session Refreshing
   let supabaseResponse = NextResponse.next({
-    request,
+    request: {
+      headers: requestHeaders,
+    },
   });
 
-  // Attach rate limit headers to downstream response
+  // Attach rate limit and CSP headers to downstream response
   Object.entries(rateLimitHeaders).forEach(([headerName, headerValue]) => {
     supabaseResponse.headers.set(headerName, headerValue);
   });
+  applyResponseHeaders(supabaseResponse);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -66,8 +110,6 @@ export async function proxy(request: NextRequest) {
   if (!supabaseUrl || !supabaseAnonKey) {
     return supabaseResponse;
   }
-
-  const isProduction = process.env.NODE_ENV === 'production';
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
@@ -77,11 +119,14 @@ export async function proxy(request: NextRequest) {
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         supabaseResponse = NextResponse.next({
-          request,
+          request: {
+            headers: requestHeaders,
+          },
         });
         Object.entries(rateLimitHeaders).forEach(([headerName, headerValue]) => {
           supabaseResponse.headers.set(headerName, headerValue);
         });
+        applyResponseHeaders(supabaseResponse);
         cookiesToSet.forEach(({ name, value, options }) =>
           supabaseResponse.cookies.set(name, value, {
             path: '/',

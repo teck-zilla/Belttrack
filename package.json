@@ -1,7 +1,11 @@
 {
   "name": "belttrack-martial-arts",
   "version": "1.0.0",
+  "private": true,
   "description": "Private, multi-tenant martial arts school management & progress monitoring platform built with Next.js and strict design tokens",
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
@@ -12,7 +16,7 @@
     "build:tokens": "node build-tokens.js",
     "audit": "node audit.js",
     "test": "npm run test:unit",
-    "test:unit": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types --test tests/schemas.test.mjs tests/tenant-isolation.test.mjs",
+    "test:unit": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types --test tests/schemas.test.mjs tests/tenant-isolation.test.mjs tests/environment.test.mjs tests/guardian-attendance.test.mjs tests/fallback-safety.test.mjs tests/auth-redirect.test.mjs tests/deletion-audit.test.mjs tests/join-code.test.mjs",
     "test:e2e": "playwright test",
     "test:rate-limit": "node scripts/test-rate-limit.mjs",
     "test:email-verify": "node scripts/test-email-verification.mjs",
@@ -22,6 +26,7 @@
     "generate:contrast-pdf": "node scripts/generate-contrast-pdf.mjs",
     "generate:account-deletion-pdf": "node scripts/generate-account-deletion-pdf.mjs",
     "generate:account-deletion-simulation-pdf": "node scripts/generate-account-deletion-simulation-pdf.mjs",
+    "generate:launch-readiness-pdf": "node scripts/generate-launch-readiness-audit-pdf.mjs",
     "benchmark:registration": "node scripts/benchmark-registration.mjs",
     "profile:owner": "node scripts/launch-browser-profiles.mjs --role=owner",
     "profile:student": "node scripts/launch-browser-profiles.mjs --role=student",

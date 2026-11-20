@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   attendanceCheckInSchema,
   emailSchema,
+  joinCodeManagementSchema,
   ledgerEntrySchema,
   passwordCreationSchema,
   schoolRegistrationSchema,
@@ -99,6 +100,17 @@ test('attendance check-in requires a valid idempotency key', () => {
   );
 });
 
+test('attendance check-in ignores client-supplied timestamps', () => {
+  const parsed = attendanceCheckInSchema.parse({
+    idempotencyKey: IDEMPOTENCY_KEY,
+    profileId: PROFILE_ID,
+    attendedAt: '2020-01-01T00:00:00.000Z'
+  });
+
+  assert.equal('attendedAt' in parsed, false);
+  assert.deepEqual(parsed, { idempotencyKey: IDEMPOTENCY_KEY, profileId: PROFILE_ID });
+});
+
 test('ledger reversals require a correctly formatted receipt slug', () => {
   assert.equal(
     ledgerEntrySchema.safeParse({
@@ -129,4 +141,25 @@ test('ledger reversals require a correctly formatted receipt slug', () => {
     }).success,
     false
   );
+});
+
+test('join code management validates rotate and revoke actions', () => {
+  const rotate = joinCodeManagementSchema.safeParse({
+    action: 'ROTATE',
+    customCode: 'ZEN-BJJ-2026'
+  });
+  const revoke = joinCodeManagementSchema.safeParse({ action: 'REVOKE' });
+  const invalidRevoke = joinCodeManagementSchema.safeParse({
+    action: 'REVOKE',
+    customCode: 'ZEN-BJJ-2026'
+  });
+  const invalidCode = joinCodeManagementSchema.safeParse({
+    action: 'ROTATE',
+    customCode: 'bad code'
+  });
+
+  assert.equal(rotate.success, true);
+  assert.equal(revoke.success, true);
+  assert.equal(invalidRevoke.success, false);
+  assert.equal(invalidCode.success, false);
 });

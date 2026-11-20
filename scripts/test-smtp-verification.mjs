@@ -1,81 +1,85 @@
-/**
- * BeltTrack SMTP Integration Test Suite
- * 
- * Verifies:
- * 1. isSmtpConfigured() reports false when environment variables are omitted.
- * 2. sendVerificationEmail() falls back cleanly to console logging without crashing.
- * 3. getSmtpTransporter() initializes properly when valid SMTP environment variables are present.
- */
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 
-import {
-  isSmtpConfigured,
-  sendVerificationEmail,
-  getSmtpTransporter
-} from '../src/lib/email-verification.ts';
+const service = await readFile(new URL('../src/lib/email-verification.ts', import.meta.url), 'utf8');
+const registerRoute = await readFile(new URL('../src/app/api/schools/register/route.ts', import.meta.url), 'utf8');
+const joinRoute = await readFile(new URL('../src/app/api/students/join/route.ts', import.meta.url), 'utf8');
+const resendRoute = await readFile(new URL('../src/app/api/auth/resend-verification/route.ts', import.meta.url), 'utf8');
+const resetRoute = await readFile(new URL('../src/app/api/auth/reset-password/route.ts', import.meta.url), 'utf8');
 
-async function runSmtpSuite() {
-  console.log('==================================================');
-  console.log('       BeltTrack SMTP Test Suite');
-  console.log('==================================================\n');
+const checks = [
+  [
+    'SMTP configuration requires host, user, and password',
+    /SMTP_HOST[\s\S]{0,200}SMTP_USER[\s\S]{0,200}SMTP_PASS/.test(service)
+  ],
+  [
+    'verification dispatch fails closed when transporter is unavailable',
+    /if \(!transporter\) \{[\s\S]{0,200}return false;/.test(service)
+  ],
+  [
+    'verification dispatch fails closed on send error',
+    /SMTP verification dispatch failed[\s\S]{0,120}return false;/.test(service)
+  ],
+  [
+    'no email console fallback success path remains',
+    !/fallback used; recipient and code withheld/.test(service)
+  ],
+  [
+    'verification code issuance requires configured SMTP',
+    /if \(!isSmtpConfigured\(\)\) \{[\s\S]{0,220}deliveryUnavailable: true/.test(service)
+  ],
+  [
+    'undelivered verification codes are invalidated',
+    /where: \{ email: normalizedEmail, purpose: 'EMAIL_VERIFICATION', used: false \}[\s\S]{0,120}used: true/.test(
+      service
+    )
+  ],
+  [
+    'password reset dispatch fails closed on send error',
+    /SMTP password reset dispatch failed[\s\S]{0,120}return false;/.test(service)
+  ],
+  [
+    'verification status trusts only the persisted user flag',
+    !/user\?\.isEmailVerified \|\| verifiedCode/.test(service) &&
+      /return Boolean\(user\?\.isEmailVerified\);/.test(service)
+  ],
+  [
+    'registration and join routes require SMTP before provisioning',
+    /registration is temporarily unavailable/i.test(registerRoute) &&
+      /registration is temporarily unavailable/i.test(joinRoute)
+  ],
+  [
+    'async email mode is blocked in production',
+    /process\.env\.NODE_ENV !== 'production'/.test(registerRoute) &&
+      /process\.env\.NODE_ENV !== 'production'/.test(joinRoute)
+  ],
+  [
+    'resend route returns 503 for delivery unavailability',
+    /deliveryUnavailable \? 503/.test(resendRoute)
+  ],
+  [
+    'password reset route blocks requests when SMTP is unconfigured',
+    /Password reset is temporarily unavailable/.test(resetRoute)
+  ]
+];
 
-  let passed = 0;
-  let failed = 0;
+let failed = 0;
 
-  function assert(condition, message) {
-    if (condition) {
-      console.log(`  [PASS] ${message}`);
-      passed++;
-    } else {
-      console.error(`  [FAIL] ${message}`);
-      failed++;
-    }
-  }
+console.log('==================================================');
+console.log('       BeltTrack SMTP Fail-Closed Test Suite');
+console.log('==================================================\n');
 
-  // --- Test 1: Fallback mode when SMTP is unconfigured ---
-  console.log('[Test 1] Testing fallback behavior without SMTP variables...');
-  const initialConfigured = isSmtpConfigured();
-  assert(typeof initialConfigured === 'boolean', 'isSmtpConfigured() returns a valid boolean');
-
-  // Verify sendVerificationEmail succeeds and returns true in fallback mode
-  const sent = await sendVerificationEmail('test.smtp@kaizenbjj.org', '123456');
-  assert(sent === true, 'sendVerificationEmail() returns true in console fallback mode');
-
-  // --- Test 2: Input validation ---
-  console.log('\n[Test 2] Testing invalid email handling...');
-  const invalidEmailResult = await sendVerificationEmail('', '123456');
-  assert(invalidEmailResult === false, 'sendVerificationEmail() safely returns false for empty email');
-
-  // --- Test 3: Transporter creation when SMTP is defined ---
-  console.log('\n[Test 3] Testing SMTP transporter configuration with mock variables...');
-  const originalHost = process.env.SMTP_HOST;
-  const originalUser = process.env.SMTP_USER;
-  const originalPass = process.env.SMTP_PASS;
-
-  try {
-    process.env.SMTP_HOST = 'smtp.testserver.local';
-    process.env.SMTP_USER = 'test-user';
-    process.env.SMTP_PASS = 'test-pass';
-
-    assert(isSmtpConfigured() === true, 'isSmtpConfigured() returns true when SMTP_HOST and SMTP_USER are set');
-    const transporter = getSmtpTransporter();
-    assert(transporter !== null, 'getSmtpTransporter() returns a valid transporter object');
-  } finally {
-    process.env.SMTP_HOST = originalHost;
-    process.env.SMTP_USER = originalUser;
-    process.env.SMTP_PASS = originalPass;
-  }
-
-  console.log('\n==================================================');
-  console.log(`SMTP TEST SUMMARY: ${passed} passed, ${failed} failed`);
-  console.log('==================================================\n');
-
-  if (failed > 0) {
-    process.exit(1);
+for (const [label, passed] of checks) {
+  if (passed) {
+    console.log(`  [PASS] ${label}`);
+  } else {
+    console.error(`  [FAIL] ${label}`);
+    failed += 1;
   }
 }
 
-runSmtpSuite().catch((err) => {
-  console.error('Unhandled exception during SMTP test suite:', err);
-  process.exit(1);
-});
+console.log(`\nSMTP TEST SUMMARY: ${checks.length - failed} passed, ${failed} failed\n`);
 
+if (failed > 0) {
+  assert.fail(`${failed} SMTP fail-closed check(s) failed`);
+}

@@ -144,7 +144,7 @@ Migration: [`prisma/migrations/20261110100000_add_user_email_verified/migration.
 ### Overview
 Implementation: [`src/lib/email-verification.ts`](../src/lib/email-verification.ts)
 
-BeltTrack supports outbound transactional email delivery via `nodemailer`. When SMTP environment variables are configured, verification emails are dispatched over SMTP with a responsive HTML template and plaintext fallback. When SMTP is unconfigured or during local offline development, it gracefully falls back to structured console logging.
+BeltTrack requires outbound transactional email delivery via `nodemailer`. Verification and password-reset codes are dispatched over SMTP with a responsive HTML template and plaintext alternative. When SMTP is unconfigured or delivery fails, registration, resend, and password-reset requests fail closed and return an error.
 
 ### Environment Variables
 Configure the following in `.env` or `.env.local`:
@@ -154,7 +154,7 @@ SMTP_HOST=smtp.sendgrid.net           # e.g., smtp.resend.com, email-smtp.us-eas
 SMTP_PORT=587                         # 587 (TLS/STARTTLS) or 465 (SSL)
 SMTP_SECURE=false                     # 'true' for port 465, 'false' for 587
 SMTP_USER=apikey                      # SMTP username or API key
-SMTP_PASS=your-smtp-api-key           # SMTP password or token
+SMTP_PASS=<SET_IN_VERCEL_ONLY>           # SMTP password or token
 SMTP_FROM="BeltTrack Dojo <no-reply@yourdomain.com>"
 ```
 

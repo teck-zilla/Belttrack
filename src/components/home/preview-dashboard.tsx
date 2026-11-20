@@ -896,16 +896,18 @@ export function PreviewDashboard() {
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-outline-variant">
-            <button
-              type="button"
-              onClick={() => void handleCheckIn()}
-              disabled={isCheckingIn || !profile?.id}
-              className="w-full py-1.5 px-3 rounded-[10px] text-xs font-label font-medium bg-surface-container hover:bg-surface-container-high hover:shadow-soft text-surface-foreground transition-all duration-[600ms] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isCheckingIn ? 'Recording attendance...' : isOwnerGroup ? '+ Record Roll-Call Check-in' : '+ Record My Check-in'}
-            </button>
-          </div>
+          {(!isRealSession || isOwnerGroup) && (
+            <div className="mt-4 pt-3 border-t border-outline-variant">
+              <button
+                type="button"
+                onClick={() => void handleCheckIn()}
+                disabled={isCheckingIn || !profile?.id}
+                className="w-full py-1.5 px-3 rounded-[10px] text-xs font-label font-medium bg-surface-container hover:bg-surface-container-high hover:shadow-soft text-surface-foreground transition-all duration-[600ms] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isCheckingIn ? 'Recording attendance...' : isOwnerGroup ? '+ Record Roll-Call Check-in' : '+ Record My Check-in'}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* CARD 2: ATTENDANCE & INACTIVE STUDENT DROP-OFF TRIGGER */}

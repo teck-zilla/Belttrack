@@ -14,6 +14,19 @@ import type { AuthSessionRow } from '@/types/domain';
 
 export type { AuthSessionRow };
 
+function resolveSessionSecret(customSecret?: string): string {
+  const secret =
+    customSecret ||
+    process.env.COOKIE_SECRET ||
+    (process.env.NODE_ENV === 'production' ? '' : 'belttrack-default-session-security-secret-key-32');
+
+  if (!secret) {
+    throw new Error('COOKIE_SECRET must be configured in production');
+  }
+
+  return secret;
+}
+
 /**
  * Returns hardened cookie flags for BeltTrack authentication cookies.
  */
@@ -49,7 +62,7 @@ export function signSessionCookie(sessionId: string, customSecret?: string): str
     throw new Error('Session ID must be a non-empty string');
   }
 
-  const secret = customSecret || process.env.COOKIE_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || 'belttrack-default-session-security-secret-key-32';
+  const secret = resolveSessionSecret(customSecret);
   const hmac = crypto.createHmac('sha256', secret).update(sessionId).digest('base64url');
   return `${sessionId}.${hmac}`;
 }
@@ -69,7 +82,7 @@ export function verifySessionCookie(signedValue: string, customSecret?: string):
 
   if (!sessionId || !signature) return null;
 
-  const secret = customSecret || process.env.COOKIE_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || 'belttrack-default-session-security-secret-key-32';
+  const secret = resolveSessionSecret(customSecret);
   const expectedSignature = crypto.createHmac('sha256', secret).update(sessionId).digest('base64url');
 
   try {

@@ -12,6 +12,12 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import type { School, SchoolMember } from '@/types/domain';
 import { assertTenantMatch } from '@/lib/prisma-extension';
 
+interface ApprovalApiGuardianLink {
+  id: string;
+  guardianId: string;
+  isApproved: boolean;
+}
+
 interface ApprovalApiMember {
   id: string;
   userId: string;
@@ -21,6 +27,7 @@ interface ApprovalApiMember {
   status: SchoolMember['status'];
   fullName: string;
   guardianName?: string;
+  guardianLinks?: ApprovalApiGuardianLink[];
   enrolledAt: string;
 }
 
@@ -31,7 +38,9 @@ interface TenantContextType {
   clearTenant: () => void;
   pendingMembers: SchoolMember[];
   approvedMembers: SchoolMember[];
+  approvalError: string | null;
   refreshApprovals: () => Promise<void>;
+  clearApprovalError: () => void;
   approveMember: (memberId: string) => Promise<void>;
   rejectMember: (memberId: string) => Promise<void>;
 }
@@ -74,6 +83,7 @@ const INITIAL_PENDING_MEMBERS: SchoolMember[] = [
     email: 'maya.lin@martialarts.net',
     guardian_name: 'David Lin',
     guardian_email: 'david.lin@parentmail.com',
+    guardian_links: ['guard-link-pend-002'],
     stripes_count: 0,
     total_classes_attended: 0,
     is_flagged_inactive: false,
@@ -116,6 +126,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
   const [activeSchool, setActiveSchoolState] = useState<School | null>(DEFAULT_DEMO_SCHOOL);
   const [pendingMembers, setPendingMembers] = useState<SchoolMember[]>(INITIAL_PENDING_MEMBERS);
   const [approvedMembers, setApprovedMembers] = useState<SchoolMember[]>(INITIAL_APPROVED_MEMBERS);
+  const [approvalError, setApprovalError] = useState<string | null>(null);
 
   const setActiveSchool = useCallback((school: School | null) => {
     setActiveSchoolState(school);
@@ -131,10 +142,20 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const res = await fetch('/api/schools/approvals', { cache: 'no-store' });
-      if (!res.ok) return;
+      if (!res.ok) {
+        setPendingMembers([]);
+        setApprovedMembers([]);
+        setApprovalError('Unable to load approvals. Sign in again or retry.');
+        return;
+      }
 
       const data = (await res.json()) as { pendingMembers?: ApprovalApiMember[] };
-      if (!Array.isArray(data.pendingMembers)) return;
+      if (!Array.isArray(data.pendingMembers)) {
+        setPendingMembers([]);
+        setApprovedMembers([]);
+        setApprovalError('Approval response was invalid. Please retry.');
+        return;
+      }
 
       const members: SchoolMember[] = data.pendingMembers
         .filter((member) => member.schoolId === schoolId)
@@ -147,6 +168,9 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
           full_name: member.fullName,
           email: member.email,
           guardian_name: member.guardianName,
+          guardian_links: member.guardianLinks
+            ?.filter((link) => !link.isApproved)
+            .map((link) => link.id),
           stripes_count: 0,
           total_classes_attended: 0,
           is_flagged_inactive: false,
@@ -155,8 +179,11 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
 
       setPendingMembers(members);
       setApprovedMembers((prev) => prev.filter((member) => member.school_id === schoolId));
+      setApprovalError(null);
     } catch {
-      // Preview mode or network failure: retain scoped local demo state.
+      setPendingMembers([]);
+      setApprovedMembers([]);
+      setApprovalError('Unable to reach the approval service. Please retry.');
     }
   }, [activeSchool?.id]);
 
@@ -166,6 +193,8 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
 
   const scopedPendingMembers = pendingMembers.filter((member) => member.school_id === activeSchool?.id);
   const scopedApprovedMembers = approvedMembers.filter((member) => member.school_id === activeSchool?.id);
+
+  const clearApprovalError = useCallback(() => setApprovalError(null), []);
 
   const approveMember = async (memberId: string) => {
     const target = scopedPendingMembers.find((m) => m.id === memberId);
@@ -177,10 +206,12 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
       status: 'active'
     };
 
-    setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
-    setApprovedMembers((prev) => [activated, ...prev]);
+    if (target.school_id === DEFAULT_DEMO_SCHOOL.id) {
+      setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
+      setApprovedMembers((prev) => [activated, ...prev]);
+      return;
+    }
 
-    // Async sync with database if user_id is a real DB record
     try {
       const res = await fetch('/api/schools/approvals', {
         method: 'POST',
@@ -191,9 +222,19 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
           action: 'APPROVE'
         })
       });
-      if (res.ok) await refreshApprovals();
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+
+      if (!res.ok) {
+        setApprovalError(data.error || 'Unable to approve this member. Please retry.');
+        return;
+      }
+
+      setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
+      setApprovedMembers((prev) => [activated, ...prev]);
+      setApprovalError(null);
+      await refreshApprovals();
     } catch {
-      // Graceful fallback for offline / preview demo mode
+      setApprovalError('Network error approving this member. Please retry.');
     }
   };
 
@@ -202,7 +243,10 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     if (!target || !activeSchool?.id) return;
     assertTenantMatch(target.school_id, activeSchool.id);
 
-    setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
+    if (target.school_id === DEFAULT_DEMO_SCHOOL.id) {
+      setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
+      return;
+    }
 
     try {
       const res = await fetch('/api/schools/approvals', {
@@ -214,9 +258,18 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
           action: 'REJECT'
         })
       });
-      if (res.ok) await refreshApprovals();
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+
+      if (!res.ok) {
+        setApprovalError(data.error || 'Unable to decline this member. Please retry.');
+        return;
+      }
+
+      setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
+      setApprovalError(null);
+      await refreshApprovals();
     } catch {
-      // Graceful fallback for offline / preview demo mode
+      setApprovalError('Network error declining this member. Please retry.');
     }
   };
 
@@ -229,7 +282,9 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         clearTenant,
         pendingMembers: scopedPendingMembers,
         approvedMembers: scopedApprovedMembers,
+        approvalError,
         refreshApprovals,
+        clearApprovalError,
         approveMember,
         rejectMember
       }}

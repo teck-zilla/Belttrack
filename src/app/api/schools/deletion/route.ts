@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { writeAuditLog } from '@/lib/audit-log';
 import { requireActiveStaff, requireSessionUser } from '@/lib/auth-guard';
 import { getDeletionSchedule } from '@/lib/account-deletion';
 import { deletionRequestSchema } from '@/lib/validation/schemas';
@@ -158,6 +159,19 @@ export async function POST(request: Request) {
         }
       });
 
+      await writeAuditLog(tx, {
+        schoolId: guard.user.schoolId,
+        actorUserId: guard.user.userId,
+        action: 'SCHOOL_DELETION_SCHEDULED',
+        targetType: 'DeletionRequest',
+        targetId: deletionRequest.id,
+        metadata: {
+          targetType: 'SCHOOL',
+          scheduledFor: scheduledFor.toISOString(),
+          reason: validated.data.reason || null
+        }
+      });
+
       return deletionRequest;
     });
 
@@ -209,20 +223,35 @@ export async function DELETE() {
       );
     }
 
-    const [cancelled] = await prisma.$transaction([
-      prisma.deletionRequest.update({
+    const cancelled = await prisma.$transaction(async (tx) => {
+      const updated = await tx.deletionRequest.update({
         where: { id: deletionRequest.id },
         data: { status: 'CANCELLED' }
-      }),
-      prisma.school.update({
+      });
+
+      await tx.school.update({
         where: { id: guard.user.schoolId },
         data: {
           deletionRequestedAt: null,
           deletionScheduledFor: null,
           isCodeActive: true
         }
-      })
-    ]);
+      });
+
+      await writeAuditLog(tx, {
+        schoolId: guard.user.schoolId,
+        actorUserId: guard.user.userId,
+        action: 'SCHOOL_DELETION_CANCELLED',
+        targetType: 'DeletionRequest',
+        targetId: updated.id,
+        metadata: {
+          targetType: 'SCHOOL',
+          fromStatus: 'APPROVED'
+        }
+      });
+
+      return updated;
+    });
 
     return NextResponse.json({
       success: true,

@@ -25,7 +25,8 @@ export async function GET() {
         guardianLinks: {
           include: {
             guardian: true
-          }
+          },
+          orderBy: { createdAt: 'desc' }
         }
       },
       orderBy: { createdAt: 'desc' }
@@ -51,6 +52,11 @@ export async function GET() {
       fullName: u.profile ? `${u.profile.firstName} ${u.profile.lastName}` : u.email,
       isMinor: u.profile?.isMinor ?? false,
       guardianName: u.guardianLinks[0]?.guardian?.email ? u.guardianLinks[0].guardian.email : undefined,
+      guardianLinks: u.guardianLinks.map((link) => ({
+        id: link.id,
+        guardianId: link.guardianId,
+        isApproved: link.isApproved
+      })),
       enrolledAt: u.createdAt ? new Date(u.createdAt).toISOString() : new Date().toISOString()
     }));
 
@@ -123,28 +129,92 @@ export async function POST(request: Request) {
 
     const nextStatus = action === 'APPROVE' ? 'ACTIVE' : 'SUSPENDED';
 
-    // Update status in database, scoped to the same tenant.
-    const updatedUser = await prisma.user.update({
-      where: { id: user.id },
-      data: { status: nextStatus }
-    });
+    const guardianActivation =
+      action === 'APPROVE' && user.role === 'STUDENT'
+        ? await prisma.guardianStudent.findMany({
+            where: {
+              schoolId,
+              studentId: user.id,
+              isApproved: false
+            },
+            select: { id: true, guardianId: true },
+            orderBy: { createdAt: 'desc' }
+          })
+        : [];
 
-    await writeAuditLog(prisma, {
-      schoolId,
-      actorUserId: guard.user.userId,
-      action: action === 'APPROVE' ? 'MEMBER_APPROVED' : 'MEMBER_REJECTED',
-      targetType: 'User',
-      targetId: user.id,
-      metadata: {
-        previousStatus: user.status,
-        nextStatus
+    const guardians = guardianActivation.length
+      ? await prisma.user.findMany({
+          where: {
+            schoolId,
+            id: { in: guardianActivation.map((link) => link.guardianId) },
+            role: 'GUARDIAN'
+          },
+          select: { id: true, supabaseUid: true }
+        })
+      : [];
+
+    const { updatedUser } = await prisma.$transaction(async (tx) => {
+      const updatedUser = await tx.user.update({
+        where: { id: user.id },
+        data: { status: nextStatus }
+      });
+
+      await writeAuditLog(tx, {
+        schoolId,
+        actorUserId: guard.user.userId,
+        action: action === 'APPROVE' ? 'MEMBER_APPROVED' : 'MEMBER_REJECTED',
+        targetType: 'User',
+        targetId: user.id,
+        metadata: {
+          previousStatus: user.status,
+          nextStatus
+        }
+      });
+
+      if (guardianActivation.length) {
+        await tx.guardianStudent.updateMany({
+          where: {
+            schoolId,
+            studentId: user.id,
+            isApproved: false
+          },
+          data: { isApproved: true }
+        });
+
+        await tx.user.updateMany({
+          where: {
+            schoolId,
+            id: { in: guardians.map((guardian) => guardian.id) },
+            role: 'GUARDIAN'
+          },
+          data: { status: 'ACTIVE' }
+        });
+
+        for (const link of guardianActivation) {
+          await writeAuditLog(tx, {
+            schoolId,
+            actorUserId: guard.user.userId,
+            action: 'GUARDIAN_LINK_APPROVED',
+            targetType: 'GuardianStudent',
+            targetId: link.id,
+            metadata: {
+              studentId: user.id,
+              guardianId: link.guardianId
+            }
+          });
+        }
       }
+
+      return { updatedUser };
     });
 
-    // Sync Supabase Auth metadata if supabaseUid is bound
-    if (user.supabaseUid) {
+    const hasAuthUpdate = Boolean(
+      user.supabaseUid || guardians.some((guardian) => guardian.supabaseUid)
+    );
+    const admin = hasAuthUpdate ? getAdminClient() : null;
+
+    if (user.supabaseUid && admin) {
       try {
-        const admin = getAdminClient();
         await admin.auth.admin.updateUserById(user.supabaseUid, {
           user_metadata: {
             status: nextStatus
@@ -155,10 +225,24 @@ export async function POST(request: Request) {
       }
     }
 
+    for (const guardian of guardians) {
+      if (!guardian.supabaseUid || !admin) continue;
+      try {
+        await admin.auth.admin.updateUserById(guardian.supabaseUid, {
+          user_metadata: {
+            status: 'ACTIVE'
+          }
+        });
+      } catch {
+        // Metadata sync is best-effort; the DB status is the source of truth.
+      }
+    }
+
     return NextResponse.json({
       success: true,
       status: nextStatus,
-      userId: updatedUser.id
+      userId: updatedUser.id,
+      guardianLinksApproved: guardianActivation.length
     });
   } catch {
     console.error('[BELTTRACK AUTH /api/schools/approvals] POST error');

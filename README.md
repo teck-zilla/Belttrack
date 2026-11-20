@@ -10,7 +10,7 @@ BeltTrack has evolved from an interactive MVP preview (**V1**) into a fully auth
 
 | Phase | Milestone | Deliverables & Scope | Status |
 | :--- | :--- | :--- | :--- |
-| **Phase 1** | **Supabase SSR & Client Infrastructure** | • Browser client via `@supabase/ssr` (`src/lib/supabase/client.ts`)<br>• Server client with async Next.js cookie handling (`src/lib/supabase/server.ts`)<br>• Service-role admin client (`src/lib/supabase/admin.ts`)<br>• Session refresh proxy middleware (`src/middleware.ts`) | **Complete & Verified** |
+| **Phase 1** | **Supabase SSR & Client Infrastructure** | • Browser client via `@supabase/ssr` (`src/lib/supabase/client.ts`)<br>• Server client with async Next.js cookie handling (`src/lib/supabase/server.ts`)<br>• Service-role admin client (`src/lib/supabase/admin.ts`)<br>• Session refresh proxy (`src/proxy.ts`) | **Complete & Verified** |
 | **Phase 2** | **User Identity Linking & Schema Alignment** | • Added `supabase_uid String? @unique` to `prisma/schema.prisma`<br>• Made `hashedPassword` optional to decouple local auth from Supabase credentials<br>• Updated TypeScript domain models (`src/types/domain.ts`)<br>• Added `loginSchema` with runtime validations in `src/lib/validation/schemas.ts` | **Complete & Verified** |
 | **Phase 3** | **Authentication API & Route Handlers** | • `POST /api/auth/login`: Signs in via Supabase Auth and binds to PostgreSQL `school_id`<br>• `POST /api/auth/logout`: Clears session tokens and HTTP-only cookies<br>• `GET /api/auth/callback`: Handles PKCE code exchanges<br>• `GET /api/auth/me`: Resolves active session and tenant mapping | **Complete & Verified** |
 | **Phase 4** | **Client Auth State & Context Synchronization** | • `src/context/auth-context.tsx`: Subscribed to `onAuthStateChange` & `/api/auth/me`<br>• Added asynchronous `login(email, password)` and `logout()` handlers<br>• Preserved fallback demo persona preview mode for unauthenticated users<br>• Updated `src/components/layout/top-nav.tsx` with live session indicator & Sign In/Out | **Complete & Verified** |
@@ -95,7 +95,7 @@ Under standard web browser security ([RFC 6265](https://datatracker.ietf.org/doc
 | Phase | Milestone | Scope & Deliverables | Target |
 | :--- | :--- | :--- | :--- |
 | **Phase 1** | **Immediate QA Testing & Isolation** | • Support concurrent testing via isolated browser profiles (Chrome/Edge Profiles or Incognito windows)<br>• Maintain existing interactive role switcher in top navigation for client-side demo evaluation | **Current (Complete)** |
-| **Phase 2** | **Multi-Membership Schema & Active Context** | • Introduce `SchoolMember` relation in `prisma/schema.prisma` decoupling `User` from single `schoolId`<br>• Implement `belttrack_active_school_id` signed cookie handling in `src/middleware.ts`<br>• Update `src/context/tenant-context.tsx` to read and synchronize active academy membership | **Sprint 1** |
+| **Phase 2** | **Multi-Membership Schema & Active Context** | • Introduce `SchoolMember` relation in `prisma/schema.prisma` decoupling `User` from single `schoolId`<br>• Implement `belttrack_active_school_id` signed cookie handling in `src/proxy.ts`<br>• Update `src/context/tenant-context.tsx` to read and synchronize active academy membership | **Sprint 1** |
 | **Phase 3** | **Interactive Academy & Role Switcher UI** | • Upgrade `src/components/layout/top-nav.tsx` with dynamic tenant selection dropdown<br>• Add "+ Join School with Code" flow for existing accounts without re-registration<br>• Enforce strict cross-tenant RLS checks on active membership switches | **Sprint 2** |
 | **Phase 4** | **Guardian & Dependent Multi-Persona Views** | • Connect `GuardianStudent` relation to active switcher for 1-click toggling between parent and child<br>• Restrict guardian view to read-only attendance, curriculum progress, and immutable receipts | **Sprint 3** |
 | **Phase 5** | **Production Subdomain Tenant Routing** | • Configure wildcard DNS (`*.belttrack.com`)<br>• Extract academy slug from `request.headers.get('host')` in Next.js middleware<br>• Enforce host-only cookie policies for complete multi-tenant browser isolation | **Production Launch** |
@@ -287,7 +287,7 @@ BELTTRACK APP/
 │   │   │   └── admin.ts              # Service-role admin client (@supabase/supabase-js)
 │   │   └── validation/
 │   │       └── schemas.ts            # Zod validation schemas for forms, login, & ledger
-│   ├── middleware.ts                 # Supabase session refresh proxy middleware
+│   ├── proxy.ts                      # Supabase session refresh proxy
 │   ├── styles/
 │   │   ├── globals.css               # Next.js App Router Tailwind styles
 │   │   └── tokens.css                # Centralized token import layer

@@ -363,7 +363,7 @@ export function generateVercelEnvReport(outputPath) {
     { name: 'SMTP_PORT', val: '587', env: 'Prod, Preview', purpose: 'Standard submission port for encrypted STARTTLS transport.' },
     { name: 'SMTP_SECURE', val: 'false', env: 'Prod, Preview', purpose: 'False for port 587 (opportunistic upgrade via STARTTLS).' },
     { name: 'SMTP_USER', val: 'temitayoodutola@gmail.com', env: 'Prod, Preview', purpose: 'Authenticated sender email identity.' },
-    { name: 'SMTP_PASS', val: 'kkftacjbvqfvpdys', env: 'Prod, Preview', purpose: '16-character dedicated Google App Password.' },
+    { name: 'SMTP_PASS', val: 'SET_IN_VERCEL_ONLY_ROTATE_REQUIRED', env: 'Prod, Preview', purpose: 'Rotate the previous Google App Password; store only in Vercel.' },
     { name: 'SMTP_FROM', val: 'BeltTrack Dojo <...>', env: 'Prod, Preview', purpose: 'From header rendered in user inbox client.' }
   ];
 

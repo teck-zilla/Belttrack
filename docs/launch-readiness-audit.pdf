@@ -1,0 +1,1137 @@
+%PDF-1.4
+%BT
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [8 0 R 10 0 R 12 0 R 14 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Length 6207 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 9 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK LAUNCH READINESS AUDIT) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+402 762 Td
+(Static Scan + Local Verification) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Implemented features, verified capabilities, and launch-affecting gaps) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F2 22 Tf
+0.1059 0.1647 0.2902 rg
+52 720 Td
+(BeltTrack Launch Readiness Audit) Tj
+ET
+BT
+/F1 11 Tf
+0.1451 0.3882 0.9216 rg
+52 700 Td
+(Implemented features, verified capabilities, and launch-affecting gaps) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 676 Td
+(Document date:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+163 676 Td
+(19 November 2026) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 663.5 Td
+(Repository:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+163 663.5 Td
+(https://github.com/teck-zilla/Belttrack.git) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 651 Td
+(Branch:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+163 651 Td
+(second-branch) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 638.5 Td
+(HEAD:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+163 638.5 Td
+(708bc7c feat\(phase3\): harden production security and verification) Tj
+ET
+BT
+/F2 8.5 Tf
+0.3608 0.3922 0.4392 rg
+52 626 Td
+(Method:) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+163 626 Td
+(Static repository scan plus latest local verification results) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 550 508 59.5 re f
+0.1451 0.3882 0.9216 RG
+2 w
+52 550 m 52 609.5 l s
+BT
+/F2 8.5 Tf
+0.1451 0.3882 0.9216 rg
+64 596.5 Td
+(SCOPE NOTICE) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 584.5 Td
+(This document reflects the repository state on second-branch at the cited commit. No deployed environment,) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 573 Td
+(live database, SMTP provider, Upstash account, or GitHub repository setting was inspected. No secret value) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 561.5 Td
+(is reproduced in this PDF.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.1059 0.1647 0.2902 rg
+52 534 Td
+(VERIFICATION SUMMARY) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 527 m 560 527 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 513 Td
+(The latest local verification results were:) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 418 508 79 re f
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 484 Td
+(npm run audit                         0 hardcoded color violations) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 473.5 Td
+(npx tsc --noEmit --incremental false   clean) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 463 Td
+(npm run lint                           clean) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 452.5 Td
+(npm test                               32/32 pass) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 442 Td
+(npx next build                         pass) Tj
+ET
+BT
+/F4 8 Tf
+0.1451 0.1647 0.2000 rg
+62 431.5 Td
+(npm run test:e2e                       2 passed, 1 env-gated skip) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 409 Td
+(The two passing e2e tests mock registration and join API responses. The staff lifecycle test is skipped) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 396 Td
+(unless E2E_STAFF_STORAGE_STATE, E2E_PROFILE_ID, and E2E_TECHNIQUE_ID are provided.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.1059 0.1647 0.2902 rg
+52 374 Td
+(1. IMPLEMENTED AND WORKING LOCALLY) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 367 m 560 367 l s
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 353 Td
+(The items below are implemented in source and covered by local checks where noted. Demo-only or) Tj
+ET
+BT
+/F1 9.5 Tf
+0.1451 0.1647 0.2000 rg
+52 340 Td
+(simulated states are identified explicitly.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 324 Td
+(Product and UI) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 311 Td
+(- Next.js App Router shell, providers, metadata, and dynamic title: src/app/layout.tsx:1,) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 298.5 Td
+(  src/components/layout/dynamic-title.tsx:1.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 283 Td
+(- Top nav with tenant banner, role switcher, directory action, and sign-in/out states:) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 270.5 Td
+(  src/components/layout/top-nav.tsx:1.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 255 Td
+(- Demo/Real session banner and preview/live split: src/app/page.tsx:520.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 239.5 Td
+(- Hero, role cards, registration, join, login, terms, and directory modals:) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 227 Td
+(  src/components/home/hero-section.tsx:1, role-entry-cards.tsx:1, student-join-modal.tsx:1,) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 214.5 Td
+(  login-modal.tsx:1.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 199 Td
+(- Role-aware dashboard with rank progress, check-in, inactivity risk, and ledger summaries:) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 186.5 Td
+(  src/components/home/preview-dashboard.tsx:1.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 171 Td
+(- Technique curriculum and staff sign-off UI: src/components/home/technique-curriculum-modal.tsx:1.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 155.5 Td
+(- Manual ledger entry, approvals, account/school deletion modals: manual-ledger-modal.tsx:1,) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 143 Td
+(  member-approval-modal.tsx:1, account-deletion-modal.tsx:1.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 127.5 Td
+(- Accessible modal focus trapping and Escape handling: src/components/home/use-accessible-modal.ts:1.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 112 Td
+(- Standalone static preview files exist: index.html, index.css, app.js, server.js.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 96.5 Td
+(Auth, Tenancy, and Data) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 83.5 Td
+(- Supabase SSR, browser, and admin clients: src/lib/supabase/client.ts, server.ts, admin.ts.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 68 Td
+(- Auth context, tenant context, session and role switching: src/context/auth-context.tsx:1,) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Launch Readiness Audit  |  Page 1 of 4) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 6355 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 9 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK LAUNCH READINESS AUDIT) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+402 762 Td
+(Static Scan + Local Verification) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Implemented features, verified capabilities, and launch-affecting gaps) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 720 Td
+(  src/context/tenant-context.tsx:1.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 704.5 Td
+(- Fail-closed guards deriving tenant from DB user: src/lib/auth-guard.ts:1.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 689 Td
+(- Prisma tenant extension and scoped transactions with RLS context vars: src/lib/prisma-extension.ts:19,) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 676.5 Td
+(  :132.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 661 Td
+(- Multi-tenant schema with enums, indexes, and 14 tenant models including AuditLog:) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 648.5 Td
+(  prisma/schema.prisma:11, :86, :358.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 633 Td
+(- RLS policy source for tenant tables, ledger immutability, and append-only audit:) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 620.5 Td
+(  prisma/rls_policies.sql:12, :191, :250.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 605 Td
+(- Migrations for init, verification codes, persistence/idempotency, deletion lifecycle, and audit log:) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 592.5 Td
+(  prisma/migrations/**.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 577 Td
+(API and Domain Operations) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 564 Td
+(- Register school, join with code, login/logout/me, verification/resend/reset flows.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 548.5 Td
+(- Tenant-scoped approvals and pending-account gating: src/app/api/schools/approvals/route.ts:7.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 533 Td
+(- Dashboard aggregation, attendance with idempotency, and inactivity alerts:) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 520.5 Td
+(  src/app/api/dashboard/route.ts, src/app/api/attendance/route.ts:25.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 505 Td
+(- Technique read and staff sign-off: src/app/api/techniques/route.ts,) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 492.5 Td
+(  src/app/api/techniques/verify/route.ts:7.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 477 Td
+(- Ledger write with receipt numbering and reversal validation: src/app/api/ledger/route.ts:8.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 461.5 Td
+(- Public directory restricted to name, slug, city, and discipline:) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 449 Td
+(  src/app/api/schools/directory/route.ts:6.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 433.5 Td
+(- Account/school deletion lifecycle and protected internal purge:) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 421 Td
+(  src/app/api/internal/deletions/purge/route.ts:12.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 405.5 Td
+(Security and Quality) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 392.5 Td
+(- Upstash rate limiting and Vercel-aware proxy IP extraction: src/lib/rate-limit.ts:38, :125, :326.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 377 Td
+(- Same-origin CSRF enforcement with internal bearer exemption: src/lib/csrf.ts:12, src/proxy.ts:40.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 361.5 Td
+(- Security headers and production HSTS in next.config.mjs; nonce-based per-request CSP enforced in) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 349 Td
+(  src/proxy.ts.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 333.5 Td
+(- Append-only audit writes for approvals, ledger, and deletion/staff actions: src/lib/audit-log.ts:17,) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 321 Td
+(  approvals route :132, ledger route :108, deletion routes, and internal purge.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 305.5 Td
+(- Zod unit tests, tenant-isolation and guardian/attendance static tests, and Playwright lifecycle tests:) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 293 Td
+(  tests/**, playwright.config.ts:1.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 277.5 Td
+(- Token pipeline and zero color violations: build-tokens.js:4, audit.js:19.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.1059 0.1647 0.2902 rg
+52 256 Td
+(2. LAUNCH-AFFECTING GAPS) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 249 m 560 249 l s
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 235 Td
+(Blockers / High Risk) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 151 508 71 re f
+0.6039 0.4039 0.0000 RG
+2 w
+52 151 m 52 222 l s
+BT
+/F2 8.5 Tf
+0.6039 0.4039 0.0000 rg
+64 209 Td
+(1. SMTP CREDENTIAL EXPOSURE - LOCAL REMOVAL DONE) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 197 Td
+(The embedded Google App Password value was removed from scripts/generate-vercel-env-pdf.mjs,) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 185.5 Td
+(docs/email-verification-system.md, and the regenerated docs/vercel-environment-variables.pdf. The) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 174 Td
+(credential must still be rotated externally because Git history contains the old value; no value is) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 162.5 Td
+(reproduced here.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 141 Td
+(- RESOLVED: SMTP verification fails closed: src/lib/email-verification.ts returns false when SMTP is) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 128.5 Td
+(  missing or delivery fails, invalidates undelivered codes, and registration/resend/reset routes return) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 116 Td
+(  503. SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS, and SMTP_FROM are documented in) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 103.5 Td
+(  .env.example and docs/environment-checklist.md.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 88 Td
+(- RLS is not fully migration-enforced: detailed RLS lives in prisma/rls_policies.sql, migrations only) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 75.5 Td
+(  include partial policies, and VerificationCode has no RLS policy at all. Full RLS must be applied) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Launch Readiness Audit  |  Page 2 of 4) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 6945 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 9 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK LAUNCH READINESS AUDIT) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+402 762 Td
+(Static Scan + Local Verification) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Implemented features, verified capabilities, and launch-affecting gaps) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 720 Td
+(  manually before launch.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 704.5 Td
+(- RESOLVED: boot validation now enforces all production runtime secrets and config in) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 692 Td
+(  src/lib/env-validation.ts, rejects placeholders/weak secrets, and production HMAC/session helpers no) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 679.5 Td
+(  longer use hardcoded fallback secrets.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 664 Td
+(- RESOLVED: approving a minor student now approves pending GuardianStudent links, activates linked guardian) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 651.5 Td
+(  accounts, and writes GUARDIAN_LINK_APPROVED audit entries: src/app/api/schools/approvals/route.ts.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 636 Td
+(- RESOLVED: attendance is staff-only, the attendedAt value is server-generated, and the client timestamp) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 623.5 Td
+(  field was removed from the Zod schema: src/app/api/attendance/route.ts and src/lib/validation/schemas.ts.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 608 Td
+(- RESOLVED: client-side fallback sessions were removed, session/approval failures fail closed in real) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 595.5 Td
+(  sessions, and approvals only update local state after server confirmation: src/context/auth-context.tsx) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 583 Td
+(  and src/context/tenant-context.tsx.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 567.5 Td
+(- RESOLVED: scheduled purge is active on main: .github/workflows/purge-deletions.yml:1 is on the default) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 555 Td
+(  branch, APP_BASE_URL is set to https://belttrack.vercel.app, DELETION_PURGE_SECRET is set, and scheduled) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 542.5 Td
+(  runs on main are succeeding.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 527 Td
+(- E2E is partially mocked and gated: registration/join tests mock APIs at tests/e2e/lifecycle.spec.ts:10;) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 514.5 Td
+(  the live DB lifecycle skips without E2E_STAFF_STORAGE_STATE, E2E_PROFILE_ID, and E2E_TECHNIQUE_ID.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 499 Td
+(- RESOLVED: owner-only join-code rotation/revocation API added at /api/schools/join-code with validation) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 486.5 Td
+(  and audit logging; rank/technique CRUD routes remain out of scope if not required for current launch) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 474 Td
+(  flow.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 458.5 Td
+(- RESOLVED: deletion lifecycle and staff deletion review routes now append audit events, and the internal) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 446 Td
+(  purge route records completion/failure audit entries.) Tj
+ET
+BT
+/F2 9.5 Tf
+0.1059 0.1647 0.2902 rg
+52 430.5 Td
+(Non-blocking but Should Fix) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 417.5 Td
+(- RESOLVED: auth callbacks ignore forwarded hosts, validate next as a local path, and prefer) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 405 Td
+(  NEXT_PUBLIC_SITE_URL or VERCEL_URL over the request origin: src/lib/auth-redirect.ts and) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 392.5 Td
+(  src/app/api/auth/callback/route.ts.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 377 Td
+(- RESOLVED: CSP is nonce-based per request in src/proxy.ts with no unsafe-inline scripts/styles \(dev) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 364.5 Td
+(  retains unsafe-eval for tooling\); static CSP removed from next.config.mjs.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 349 Td
+(- RESOLVED: .github/workflows/ci.yml runs audit, lint, type-check, unit/static tests, and production build) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 336.5 Td
+(  on pushes and pull requests to main and second-branch.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 321 Td
+(- student.cookies remains untracked and not ignored.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 305.5 Td
+(- Docs drift reduced: README now references src/proxy.ts; roadmap still lists unimplemented) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 293 Td
+(  multi-membership/subdomain phases and stale fixes.md/PDF docs may contradict current code.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 277.5 Td
+(- Audit scope is color-only, not all hardcoded styling values.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 262 Td
+(- RESOLVED: package.json now declares private=true and a Node >=20.9.0 engine requirement.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.1059 0.1647 0.2902 rg
+52 240.5 Td
+(3. RECOMMENDED LAUNCH SEQUENCE) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 233.5 m 560 233.5 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 219.5 Td
+(- Rotate the exposed SMTP credential externally and decide whether to rewrite Git history; local tracked) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 207 Td
+(  files and regenerated PDFs no longer contain the value.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 191.5 Td
+(- Keep SMTP settings configured in every deployment environment and monitor delivery failures; registration) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 179 Td
+(  now returns 503 when outbound email is unavailable.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 163.5 Td
+(- Apply the full RLS file to the deployment database and add RLS for VerificationCode; verify with a) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 151 Td
+(  cross-tenant test.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 135.5 Td
+(- Keep production deployment secrets populated and monitor boot validation errors; never add fallback) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 123 Td
+(  secrets back to HMAC or session helpers.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 107.5 Td
+(- Keep guardian link approval, staff-only attendance, and deletion audit writes protected by regression) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 95 Td
+(  tests and verify them against a real tenant in staging.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 79.5 Td
+(- Keep owner join-code rotation/revocation protected and add curriculum/belt CRUD only if required for) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 67 Td
+(  launch scope.) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Launch Readiness Audit  |  Page 3 of 4) Tj
+ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 1918 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 9 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK LAUNCH READINESS AUDIT) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+402 762 Td
+(Static Scan + Local Verification) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Implemented features, verified capabilities, and launch-affecting gaps) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 720 Td
+(- Keep the already-configured purge workflow on main and monitor scheduled runs.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 704.5 Td
+(- Replace mocked/gated e2e coverage with staged real-flow coverage; CI now gates audit, lint, type-check,) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 692 Td
+(  unit/static tests, and build.) Tj
+ET
+BT
+/F2 10.5 Tf
+0.1059 0.1647 0.2902 rg
+52 670.5 Td
+(ASSUMPTIONS) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 663.5 m 560 663.5 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 649.5 Td
+(- This PDF is based on a static repository scan and the latest local verification results; no deployed) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 637 Td
+(  environment or external provider state was inspected.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 621.5 Td
+(- Implemented means source code and checks exist locally; it does not guarantee production behavior without) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 609 Td
+(  configured secrets, applied migrations/RLS, and live integration tests.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 593.5 Td
+(- No secret values were read for inclusion or reproduced in this PDF.) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+64 578 Td
+(- The explicit out-of-scope MVP items remain excluded from launch-gap analysis.) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Launch Readiness Audit  |  Page 4 of 4) Tj
+ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 13 0 R >>
+endobj
+xref
+0 15
+0000000000 65535 f 
+0000000013 00000 n 
+0000000062 00000 n 
+0000000140 00000 n 
+0000000237 00000 n 
+0000000339 00000 n 
+0000000444 00000 n 
+0000000539 00000 n 
+0000006798 00000 n 
+0000006954 00000 n 
+0000013361 00000 n 
+0000013518 00000 n 
+0000020516 00000 n 
+0000020674 00000 n 
+0000022645 00000 n 
+trailer
+<< /Size 15 /Root 1 0 R >>
+startxref
+22803
+%%EOF

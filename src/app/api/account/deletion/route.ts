@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { writeAuditLog } from '@/lib/audit-log';
 import { requireActiveMember, requireSessionUser } from '@/lib/auth-guard';
 import { deletionRequestSchema } from '@/lib/validation/schemas';
 
@@ -116,15 +117,31 @@ export async function POST(request: Request) {
       );
     }
 
-    const created = await prisma.deletionRequest.create({
-      data: {
+    const created = await prisma.$transaction(async (tx) => {
+      const deletionRequest = await tx.deletionRequest.create({
+        data: {
+          schoolId: guard.user.schoolId,
+          targetType: 'USER',
+          targetUserId: guard.user.userId,
+          requestedById: guard.user.userId,
+          status: 'PENDING',
+          reason: validated.data.reason || null
+        }
+      });
+
+      await writeAuditLog(tx, {
         schoolId: guard.user.schoolId,
-        targetType: 'USER',
-        targetUserId: guard.user.userId,
-        requestedById: guard.user.userId,
-        status: 'PENDING',
-        reason: validated.data.reason || null
-      }
+        actorUserId: guard.user.userId,
+        action: 'ACCOUNT_DELETION_REQUESTED',
+        targetType: 'DeletionRequest',
+        targetId: deletionRequest.id,
+        metadata: {
+          targetType: 'USER',
+          reason: validated.data.reason || null
+        }
+      });
+
+      return deletionRequest;
     });
 
     return NextResponse.json(
@@ -179,9 +196,25 @@ export async function DELETE() {
     }
 
     if (request.status === 'PENDING') {
-      const cancelled = await prisma.deletionRequest.update({
-        where: { id: request.id },
-        data: { status: 'CANCELLED' }
+      const cancelled = await prisma.$transaction(async (tx) => {
+        const updated = await tx.deletionRequest.update({
+          where: { id: request.id },
+          data: { status: 'CANCELLED' }
+        });
+
+        await writeAuditLog(tx, {
+          schoolId: guard.user.schoolId,
+          actorUserId: guard.user.userId,
+          action: 'ACCOUNT_DELETION_CANCELLED',
+          targetType: 'DeletionRequest',
+          targetId: updated.id,
+          metadata: {
+            targetType: 'USER',
+            fromStatus: 'PENDING'
+          }
+        });
+
+        return updated;
       });
 
       return NextResponse.json({
@@ -191,20 +224,35 @@ export async function DELETE() {
       });
     }
 
-    const [cancelled] = await prisma.$transaction([
-      prisma.deletionRequest.update({
+    const cancelled = await prisma.$transaction(async (tx) => {
+      const updated = await tx.deletionRequest.update({
         where: { id: request.id },
         data: { status: 'CANCELLED' }
-      }),
-      prisma.user.update({
+      });
+
+      await tx.user.update({
         where: { id: guard.user.userId },
         data: {
           status: 'ACTIVE',
           deletionRequestedAt: null,
           deletionScheduledFor: null
         }
-      })
-    ]);
+      });
+
+      await writeAuditLog(tx, {
+        schoolId: guard.user.schoolId,
+        actorUserId: guard.user.userId,
+        action: 'ACCOUNT_DELETION_CANCELLED',
+        targetType: 'DeletionRequest',
+        targetId: updated.id,
+        metadata: {
+          targetType: 'USER',
+          fromStatus: 'APPROVED'
+        }
+      });
+
+      return updated;
+    });
 
     return NextResponse.json({
       success: true,

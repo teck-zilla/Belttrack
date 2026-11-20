@@ -16,7 +16,8 @@ import {
   createAndSendPasswordResetCode,
   verifyPasswordResetCode,
   markPasswordResetCodeUsed,
-  resendPasswordResetCode
+  resendPasswordResetCode,
+  isSmtpConfigured
 } from '@/lib/email-verification';
 
 export async function POST(request: Request) {
@@ -44,6 +45,13 @@ export async function POST(request: Request) {
         return NextResponse.json(
           { error: 'Please enter your account email or school join code.' },
           { status: 400 }
+        );
+      }
+
+      if (!isSmtpConfigured()) {
+        return NextResponse.json(
+          { error: 'Email delivery is not configured. Password reset is temporarily unavailable.' },
+          { status: 503 }
         );
       }
 
@@ -96,14 +104,16 @@ export async function POST(request: Request) {
 
       // Enumeration-safe: always return the same response whether or not an account exists.
       if (targetEmail) {
-        try {
-          if (action === 'resend') {
-            await resendPasswordResetCode(targetEmail);
-          } else {
-            await createAndSendPasswordResetCode(targetEmail);
-          }
-        } catch {
-          console.error('[BELTTRACK AUTH /api/auth/reset-password] Reset code dispatch failed');
+        const result =
+          action === 'resend'
+            ? await resendPasswordResetCode(targetEmail)
+            : await createAndSendPasswordResetCode(targetEmail);
+
+        if (result.deliveryUnavailable) {
+          return NextResponse.json(
+            { error: result.error || 'Unable to send password reset email. Please try again later.' },
+            { status: 503 }
+          );
         }
       }
 
