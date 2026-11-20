@@ -21,6 +21,9 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    agentUpgrade: 'security',
+  },
   reactStrictMode: true,
   poweredByHeader: false,
   turbopack: {
@@ -37,3 +40,4 @@ const nextConfig = {
 };
 
 export default nextConfig;
+
