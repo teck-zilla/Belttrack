@@ -636,8 +636,42 @@ export function PreviewDashboard() {
   if (dashboardError) {
     return (
       <section className="max-w-5xl mx-auto px-4 mb-16">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div>
+            <span className="font-label text-xs font-bold uppercase tracking-wider text-tertiary">
+              Account Access
+            </span>
+            <h2 className="font-headline text-2xl font-bold text-primary">Dashboard unavailable</h2>
+          </div>
+          {isRealSession && (
+            <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+              <button
+                type="button"
+                id="btn-open-account-deletion"
+                onClick={() => setIsAccountDeletionOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-surface-container hover:bg-surface-container-high text-surface-foreground font-label text-xs font-semibold border border-outline-variant hover:shadow-soft transition-all duration-[300ms] cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5 text-surface-on-variant" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>Account</span>
+              </button>
+              <button
+                type="button"
+                id="btn-dashboard-sign-out"
+                onClick={() => logout()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-label font-medium bg-error-container text-error-on-container hover:shadow-soft transition-all duration-[600ms] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary"
+                aria-label="Sign out of dojo session"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span>Sign Out</span>
+              </button>
+            </div>
+          )}
+        </div>
         <div className="p-6 rounded-xl bg-error-container text-error-on-container border border-error">
-          <h2 className="font-headline text-xl font-bold mb-2">Dashboard unavailable</h2>
           <p className="font-body text-sm mb-4" role="alert">{dashboardError}</p>
           <button
             type="button"
@@ -647,19 +681,71 @@ export function PreviewDashboard() {
             Retry loading
           </button>
         </div>
+        {isRealSession && (
+          <AccountDeletionModal
+            isOpen={isAccountDeletionOpen}
+            onClose={() => {
+              setIsAccountDeletionOpen(false);
+              void loadDashboard();
+            }}
+          />
+        )}
       </section>
     );
   }
 
   if (!dashboard) {
+    if (!isRealSession) {
+      return null;
+    }
+
     return (
       <section className="max-w-5xl mx-auto px-4 mb-16">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div>
+            <span className="font-label text-xs font-bold uppercase tracking-wider text-tertiary">
+              Account Access
+            </span>
+            <h2 className="font-headline text-2xl font-bold text-primary">No dashboard data yet</h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            <button
+              type="button"
+              id="btn-open-account-deletion"
+              onClick={() => setIsAccountDeletionOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-surface-container hover:bg-surface-container-high text-surface-foreground font-label text-xs font-semibold border border-outline-variant hover:shadow-soft transition-all duration-[300ms] cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5 text-surface-on-variant" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Account</span>
+            </button>
+            <button
+              type="button"
+              id="btn-dashboard-sign-out"
+              onClick={() => logout()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-label font-medium bg-error-container text-error-on-container hover:shadow-soft transition-all duration-[600ms] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary"
+              aria-label="Sign out of dojo session"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
         <div className="p-6 rounded-xl bg-surface-container-lowest border border-outline-variant">
-          <h2 className="font-headline text-xl font-bold text-primary mb-2">No dashboard data yet</h2>
           <p className="font-body text-sm text-surface-on-variant">
             Your school has no progress records for this account. Ask an owner or coach to link a student profile.
           </p>
         </div>
+        <AccountDeletionModal
+          isOpen={isAccountDeletionOpen}
+          onClose={() => {
+            setIsAccountDeletionOpen(false);
+            void loadDashboard();
+          }}
+        />
       </section>
     );
   }
@@ -1133,7 +1219,10 @@ export function PreviewDashboard() {
       />
       <AccountDeletionModal
         isOpen={isAccountDeletionOpen}
-        onClose={() => setIsAccountDeletionOpen(false)}
+        onClose={() => {
+          setIsAccountDeletionOpen(false);
+          void loadDashboard();
+        }}
       />
       <DeletionRequestsModal
         isOpen={isDeletionRequestsOpen}
