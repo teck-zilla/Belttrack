@@ -1,3 +1,6 @@
+import { headers } from 'next/headers';
+
+
 import type { Metadata } from 'next';
 import '@/styles/globals.css';
 import { TenantProvider } from '@/context/tenant-context';
@@ -52,11 +55,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+
+
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await headers();
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -78,3 +85,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+
