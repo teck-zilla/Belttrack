@@ -27,6 +27,8 @@
     "generate:account-deletion-pdf": "node scripts/generate-account-deletion-pdf.mjs",
     "generate:account-deletion-simulation-pdf": "node scripts/generate-account-deletion-simulation-pdf.mjs",
     "generate:launch-readiness-pdf": "node scripts/generate-launch-readiness-audit-pdf.mjs",
+    "generate:uncompleted-features-pdf": "node scripts/generate-uncompleted-features-pdf.mjs",
+    "generate:upstash-verification-pdf": "node scripts/generate-upstash-verification-pdf.mjs",
     "benchmark:registration": "node scripts/benchmark-registration.mjs",
     "profile:owner": "node scripts/launch-browser-profiles.mjs --role=owner",
     "profile:student": "node scripts/launch-browser-profiles.mjs --role=student",

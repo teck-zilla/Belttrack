@@ -1,0 +1,809 @@
+%PDF-1.4
+%BT
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [8 0 R 10 0 R 12 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Length 7826 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 8.5 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK UNCOMPLETED FEATURES & ACTION ROADMAP) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+385 762 Td
+(Architectural Gaps & Prioritized Next Actions) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Comparison of Roadmap Targets Against Current Implementation) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F2 18 Tf
+0.1059 0.1647 0.2902 rg
+52 720 Td
+(BeltTrack Uncompleted Features & Action Roadmap) Tj
+ET
+BT
+/F1 10 Tf
+0.1451 0.3882 0.9216 rg
+52 702 Td
+(Architectural Gaps, Future Sprint Deliverables, and Recommended Next Steps) Tj
+ET
+BT
+/F2 8.2 Tf
+0.3608 0.3922 0.4392 rg
+52 682 Td
+(Document Date:) Tj
+ET
+BT
+/F1 8.2 Tf
+0.1451 0.1647 0.2000 rg
+172 682 Td
+(November 2026) Tj
+ET
+BT
+/F2 8.2 Tf
+0.3608 0.3922 0.4392 rg
+52 670.5 Td
+(Repository:) Tj
+ET
+BT
+/F1 8.2 Tf
+0.1451 0.1647 0.2000 rg
+172 670.5 Td
+(https://github.com/teck-zilla/Belttrack.git) Tj
+ET
+BT
+/F2 8.2 Tf
+0.3608 0.3922 0.4392 rg
+52 659 Td
+(Branch / Baseline:) Tj
+ET
+BT
+/F1 8.2 Tf
+0.1451 0.1647 0.2000 rg
+172 659 Td
+(second-branch \(Verified V2 Single-Tenant Baseline\)) Tj
+ET
+BT
+/F2 8.2 Tf
+0.3608 0.3922 0.4392 rg
+52 647.5 Td
+(Audit Focus:) Tj
+ET
+BT
+/F1 8.2 Tf
+0.1451 0.1647 0.2000 rg
+172 647.5 Td
+(Uncompleted Features from Roadmap & Launch Readiness Gaps) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 555 508 77 re f
+0.1451 0.3882 0.9216 RG
+2 w
+52 555 m 52 632 l s
+BT
+/F2 8.2 Tf
+0.1451 0.3882 0.9216 rg
+64 621 Td
+(EXECUTIVE AUDIT SUMMARY) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+64 610 Td
+(BeltTrack V2 has successfully completed all baseline MVP transitions: Supabase SSR authentication, in-modal) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+64 599 Td
+(password reset, email verification, real PostgreSQL persistence across roll-call attendance, technique) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+64 588 Td
+(sign-off, immutable tuition ledger, inactivity alerts, and GDPR deletion lifecycles. This audit catalogues the) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+64 577 Td
+(remaining uncompleted capabilities \(principally the multi-account architecture phases and production deployment) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+64 566 Td
+(requirements\) and provides a concrete line of action.) Tj
+ET
+BT
+/F2 10 Tf
+0.1059 0.1647 0.2902 rg
+52 542 Td
+(1. UNCOMPLETED FEATURES MATRIX) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 536 m 560 536 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 524 Td
+(The following capabilities are catalogued as uncompleted or pending in relation to the PRD and the) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 511.5 Td
+(Recommended Roadmap in README.md:) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 372 508 124 re f
+BT
+/F4 7.8 Tf
+0.1451 0.1647 0.2000 rg
+62 484 Td
+(FEATURE / MILESTONE                   ROADMAP TARGET    CURRENT STATUS) Tj
+ET
+BT
+/F4 7.8 Tf
+0.1451 0.1647 0.2000 rg
+62 474 Td
+(----------------------------------------------------------------------) Tj
+ET
+BT
+/F4 7.8 Tf
+0.1451 0.1647 0.2000 rg
+62 464 Td
+(1. Multi-Membership Schema \(SchoolMember\)  Sprint 1 \(P2\)    UNCOMPLETED \(Single schoolId\)) Tj
+ET
+BT
+/F4 7.8 Tf
+0.1451 0.1647 0.2000 rg
+62 454 Td
+(2. Active Tenant Cookie Context            Sprint 1 \(P2\)    UNCOMPLETED \(No belttrack_active_school_id\)) Tj
+ET
+BT
+/F4 7.8 Tf
+0.1451 0.1647 0.2000 rg
+62 444 Td
+(3. Dynamic Top-Nav Academy Switcher UI     Sprint 2 \(P3\)    UNCOMPLETED \(Static demo toggles\)) Tj
+ET
+BT
+/F4 7.8 Tf
+0.1451 0.1647 0.2000 rg
+62 434 Td
+(4. In-App "+ Join School with Code" Flow   Sprint 2 \(P3\)    UNCOMPLETED \(Requires separate user\)) Tj
+ET
+BT
+/F4 7.8 Tf
+0.1451 0.1647 0.2000 rg
+62 424 Td
+(5. Guardian 1-Click Dependent Switcher     Sprint 3 \(P4\)    UNCOMPLETED \(DB link exists, UI pending\)) Tj
+ET
+BT
+/F4 7.8 Tf
+0.1451 0.1647 0.2000 rg
+62 414 Td
+(6. Production Subdomain Routing \(*.belttrack\) Launch \(P5\)   UNCOMPLETED \(Single-domain hosting\)) Tj
+ET
+BT
+/F4 7.8 Tf
+0.1451 0.1647 0.2000 rg
+62 404 Td
+(7. Dojo Owner Belt/Curriculum Customization Future Scope    UNCOMPLETED \(Pre-seeded only\)) Tj
+ET
+BT
+/F4 7.8 Tf
+0.1451 0.1647 0.2000 rg
+62 394 Td
+(8. Live Staging Playwright E2E Test Suite   Launch Staging   GATED \(Live staff test skips in CI\)) Tj
+ET
+BT
+/F4 7.8 Tf
+0.1451 0.1647 0.2000 rg
+62 384 Td
+(9. Full Database RLS Policy Application     Production DB    MANUAL STEP \(Script exists, pending exec\)) Tj
+ET
+BT
+/F2 10 Tf
+0.1059 0.1647 0.2902 rg
+52 359 Td
+(2. DETAILED GAP ANALYSIS) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 353 m 560 353 l s
+BT
+/F2 9.2 Tf
+0.1059 0.1647 0.2902 rg
+52 341 Td
+(A. Multi-Account & Multi-Tenant Architecture \(Roadmap Phases 2 - 5\)) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 330 Td
+(Currently, the User model binds strictly to a single schoolId. This satisfies single-academy isolation but) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 317.5 Td
+(blocks cross-academy participation.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 302 Td
+(- Multi-Membership Data Model \(Roadmap Phase 2\): A user with one email \(e.g. coach@kaizenbjj.org\) cannot) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 290 Td
+(  currently join an affiliated academy as a student or guardian without creating a second account. Resolution) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 278 Td
+(  requires introducing a SchoolMember join table \(userId, schoolId, role, status, joinedAt\) and decoupling User) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 266 Td
+(  from single schoolId.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 251 Td
+(- Active Tenant Cookie Context \(Roadmap Phase 2\): Currently, the tenant is fixed per user session. Next.js) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 239 Td
+(  src/proxy.ts needs to parse a signed belttrack_active_school_id cookie, verify the user belongs to that) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 227 Td
+(  school, and inject x-school-id into Server Component headers.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 212 Td
+(- Dynamic Academy Switcher UI \(Roadmap Phase 3\): Top navigation currently displays a role simulator toggle for) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 200 Td
+(  demo mode. It must be upgraded to a live dropdown listing all verified academy memberships with 1-click active) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 188 Td
+(  tenant switching.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 173 Td
+(- In-App "+ Join School with Code" \(Roadmap Phase 3\): Authenticated users currently cannot enter a second school) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 161 Td
+(  join code to enroll in another academy; the join modal assumes unauthenticated self-registration.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 146 Td
+(- Guardian Dependent Switching \(Roadmap Phase 4\): While GuardianStudent links exist in the database, the top) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 134 Td
+(  navigation lacks 1-click toggling between parent and child profiles, and read-only views for dependents are) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 122 Td
+(  not dynamically scoped.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 107 Td
+(- Production Subdomain Routing \(Roadmap Phase 5\): Host-only cookie policies and wildcard subdomains) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 95 Td
+(  \(<school>.belttrack.com\) are not yet configured; all tenants currently access the root domain.) Tj
+ET
+BT
+/F2 9.2 Tf
+0.1059 0.1647 0.2902 rg
+52 80 Td
+(B. Operational & Launch-Affecting Gaps) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 69 Td
+(- Database-Level Row-Level Security: prisma/rls_policies.sql contains complete RLS rules, but these must be) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Uncompleted Features & Action Roadmap  |  Page 1 of 3) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 6861 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 8.5 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK UNCOMPLETED FEATURES & ACTION ROADMAP) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+385 762 Td
+(Architectural Gaps & Prioritized Next Actions) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Comparison of Roadmap Targets Against Current Implementation) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 720 Td
+(  executed manually via psql on Supabase. Furthermore, VerificationCode table currently lacks an RLS policy.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 705 Td
+(- Vercel Production Environment Secrets: As documented in docs/vercel deployment issues, production boot) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 693 Td
+(  validation fails closed unless UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, and real SMTP credentials are) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 681 Td
+(  set.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 666 Td
+(- Gated E2E Test Suite: Playwright registration and join tests currently run on mocked responses. The live staff) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 654 Td
+(  lifecycle test automatically skips unless E2E_STAFF_STORAGE_STATE, E2E_PROFILE_ID, and E2E_TECHNIQUE_ID are) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 642 Td
+(  supplied.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 627 Td
+(- Curriculum Customization CRUD: Belt ranks and techniques are pre-seeded via demo scripts. Dojo owners cannot) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 615 Td
+(  currently create custom belt ranks or add techniques through the UI.) Tj
+ET
+BT
+/F2 10 Tf
+0.1059 0.1647 0.2902 rg
+52 595 Td
+(3. INTENTIONALLY EXCLUDED SCOPE \(PRD NON-MVP BOUNDARIES\)) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 589 m 560 589 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 577 Td
+(The following features were evaluated and confirmed as strictly out of scope for the MVP per PRD) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 564.5 Td
+(specifications:) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 549 Td
+(- External Payment Gateways: Excluded by design. BeltTrack operates with a zero-monetization core, recording) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 537 Td
+(  only internal cash, bank transfer, and manual card receipts without external Stripe/payment processing.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 522 Td
+(- Native Mobile Apps: Excluded. BeltTrack is built as a responsive web application optimized for desktop and) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 510 Td
+(  mobile browsers via Next.js App Router.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 495 Td
+(- Native Camera Barcode / QR Drivers: Excluded. Attendance roll-call relies on staff-verified interactive roster) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 483 Td
+(  check-ins rather than camera drivers.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 468 Td
+(- Third-Party Transactional SMS / Push Dispatch: Excluded. Notifications are limited to cryptographic SMTP email) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 456 Td
+(  verification and in-modal notifications.) Tj
+ET
+BT
+/F2 10 Tf
+0.1059 0.1647 0.2902 rg
+52 436 Td
+(4. PRIORITIZED NEXT LINE OF ACTION) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 430 m 560 430 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 418 Td
+(To transition from the current verified baseline to full production deployment and multi-account capability,) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 405.5 Td
+(execute the following staged plan:) Tj
+ET
+BT
+/F2 9.2 Tf
+0.1059 0.1647 0.2902 rg
+52 390 Td
+(Priority 1: Immediate Launch Readiness \(Production Staging\)) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 379 Td
+(- 1.1 Configure Upstash Redis: Add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to Vercel production) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 367 Td
+(  environment to pass boot validation.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 352 Td
+(- 1.2 Configure SMTP Delivery: Add live SMTP host, user, and password to Vercel to allow real email verification) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 340 Td
+(  during user onboarding.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 325 Td
+(- 1.3 Apply PostgreSQL RLS: Run psql "$DIRECT_URL" -f prisma/rls_policies.sql on Supabase and add RLS policy for) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 313 Td
+(  the VerificationCode table.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 298 Td
+(- 1.4 Clean Workspace: Remove untracked temporary files \(student.cookies, local dev notes\) from the repository.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 283 Td
+(- 1.5 Configure CI E2E Secrets: Supply staging credentials in GitHub repository secrets to enable un-gated live) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 271 Td
+(  staff lifecycle E2E runs.) Tj
+ET
+BT
+/F2 9.2 Tf
+0.1059 0.1647 0.2902 rg
+52 256 Td
+(Priority 2: Multi-Membership Foundation \(Sprint 1\)) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 245 Td
+(- 2.1 Prisma Schema Migration: Introduce model SchoolMember { id, userId, schoolId, role, status, joinedAt, ...) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 233 Td
+(  } and deprecate single User.schoolId.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 218 Td
+(- 2.2 Proxy & Context Handling: Implement signed belttrack_active_school_id cookie validation in src/proxy.ts) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 206 Td
+(  and synchronize with src/context/tenant-context.tsx.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 191 Td
+(- 2.3 Introspection Update: Update GET /api/auth/me to return active membership plus the array of all available) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 179 Td
+(  school memberships.) Tj
+ET
+BT
+/F2 9.2 Tf
+0.1059 0.1647 0.2902 rg
+52 164 Td
+(Priority 3: Multi-Academy & Guardian UI \(Sprint 2 & 3\)) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 153 Td
+(- 3.1 Navigation Switcher Dropdown: Replace demo persona toggles in src/components/layout/top-nav.tsx with a) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 141 Td
+(  dynamic membership selector.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 126 Td
+(- 3.2 In-App Join Flow: Add a "+ Join Another Academy" button inside the switcher allowing logged-in users to) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 114 Td
+(  redeem join codes without re-registering.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 99 Td
+(- 3.3 Guardian Dependent Toggle: Allow guardians to switch into linked dependent profiles with enforced) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 87 Td
+(  read-only attendance and ledger views.) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Uncompleted Features & Action Roadmap  |  Page 2 of 3) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 1140 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 8.5 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK UNCOMPLETED FEATURES & ACTION ROADMAP) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+385 762 Td
+(Architectural Gaps & Prioritized Next Actions) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Comparison of Roadmap Targets Against Current Implementation) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F2 9.2 Tf
+0.1059 0.1647 0.2902 rg
+52 720 Td
+(Priority 4: Subdomain Tenant Routing \(Production Scale\)) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 709 Td
+(- 4.1 Wildcard DNS: Configure *.belttrack.com in DNS provider and bind to Vercel deployment.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 694 Td
+(- 4.2 Host Header Resolution: Extract subdomain slug in src/proxy.ts, lookup school, and enforce host-only) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 682 Td
+(  cookie isolation for concurrent multi-school tabs.) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Uncompleted Features & Action Roadmap  |  Page 3 of 3) Tj
+ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 11 0 R >>
+endobj
+xref
+0 13
+0000000000 65535 f 
+0000000013 00000 n 
+0000000062 00000 n 
+0000000133 00000 n 
+0000000230 00000 n 
+0000000332 00000 n 
+0000000437 00000 n 
+0000000532 00000 n 
+0000008410 00000 n 
+0000008566 00000 n 
+0000015479 00000 n 
+0000015636 00000 n 
+0000016829 00000 n 
+trailer
+<< /Size 13 /Root 1 0 R >>
+startxref
+16987
+%%EOF

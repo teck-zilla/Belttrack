@@ -6,17 +6,19 @@ A private, multi-tenant martial arts school management platform serving Dojo Adm
 
 ## 🚀 Summary of Completed Transition (V1 to V2)
 
-BeltTrack has evolved from an interactive MVP preview (**V1**) into a fully authenticated production release (**V2**) backed by **Supabase Auth** and Next.js 16+ App Router server-side cookie sessions:
+BeltTrack has evolved from an interactive MVP preview (**V1**) into a fully authenticated, multi-tenant production release (**V2**) backed by **Supabase Auth**, PostgreSQL via **Prisma ORM**, and Next.js 16+ App Router server-side cookie sessions:
 
 | Phase | Milestone | Deliverables & Scope | Status |
 | :--- | :--- | :--- | :--- |
-| **Phase 1** | **Supabase SSR & Client Infrastructure** | • Browser client via `@supabase/ssr` (`src/lib/supabase/client.ts`)<br>• Server client with async Next.js cookie handling (`src/lib/supabase/server.ts`)<br>• Service-role admin client (`src/lib/supabase/admin.ts`)<br>• Session refresh proxy (`src/proxy.ts`) | **Complete & Verified** |
-| **Phase 2** | **User Identity Linking & Schema Alignment** | • Added `supabase_uid String? @unique` to `prisma/schema.prisma`<br>• Made `hashedPassword` optional to decouple local auth from Supabase credentials<br>• Updated TypeScript domain models (`src/types/domain.ts`)<br>• Added `loginSchema` with runtime validations in `src/lib/validation/schemas.ts` | **Complete & Verified** |
-| **Phase 3** | **Authentication API & Route Handlers** | • `POST /api/auth/login`: Signs in via Supabase Auth and binds to PostgreSQL `school_id`<br>• `POST /api/auth/logout`: Clears session tokens and HTTP-only cookies<br>• `GET /api/auth/callback`: Handles PKCE code exchanges<br>• `GET /api/auth/me`: Resolves active session and tenant mapping | **Complete & Verified** |
+| **Phase 1** | **Supabase SSR & Client Infrastructure** | • Browser client via `@supabase/ssr` (`src/lib/supabase/client.ts`)<br>• Server client with async Next.js cookie handling (`src/lib/supabase/server.ts`)<br>• Service-role admin client (`src/lib/supabase/admin.ts`)<br>• Session refresh proxy with CSP & CSRF protection (`src/proxy.ts`) | **Complete & Verified** |
+| **Phase 2** | **User Identity Linking & Schema Alignment** | • Added `supabase_uid String? @unique` to `prisma/schema.prisma`<br>• Made `hashedPassword` optional; decoupled local auth from Supabase credentials<br>• Updated TypeScript domain models (`src/types/domain.ts`)<br>• Added `loginSchema` with strict runtime validations in `src/lib/validation/schemas.ts` | **Complete & Verified** |
+| **Phase 3** | **Authentication, Password Recovery & Email Verification** | • `POST /api/auth/login`: Signs in via Supabase Auth and binds to PostgreSQL `school_id`<br>• `POST /api/auth/logout`: Clears session tokens and HTTP-only cookies<br>• `GET /api/auth/callback`: Handles PKCE code exchanges with safe origin fallback<br>• `GET /api/auth/me`: Resolves active session and tenant mapping<br>• `POST /api/auth/reset-password`: In-modal 6-digit OTP reset flow with email/school join code lookup and password predictability checks<br>• `POST /api/auth/verify-email` & `POST /api/auth/resend-verification`: Transactional 6-digit code verification with 60s cooldown | **Complete & Verified** |
 | **Phase 4** | **Client Auth State & Context Synchronization** | • `src/context/auth-context.tsx`: Subscribed to `onAuthStateChange` & `/api/auth/me`<br>• Added asynchronous `login(email, password)` and `logout()` handlers<br>• Preserved fallback demo persona preview mode for unauthenticated users<br>• Updated `src/components/layout/top-nav.tsx` with live session indicator & Sign In/Out | **Complete & Verified** |
-| **Phase 5** | **Production-Ready Login Modal & UI Parity** | • Dedicated `LoginModal` component (`src/components/home/login-modal.tsx`) with real-time error feedback<br>• Connected login modal in Next.js home page (`src/app/page.tsx`)<br>• Parity reflected in standalone interactive preview (`index.html`, `index.css`, `app.js`) | **Complete & Verified** |
-| **Phase 6** | **Demo & Production Presentation Polish** | • React 19 + ESLint verification pipeline<br>• Demo/Real tenant banner and hidden preview controls in live sessions<br>• Deterministic demo seed script (`npm run db:seed:demo`)<br>• Dashboard loading, empty, retry, and scrubbed error states<br>• Next.js metadata moved to `src/app/layout.tsx` | **Complete & Verified** |
-| **Phase 7** | **Production Hardening** | • Upstash-backed rate limiting with Vercel-aware trusted proxy IP extraction<br>• Strict same-origin CSRF enforcement and internal cron bearer exemption<br>• Security headers and CSP<br>• Tenant-scoped append-only `AuditLog` with approval/ledger write hooks<br>• Zod unit tests, tenant-isolation checks, and Playwright lifecycle coverage | **Complete & Verified** |
+| **Phase 5** | **Production Login Modal, In-Modal Recovery & Isolated QA Profiles** | • Dedicated `LoginModal` component (`src/components/home/login-modal.tsx`) with real-time feedback and in-modal password reset flow<br>• Automated browser profile launcher (`scripts/launch-browser-profiles.mjs`, `npm run profile:both`) enabling simultaneous multi-role testing without cookie collision<br>• Parity reflected in standalone interactive preview (`index.html`, `index.css`, `app.js`) | **Complete & Verified** |
+| **Phase 6** | **Core Domain Persistence & Business Logic** | • `POST /api/attendance`: Staff-only roll-call check-in with idempotency keys and server timestamps (no backdating)<br>• `GET /api/techniques` & `POST /api/techniques/verify`: Staff-only technique sign-off persisting `TechniqueProgress`<br>• `POST /api/ledger`: Zero-monetization internal tuition ledger with immutable receipt slugs (`REC-[YEAR]-[DISCIPLINE]-[INCREMENT]`) and offsetting reversal entries<br>• `GET /api/dashboard`: Aggregated rank metrics, attendance roll-call stats, and inactive student risk detection (>=10 days absent)<br>• `POST /api/schools/join-code`: Owner-only join code rotation and revocation<br>• `GET / POST /api/schools/approvals`: Staff approval of pending students, automatically activating linked guardian accounts<br>• `GET /api/schools/directory`: Public directory exposing only accredited school name, slug, city, and discipline | **Complete & Verified** |
+| **Phase 7** | **Account Deletion Lifecycle & GDPR Compliance** | • User self-service account deletion request (`POST /api/account/deletion`)<br>• School owner school deletion request (`POST /api/schools/deletion`)<br>• Staff deletion request review (`GET / POST /api/schools/deletion-requests`)<br>• Bearer-token protected automated purge endpoint (`POST /api/internal/deletions/purge`) executed by GitHub Actions cron (`.github/workflows/purge-deletions.yml`) | **Complete & Verified** |
+| **Phase 8** | **Production Hardening, Audit Logging & Security Verification** | • Boot-time fail-closed environment validation (`src/lib/env-validation.ts`) ensuring all required secrets and URLs exist<br>• Upstash-backed rate limiting with Vercel-aware trusted proxy IP extraction (`src/lib/rate-limit.ts`)<br>• Strict same-origin CSRF enforcement and internal cron bearer exemption (`src/lib/csrf.ts`)<br>• Nonce-based per-request Content Security Policy and security headers in `src/proxy.ts`<br>• Tenant-scoped append-only `AuditLog` capturing ledger entries, approvals, deletions, and purges (`src/lib/audit-log.ts`)<br>• 32/32 unit and tenant-isolation regression test suite (`npm test`) | **Complete & Verified** |
+| **Phase 9** | **Demo & Production Presentation Polish** | • React 19 + ESLint verification pipeline (`npm run lint`)<br>• Demo/Real tenant banner and hidden preview controls in live sessions<br>• Deterministic demo seed script (`npm run db:seed:demo`)<br>• Dashboard loading, empty, retry, and scrubbed error states<br>• Next.js metadata moved to `src/app/layout.tsx` | **Complete & Verified** |
 
 ---
 
@@ -256,62 +258,107 @@ BELTTRACK APP/
 │   ├── app/
 │   │   ├── api/
 │   │   │   ├── auth/
-│   │   │   │   ├── login/route.ts    # Supabase password auth & PostgreSQL tenant resolution
-│   │   │   │   ├── logout/route.ts   # Session revocation & cookie cleanup
-│   │   │   │   ├── callback/route.ts # PKCE code exchange handler
-│   │   │   │   └── me/route.ts       # Active session introspection & tenant mapping
+│   │   │   │   ├── login/route.ts              # Supabase password auth & PostgreSQL tenant resolution
+│   │   │   │   ├── logout/route.ts             # Session revocation & cookie cleanup
+│   │   │   │   ├── callback/route.ts           # PKCE code exchange handler
+│   │   │   │   ├── me/route.ts                 # Active session introspection & tenant mapping
+│   │   │   │   ├── reset-password/route.ts     # In-modal 6-digit OTP password reset workflow
+│   │   │   │   ├── verify-email/route.ts       # 6-digit email confirmation code verification
+│   │   │   │   └── resend-verification/route.ts# Rate-limited OTP resend with 60s cooldown
 │   │   │   ├── schools/
-│   │   │   │   ├── register/route.ts # Tenant school creation & Owner User persistence
-│   │   │   │   └── directory/route.ts# Public accredited school discovery
-│   │   │   └── students/
-│   │   │       └── join/route.ts     # Join code validation & PENDING_APPROVAL enrollment
-│   │   ├── layout.tsx                # Next.js RootLayout with Auth & Tenant providers
-│   │   └── page.tsx                  # Home screen with navigation, role entries, modals, & preview
+│   │   │   │   ├── register/route.ts           # Tenant school creation & Owner User persistence
+│   │   │   │   ├── directory/route.ts          # Public accredited school discovery
+│   │   │   │   ├── join-code/route.ts          # Owner-only join code rotation & revocation
+│   │   │   │   ├── approvals/route.ts          # Staff-only pending student & guardian approvals
+│   │   │   │   ├── deletion/route.ts           # School owner deletion request initiation
+│   │   │   │   └── deletion-requests/route.ts  # Staff deletion request inspection
+│   │   │   ├── students/
+│   │   │   │   └── join/route.ts               # Join code validation & PENDING_APPROVAL enrollment
+│   │   │   ├── attendance/route.ts             # Staff-only roll-call check-in with idempotency keys
+│   │   │   ├── techniques/
+│   │   │   │   ├── route.ts                    # Tenant technique curriculum catalog
+│   │   │   │   └── verify/route.ts             # Staff-only technique sign-off persistence
+│   │   │   ├── ledger/route.ts                 # Immutable zero-monetization tuition receipts & reversals
+│   │   │   ├── dashboard/route.ts              # Role-aware metrics & inactive student risk alerts (>=10d)
+│   │   │   ├── account/deletion/route.ts       # User self-service account deletion request
+│   │   │   └── internal/deletions/purge/route.ts# Protected bearer-token scheduled deletion purge
+│   │   ├── layout.tsx                          # Next.js RootLayout with Auth & Tenant providers
+│   │   └── page.tsx                            # Home screen with navigation, role entries, modals, & dashboard
 │   ├── components/
 │   │   ├── home/
-│   │   │   ├── hero-section.tsx      # Core pillars & architectural overview
-│   │   │   ├── preview-dashboard.tsx # Rank engine, roll-call mat, & ledger cards
-│   │   │   ├── role-entry-cards.tsx  # Dojo Owner register vs Student code join
-│   │   │   └── login-modal.tsx       # Dedicated Supabase authentication modal
+│   │   │   ├── hero-section.tsx                # Core pillars & architectural overview
+│   │   │   ├── preview-dashboard.tsx           # Rank engine, roll-call mat, & ledger cards
+│   │   │   ├── role-entry-cards.tsx            # Dojo Owner register vs Student code join
+│   │   │   ├── login-modal.tsx                 # Dedicated Supabase authentication & OTP reset modal
+│   │   │   ├── student-join-modal.tsx          # Alphanumeric join code redemption modal
+│   │   │   ├── technique-curriculum-modal.tsx  # Interactive technique sign-off curriculum
+│   │   │   ├── manual-ledger-modal.tsx         # Cash/transfer receipt & reversal ledger modal
+│   │   │   ├── member-approval-modal.tsx       # Staff approval queue for pending members
+│   │   │   ├── account-deletion-modal.tsx      # User deletion request modal
+│   │   │   ├── deletion-requests-modal.tsx     # Staff school deletion request inspection modal
+│   │   │   ├── email-verification-banner.tsx   # Unverified email warning banner
+│   │   │   └── use-accessible-modal.ts         # Accessible modal focus trap & escape key handler
 │   │   └── layout/
-│   │       └── top-nav.tsx           # Navigation with live session badge, Sign In/Out, & role switcher
+│   │       ├── dynamic-title.tsx               # Context-aware document title manager
+│   │       └── top-nav.tsx                     # Navigation with live session badge, Sign In/Out, & switcher
 │   ├── context/
-│   │   ├── auth-context.tsx          # Supabase auth listener, tenant sync, & persona switcher
-│   │   └── tenant-context.tsx        # Isolated Dojo tenant context (school_id scope)
+│   │   ├── auth-context.tsx                    # Supabase auth listener, tenant sync, & persona switcher
+│   │   └── tenant-context.tsx                  # Isolated Dojo tenant context (school_id scope)
 │   ├── lib/
-│   │   ├── prisma.ts                 # Next.js-safe singleton Prisma Client instance
-│   │   ├── prisma-extension.ts       # Multi-tenant Prisma query extension (school_id scope)
+│   │   ├── prisma.ts                           # Next.js-safe singleton Prisma Client instance
+│   │   ├── prisma-extension.ts                 # Multi-tenant Prisma query extension (school_id scope)
+│   │   ├── auth-guard.ts                       # Server-side role & tenant fail-closed authorization
+│   │   ├── audit-log.ts                        # Append-only tenant audit logger
+│   │   ├── rate-limit.ts                       # Upstash Redis rate limiter with trusted proxy extraction
+│   │   ├── csrf.ts                             # Strict same-origin CSRF validation
+│   │   ├── email-verification.ts               # Cryptographic OTP generation & SMTP delivery service
+│   │   ├── session-security.ts                 # HMAC-SHA256 session cookie signing & verification
+│   │   ├── env-validation.ts                   # Boot-time fail-closed environment variable validator
 │   │   ├── supabase/
-│   │   │   ├── client.ts             # Browser-side Supabase client (@supabase/ssr)
-│   │   │   ├── server.ts             # Server-side Supabase client with async cookies (@supabase/ssr)
-│   │   │   └── admin.ts              # Service-role admin client (@supabase/supabase-js)
+│   │   │   ├── client.ts                       # Browser-side Supabase client (@supabase/ssr)
+│   │   │   ├── server.ts                       # Server-side Supabase client with async cookies (@supabase/ssr)
+│   │   │   └── admin.ts                        # Service-role admin client (@supabase/supabase-js)
 │   │   └── validation/
-│   │       └── schemas.ts            # Zod validation schemas for forms, login, & ledger
-│   ├── proxy.ts                      # Supabase session refresh proxy
+│   │       ├── schemas.ts                      # Zod validation schemas for forms, login, & ledger
+│   │       └── password.ts                     # Password strength & predictability checks
+│   ├── proxy.ts                                # Supabase session refresh, CSP nonce & CSRF proxy
 │   ├── styles/
-│   │   ├── globals.css               # Next.js App Router Tailwind styles
-│   │   └── tokens.css                # Centralized token import layer
+│   │   ├── globals.css                         # Next.js App Router Tailwind styles
+│   │   └── tokens.css                          # Centralized token import layer
 │   └── types/
-│       └── domain.ts                 # TypeScript domain models (UserRecord, Member, Rank, Technique)
+│       └── domain.ts                           # TypeScript domain models (UserRecord, Member, Rank, Technique)
 ├── prisma/
-│   ├── schema.prisma                 # PostgreSQL multi-tenant schema with supabase_uid & school_id
-│   └── rls_policies.sql              # Database-level Row-Level Security isolation policies
-├── docs/
-│   └── product_requirement_document_prd_belttrack_v1.md # Approved Product Requirement Document
-├── .env.example                      # Clean configuration template for database and Supabase keys
-├── index.html                        # Semantic, responsive standalone preview home screen
-├── index.css                         # 100% token-powered martial arts stylesheet
-├── app.js                            # Standalone preview interactive controller
-├── tokens-complete.json              # Central Figma design tokens
-├── build-tokens.js                   # Token compiler to CSS custom properties
-├── variables.css                     # Generated CSS custom properties
-├── typography.css                    # Typography scale utility classes
-├── tailwind.config.ts                # Tailwind theme mapping tokens to CSS variables
-├── postcss.config.mjs                # PostCSS configuration
-├── tsconfig.json                     # Strict TypeScript configuration
-├── package.json                      # Next.js, React, Tailwind, Prisma, Supabase, and Zod dependencies
-├── audit.js                          # Automated recursive token compliance audit
-└── server.js                         # Local preview test server (Port 3000)
+│   ├── schema.prisma                           # PostgreSQL multi-tenant schema with 14 models & 5 enums
+│   ├── rls_policies.sql                        # Database-level Row-Level Security isolation policies
+│   └── migrations/                             # Version-controlled schema migrations
+├── scripts/
+│   ├── launch-browser-profiles.mjs             # Chrome/Edge isolated profile launcher for multi-tenant QA
+│   ├── seed-demo-data.mjs                      # Deterministic demo tenant seed script
+│   └── build-tokens.js                         # Token compiler from Figma tokens to CSS properties
+├── tests/
+│   ├── e2e/lifecycle.spec.ts                   # Playwright end-to-end multi-role test suite
+│   ├── schemas.test.mjs                        # Zod schema validation unit tests
+│   ├── tenant-isolation.test.mjs               # Prisma & RLS tenant boundary static tests
+│   ├── environment.test.mjs                    # Environment validation unit tests
+│   ├── guardian-attendance.test.mjs            # Guardian links & attendance rules test
+│   ├── fallback-safety.test.mjs                # Zero client-side fallback synthesis tests
+│   ├── auth-redirect.test.mjs                  # Safe auth callback redirect unit tests
+│   ├── deletion-audit.test.mjs                 # Deletion lifecycle audit logging tests
+│   └── join-code.test.mjs                      # Join code rotation & revocation tests
+├── docs/                                       # Architecture guides, runbooks & audit reports
+├── .env.example                                # Clean configuration template for database and Supabase keys
+├── index.html                                  # Semantic, responsive standalone preview home screen
+├── index.css                                   # 100% token-powered martial arts stylesheet
+├── app.js                                      # Standalone preview interactive controller
+├── tokens-complete.json                        # Central Figma design tokens
+├── variables.css                               # Generated CSS custom properties
+├── typography.css                              # Typography scale utility classes
+├── tailwind.config.ts                          # Tailwind theme mapping tokens to CSS variables
+├── postcss.config.mjs                          # PostCSS configuration
+├── tsconfig.json                               # Strict TypeScript configuration
+├── package.json                                # Project dependencies, engines & test scripts
+├── audit.js                                    # Automated recursive token compliance audit
+└── server.js                                   # Local preview test server (Port 3000)
 ```
 
 ---
