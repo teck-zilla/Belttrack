@@ -1,0 +1,586 @@
+%PDF-1.4
+%BT
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [8 0 R 10 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Length 6666 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 8.5 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK LIVE TESTING & USER MANUAL) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+400 762 Td
+(Step-by-Step Testing Guide for Web Users) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Production User Guide for https://belttrack.vercel.app) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F2 18 Tf
+0.1059 0.1647 0.2902 rg
+52 720 Td
+(BeltTrack Live Testing & User Guide) Tj
+ET
+BT
+/F1 9.8 Tf
+0.1451 0.3882 0.9216 rg
+52 702 Td
+(Step-by-Step Manual for Testing School Registration, Student Join, Sign In, and Core Workflows) Tj
+ET
+BT
+/F2 8.2 Tf
+0.3608 0.3922 0.4392 rg
+52 682 Td
+(Document Date:) Tj
+ET
+BT
+/F1 8.2 Tf
+0.1451 0.1647 0.2000 rg
+172 682 Td
+(26 November 2026) Tj
+ET
+BT
+/F2 8.2 Tf
+0.3608 0.3922 0.4392 rg
+52 670.5 Td
+(Application URL:) Tj
+ET
+BT
+/F1 8.2 Tf
+0.1451 0.1647 0.2000 rg
+172 670.5 Td
+(https://belttrack.vercel.app) Tj
+ET
+BT
+/F2 8.2 Tf
+0.3608 0.3922 0.4392 rg
+52 659 Td
+(Audience:) Tj
+ET
+BT
+/F1 8.2 Tf
+0.1451 0.1647 0.2000 rg
+172 659 Td
+(Testers, Dojo Owners, Coaches, Students, and Guardians) Tj
+ET
+BT
+/F2 8.2 Tf
+0.3608 0.3922 0.4392 rg
+52 647.5 Td
+(Scope:) Tj
+ET
+BT
+/F1 8.2 Tf
+0.1451 0.1647 0.2000 rg
+172 647.5 Td
+(End-to-End browser walkthrough for live production evaluation) Tj
+ET
+0.9569 0.9647 0.9804 rg
+52 566 508 66 re f
+0.1451 0.3882 0.9216 RG
+2 w
+52 566 m 52 632 l s
+BT
+/F2 8.2 Tf
+0.1451 0.3882 0.9216 rg
+64 621 Td
+(HOW TO TEST BELTTRACK TODAY) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+64 610 Td
+(BeltTrack is accessible directly from your desktop or mobile browser. You can explore the platform immediately) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+64 599 Td
+(using the zero-account Demo Persona Preview mode, or create a live academy/student account to experience) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+64 588 Td
+(real-time roll-call attendance, technique sign-off, immutable tuition ledgering, and in-modal password) Tj
+ET
+BT
+/F1 8.5 Tf
+0.1451 0.1647 0.2000 rg
+64 577 Td
+(recovery.) Tj
+ET
+BT
+/F2 10 Tf
+0.1059 0.1647 0.2902 rg
+52 553 Td
+(1. INTERACTIVE DEMO MODE \(NO ACCOUNT REQUIRED\)) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 547 m 560 547 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 535 Td
+(Visitors who want to explore BeltTrack without registering can use the built-in Persona Preview Simulator:) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 519.5 Td
+(- Open https://belttrack.vercel.app in any web browser.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 504.5 Td
+(- Notice the Persona Switcher pill in the top navigation bar.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 489.5 Td
+(- Toggle between Dojo Owner, Coach, Student, and Guardian.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 474.5 Td
+(- Review the interactive White-to-Blue Belt Rank progress tracker \(42/50 classes attended, 142/120 minimum days) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 462.5 Td
+(  in rank, 8/10 verified techniques\).) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 447.5 Td
+(- Click "+ Check In" to trigger an interactive attendance simulation toast.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 432.5 Td
+(- Inspect the roll-call schedule, inactive student risk indicators, and zero-monetization immutable tuition) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 420.5 Td
+(  receipt ledger.) Tj
+ET
+BT
+/F2 10 Tf
+0.1059 0.1647 0.2902 rg
+52 400.5 Td
+(2. REAL SIGN-UP WORKFLOWS \(LIVE DATABASE ONBOARDING\)) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 394.5 m 560 394.5 l s
+BT
+/F2 9.2 Tf
+0.1059 0.1647 0.2902 rg
+52 382.5 Td
+(Workflow A: Register a New Academy \(Dojo Owner / Head Coach\)) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 371.5 Td
+(To create an entirely new martial arts academy tenant:) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 356 Td
+(- Step 1: Click "Register Academy" on the home screen hero card, or click "Sign In" -> "Register School".) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 341 Td
+(- Step 2: Enter School / Academy Name \(min 3 characters, e.g. "Kaizen Jiu-Jitsu"\).) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 326 Td
+(- Step 3: Select Discipline \(Brazilian Jiu-Jitsu, Judo, Karate, Taekwondo, Muay Thai, Krav Maga\).) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 311 Td
+(- Step 4: Enter Head Coach Full Name \(at least 2 words, e.g. "Marcus Almeida"\) and Owner Email Address.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 296 Td
+(- Step 5: Enter City and Country.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 281 Td
+(- Step 6: Choose a strong password of at least 15 characters \(e.g. "KaizenBJJ2026!MasterPass"\).) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 266 Td
+(- Step 7: \(Optional\) Enter a custom 4-16 alphanumeric join code \(e.g. "KAIZEN-2026"\) or let the system) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 254 Td
+(  auto-generate one.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 239 Td
+(- Step 8: Click "Register Academy". A 6-digit confirmation code will be dispatched to the owner email.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 224 Td
+(- Step 9: Enter the 6-digit code to verify your email and access your live school dashboard.) Tj
+ET
+BT
+/F2 9.2 Tf
+0.1059 0.1647 0.2902 rg
+52 209 Td
+(Workflow B: Join an Existing Academy \(Student / Minor Onboarding\)) Tj
+ET
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 198 Td
+(To enroll in an academy that has already been registered:) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 182.5 Td
+(- Step 1: Obtain the School Join Code from your Head Coach \(e.g. "KAIZEN-2026"\).) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 167.5 Td
+(- Step 2: Click "Join with Code" on the home screen hero card.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 152.5 Td
+(- Step 3: Enter the School Join Code.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 137.5 Td
+(- Step 4: Enter Student Full Name, Student Email, and Date of Birth.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 122.5 Td
+(- Step 5: If the student is a minor \(under 18\), check the Minor checkbox and provide Guardian Full Name and) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 110.5 Td
+(  Email.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 95.5 Td
+(- Step 6: Choose a strong password of at least 15 characters and submit.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 80.5 Td
+(- Step 7: The account is provisioned in PENDING_APPROVAL status, protecting school curriculum until the coach) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 68.5 Td
+(  signs off.) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Live Testing & User Manual  |  Page 1 of 2) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 4040 >>
+stream
+1 1 1 rg
+0 0 612 792 re f
+0.1059 0.1647 0.2902 rg
+0 785 612 7 re f
+BT
+/F2 8.5 Tf
+0.1059 0.1647 0.2902 rg
+52 762 Td
+(BELTTRACK LIVE TESTING & USER MANUAL) Tj
+ET
+BT
+/F1 8 Tf
+0.3608 0.3922 0.4392 rg
+400 762 Td
+(Step-by-Step Testing Guide for Web Users) Tj
+ET
+BT
+/F1 7.5 Tf
+0.3608 0.3922 0.4392 rg
+52 749 Td
+(Production User Guide for https://belttrack.vercel.app) Tj
+ET
+0.8471 0.8627 0.8902 RG
+1 w
+52 741 m 560 741 l s
+BT
+/F2 10 Tf
+0.1059 0.1647 0.2902 rg
+52 715 Td
+(3. SIGN IN & SESSION MANAGEMENT) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 709 m 560 709 l s
+BT
+/F1 9.2 Tf
+0.1451 0.1647 0.2000 rg
+52 697 Td
+(Once an account has been created:) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 681.5 Td
+(- Click "Sign In" in the top navigation bar.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 666.5 Td
+(- Standard Sign In: Enter registered Email Address and Password.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 651.5 Td
+(- Owner Join Code Sign In: Dojo owners can toggle to "Dojo Owner" mode and sign in using their School Join Code) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 639.5 Td
+(  and Owner Password.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 624.5 Td
+(- Live Tenant Shift: Upon successful login, the UI shifts from Demo Mode to "LIVE TENANT SESSION", displaying) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 612.5 Td
+(  live database records.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 597.5 Td
+(- In-Modal Password Reset: Click "Forgot password?" next to the password input, enter your email or school join) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 585.5 Td
+(  code, check your inbox for the 6-digit OTP, and update your credentials without leaving the modal.) Tj
+ET
+BT
+/F2 10 Tf
+0.1059 0.1647 0.2902 rg
+52 565.5 Td
+(4. CORE DOMAIN OPERATIONS FOR AUTHENTICATED ROLES) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 559.5 m 560 559.5 l s
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 547.5 Td
+(- Staff Roll-Call Attendance: Coaches can open the Attendance modal and record student check-ins in real time.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 535.5 Td
+(  Server timestamps prevent backdating, and idempotency keys prevent duplicate submissions.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 520.5 Td
+(- Technique Curriculum Sign-Off: Staff can open the Technique Curriculum modal and verify student techniques) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 508.5 Td
+(  required for belt promotions.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 493.5 Td
+(- Zero-Monetization Tuition Ledger: Staff can record manual cash, bank transfer, and card payments with) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 481.5 Td
+(  immutable receipt slugs \(REC-YYYY-DISCIPLINE-N\) and submit offsetting reversal entries for corrections.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 466.5 Td
+(- Staff Member Approvals: Owners and coaches can inspect the pending approval queue and approve students, which) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 454.5 Td
+(  automatically activates linked guardian accounts.) Tj
+ET
+BT
+/F2 10 Tf
+0.1059 0.1647 0.2902 rg
+52 434.5 Td
+(5. KEY RULES & TROUBLESHOOTING FOR TESTERS) Tj
+ET
+0.1451 0.3882 0.9216 RG
+1.2 w
+52 428.5 m 560 428.5 l s
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 416.5 Td
+(- 15-Character Password Rule: Strict NIST-compliant password rules require 15+ characters. Passwords found in) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 404.5 Td
+(  public data breach databases are rejected.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 389.5 Td
+(- Real Email Required: Live SMTP email verification is enabled. Use an active email to receive 6-digit) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 377.5 Td
+(  confirmation codes.) Tj
+ET
+BT
+/F1 8.8 Tf
+0.1451 0.1647 0.2000 rg
+64 362.5 Td
+(- Browser Only: Automated CLI scripts without browser origin headers are blocked by same-origin CSRF protection.) Tj
+ET
+0.3608 0.3922 0.4392 RG
+0.6 w
+52 44 m 560 44 l s
+BT
+/F1 7.2 Tf
+0.3608 0.3922 0.4392 rg
+52 30 Td
+(BeltTrack Live Testing & User Manual  |  Page 2 of 2) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 9 0 R >>
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000013 00000 n 
+0000000062 00000 n 
+0000000126 00000 n 
+0000000223 00000 n 
+0000000325 00000 n 
+0000000430 00000 n 
+0000000525 00000 n 
+0000007243 00000 n 
+0000007399 00000 n 
+0000011491 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R >>
+startxref
+11648
+%%EOF
