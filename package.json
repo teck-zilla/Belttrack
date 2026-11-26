@@ -29,6 +29,8 @@
     "generate:launch-readiness-pdf": "node scripts/generate-launch-readiness-audit-pdf.mjs",
     "generate:uncompleted-features-pdf": "node scripts/generate-uncompleted-features-pdf.mjs",
     "generate:upstash-verification-pdf": "node scripts/generate-upstash-verification-pdf.mjs",
+    "generate:technical-scan-pdf": "node scripts/generate-technical-scan-pdf.mjs",
+    "generate:user-guide-pdf": "node scripts/generate-user-guide-pdf.mjs",
     "benchmark:registration": "node scripts/benchmark-registration.mjs",
     "profile:owner": "node scripts/launch-browser-profiles.mjs --role=owner",
     "profile:student": "node scripts/launch-browser-profiles.mjs --role=student",
